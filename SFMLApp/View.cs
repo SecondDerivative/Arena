@@ -10,7 +10,7 @@ using SFML.Graphics;
 
 namespace SFMLApp
 {
-    class View
+    public class View
     {
         public RenderWindow MainForm { get; private set; }
         private int Width, Heigth;

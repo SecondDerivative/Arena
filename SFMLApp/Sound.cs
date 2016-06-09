@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace SFMLApp
 {
-    class Sound
+    public class Sound
     {
         SortedDictionary<string, MediaPlayer> Threads;
 
