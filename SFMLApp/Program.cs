@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
+//sf::RenderWindow Window(sf::VideoMode(800, 600, 32), "Something Productive");
+
 namespace SFMLApp
 {
     class Program
@@ -17,6 +19,10 @@ namespace SFMLApp
             Control control = new Control(1024, 726);
             long TimeDrawing = 1;
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+            control.UpDate(0);
+            control.UpDate(1000);
+            control.UpDate(40);
+
             while (control.view.MainForm.IsOpen)
             {
                 timer.Start();
