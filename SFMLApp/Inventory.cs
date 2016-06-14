@@ -7,92 +7,48 @@ using System.Threading.Tasks;
 
 namespace SFMLApp
 {
-	class Item
+	public class Inventory
 	{
-		protected int Damage;
-		protected int Range;
-		public int attack(){return Damage;}
-		public int getRange() { return Range; }
-	}
-    class ItemSword : Item
-    {
-        public ItemSword(int dmg, int ran)
-        {
-             Damage = dmg;
-             Range = ran;
-        }
-     }
-        class ItemBow : Item
-        {
-            private int nArrows;
-            public ItemBow(int dmg, int ran, int arr)
-            {
-                Damage = dmg;
-                Range = ran;
-                nArrows = arr;
-            }
-            public int attack()
-            {
-                if (nArrows > 0)
-                {
-                    nArrows--;
-                    return Damage;
-                }
-                else { return 0; }
-            }
-        }
-        /*class Magic : Item
-        {
-            private int ManaCost;
-            public Magic(int dmg, int ran, int mana)
-            {
-                Damage = dmg;
-                Range = ran;
-                ManaCost = mana;
-            }
-            public int attack(ref int mana)
-            {
-                if (mana >= ManaCost)
-                {
-                    mana = mana-ManaCost;
-                    return Damage;
-                }else
-                {
-                    return 0;
-                }
-            }
-        }*/
-		class Fist : Item{
-			public Fist(){
-				Damage = 5;
-				Range = 1;
-			}
-		}
-	class Inventory
-	{
-		List<Item> inventory;
+		private int Mana;
+		private int nArrows;
+		List<int> inventory;
         public Inventory()
         {
-			inventory = new List<Item>(20);
+			Mana = 100;
+			nArrows = 0;
+			inventory = new List<int>(20);
         }
+		public Item getItem(int i){
+			return Items.allItems[i];
+		}
+		public int getArrows(){return nArrows;}
+		public void addArrows(int i){nArrows = nArrows + i;}
+		public int getMana(){return Mana;}
+		public void addMana(int i){Mana = Mana + i;}
         public void addItem(Item item)
         {
-            if (inventory.Count < 20)
-            {
-				inventory.Add(item);
-            }
+			for(int i = 0; i < Items.allItems.Capacity; i++) {
+				if (Items.allItems[i].Equals(item))
+					inventory.Add(i);
+			}
         }
         public bool isInStock(Item item)
         {
-            return inventory.Contains(item);
+			bool Contains=false;
+			foreach(int i in inventory){
+				if (Items.allItems[i].Equals (item)) {
+					Contains = true;
+					break;
+				}
+			}
+			return Contains;
         }
         public int howMuchItems(Item item)
         {
             int total=0;
-            for(int i = 0; i < inventory.Count; i++)
-            {
-				if (inventory[i].Equals(item)) { total++; }
-            }
+			foreach(int i in inventory){
+				if (Items.allItems[i].Equals (item)) { total++; }
+			}
             return total;
         }
     }

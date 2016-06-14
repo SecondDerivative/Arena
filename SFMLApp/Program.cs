@@ -22,6 +22,7 @@ namespace SFMLApp
             control.UpDate(0);
             control.UpDate(1000);
             control.UpDate(40);
+			Items.getAllItems ();
 
             while (control.view.MainForm.IsOpen)
             {
