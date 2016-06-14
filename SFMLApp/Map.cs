@@ -11,7 +11,7 @@ namespace SFMLApp
         public int x, y,r;
         public bool Exist;
         public string Tag;
-        Entity(string Tag,int x,int y,int r)
+        public Entity(string Tag,int x,int y,int r)
         {
             this.r = r;
             this.x = x;
@@ -22,12 +22,12 @@ namespace SFMLApp
     }
     public class MPlayer : Entity
     {
-        public MPlayer(string Tag,int x,int y,int r)
+        public MPlayer(string Tag,int x,int y,int r):base(Tag, x, y, r)
         {}
     }
     public class MArrow : Entity
     {
-        public MArrow(string Tag,int x,int y,int r)
+        public MArrow(string Tag,int x,int y,int r):base(Tag, x, y, r)
         {}
     }
     public class Map
