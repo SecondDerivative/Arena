@@ -1,19 +1,18 @@
-﻿using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SFMLApp
+﻿namespace SFMLApp
 {
 	class Player
 	{
-		private int Health;
-		private Inventory inventory;
-		private int leftHand;
-		private int rightHand;
+		public int Health { get; private set; }
+		public Inventory inventory{ get; private set; }
+		public int leftHand{ get; private set; }
+		public int rightHand{ get; private set; }
 		public Player()
 		{
 			inventory = new Inventory();
+			inventory.addItem(Items.allItems[0]);
+			//setting Health to 100
 			Health = 100;
+			//setting fists as a weapon
 			leftHand = 0;
 			rightHand = 0;
 		}
@@ -49,20 +48,18 @@ namespace SFMLApp
 			return Health > 0;
 		}
 		public void takeItemLeft(Item i){
-			for (int j = 0; j < Items.allItems.Capacity; j++) {
-				if (Items.allItems [j].Equals (i)) {
-					leftHand = j;
-					break;
-				}
-			}
+			if (inventory.isInStock(i))
+				leftHand = i.id;
 		}
 		public void takeItemRight(Item i){
-			for (int j = 0; j < Items.allItems.Capacity; j++) {
-				if (Items.allItems[j].Equals (i)) {
-					leftHand = j;
-					break;
-				}
-			}
+			if (inventory.isInStock (i))
+				rightHand = i.id;
+		}
+		public Item getItemLeft(){
+			return inventory.getItem(leftHand);
+		}
+		public Item getItemRight(){
+			return inventory.getItem(rightHand);
 		}
 		public void pickUpArrow(int nArrowsPickedUp){
 			inventory.addArrows(nArrowsPickedUp);
@@ -70,11 +67,14 @@ namespace SFMLApp
 		public void addedMana(int nManaAdded){
 			inventory.addMana(nManaAdded);
 		}
-		public Item getItemLeft(){
-			return inventory.getItem(leftHand);
+		public void pickedUpItem(Item i){
+			inventory.addItem(i);
 		}
-		public Item getItemRight(){
-			return inventory.getItem(rightHand);
+		public void respawn(){
+			Health = 100;
+			inventory.clearInventory ();
+			rightHand = 0;
+			leftHand = 0;
 		}
 	}
 }

@@ -1,55 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SFMLApp
+﻿namespace SFMLApp
 {
 	public class Inventory
 	{
 		private int Mana;
 		private int nArrows;
-		List<int> inventory;
+		private int [] inventory;
+		public static int totalNumberofItems = 20;
         public Inventory()
         {
 			Mana = 100;
 			nArrows = 0;
-			inventory = new List<int>(20);
+			inventory = new int[totalNumberofItems];
         }
 		public Item getItem(int i){
-			return Items.allItems[i];
+			if (inventory [i] > 0)
+				return Items.allItems[i];
+			else
+				return null;
 		}
 		public int getArrows(){return nArrows;}
 		public void addArrows(int i){nArrows = nArrows + i;}
 		public int getMana(){return Mana;}
 		public void addMana(int i){Mana = Mana + i;}
-        public void addItem(Item item)
+		public void addItem(Item item)
         {
-			for(int i = 0; i < Items.allItems.Capacity; i++) {
-				if (Items.allItems[i].Equals(item))
-					inventory.Add(i);
-			}
+			inventory[item.id]++;
         }
         public bool isInStock(Item item)
         {
-			bool Contains=false;
-			foreach(int i in inventory){
-				if (Items.allItems[i].Equals (item)) {
-					Contains = true;
-					break;
-				}
-			}
-			return Contains;
+			return inventory[item.id] > 0;
         }
         public int howMuchItems(Item item)
         {
-            int total=0;
-			foreach(int i in inventory){
-				if (Items.allItems[i].Equals (item)) { total++; }
-			}
-            return total;
+			return inventory[item.id];
         }
+		public void clearInventory(){
+			for (int i = 1; i < totalNumberofItems; i++) {
+				inventory [i] = 0;
+			}
+		}
     }
 }

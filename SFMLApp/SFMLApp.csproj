@@ -91,7 +91,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="Weapons.txt" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="csfml-audio-2.dll">
