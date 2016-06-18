@@ -15,7 +15,6 @@ namespace Tests
         public void ControlTest()
         {
             var control = new Control(1024, 768);
-            Thread.Sleep(1000);
             control.UpDate(0);
             control.UpDate(1000);
             control.UpDate(40);
