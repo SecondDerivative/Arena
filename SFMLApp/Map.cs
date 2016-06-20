@@ -41,7 +41,7 @@ namespace SFMLApp
     public class Square
     {
         public int x, y;
-        bool isEmpty;
+        public bool isEmpty;
         public Square(int x,int y)
         {
             this.x = x;
@@ -60,6 +60,8 @@ namespace SFMLApp
         public static int RPlayer = 10;
         public static int Rwidth = 32;
         public static int RArrow = 5;
+
+        
 
         public Stopwatch Timer;
         public int width, height;
@@ -98,7 +100,7 @@ namespace SFMLApp
             players[Tag].y = y;
             players[Tag].Exist = true;
         }
-        public void StopPlayer(string Tag)
+        private void StopPlayer(string Tag)
         {
             players[Tag].Speed = new Tuple<int, int>(0, 0);
         }
@@ -106,11 +108,29 @@ namespace SFMLApp
         {
             players[Tag].Speed = Speed;
         }
-        public void UpDatePlayer(string Tag)
+        private bool IsEmpty(int x,int y)
+        {
+            return Field[x / Rwidth][y / Rwidth].isEmpty;
+        }
+        private bool IsCrossEntity(Entity a,Entity b)
+        {
+            return (a.r+b.r)*(a.r+b.r)>=(a.x-b.x)*(a.x - b.x)+(a.y-b.y)* (a.y - b.y);
+        }
+        private void ShortUpDatePlayer(string Tag, int Time)
         {
             MPlayer Pl = players[Tag];
-            long Time = Timer.ElapsedMilliseconds;
-            Tuple<long, long> Line = new Tuple<long, long>(Time*Pl.Speed.Item1,Time*Pl.Speed.Item2);
+            Tuple<int, int> Line = new Tuple<int, int>(Time * Pl.Speed.Item1, Time * Pl.Speed.Item2);
+            if (!IsEmpty(Pl.x + Line.Item1, Pl.y + Line.Item1))
+                return;
+            players[Tag].x += Line.Item1;
+            players[Tag].y += Line.Item2;
+        }
+        public void UpDatePlayer(string Tag,int Time)
+        {
+            for(int i = 0; i < Time; ++i)
+            {
+                ShortUpDatePlayer(Tag, 1);
+            }
         }
     }
 }
