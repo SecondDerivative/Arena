@@ -103,7 +103,7 @@ namespace SFMLApp
         }
         private void StopPlayer(string Tag)
         {
-            players[Tag].Speed = new Tuple<int, int>(0, 0);
+            players[Tag].Speed = new Tuple<double, double>(0, 0);
         }
         public void MovePlayer(string Tag,Tuple<double,double> Speed)
         {
@@ -115,7 +115,7 @@ namespace SFMLApp
         }
         private bool IsCrossEntity(Entity a,Entity b)
         {
-            return (a.r+b.r)*(a.r+b.r)-(a.x-b.x)*(a.x - b.x)+(a.y-b.y)* (a.y - b.y)>=0.001;
+            return (a.r+b.r)*(a.r+b.r)-(a.x-b.x)*(a.x - b.x)+(a.y-b.y)* (a.y - b.y)>=0;
         }
         private void ShortUpDatePlayer(string Tag, int Time)
         {
@@ -130,7 +130,6 @@ namespace SFMLApp
             players[Tag].x += Line.Item1;
             players[Tag].y += Line.Item2;
         }
-        // Time/4
         private void UpDatePlayer(string Tag,int Time)
         {
             if (players[Tag].Speed.Item1 == 0 && players[Tag].Speed.Item2 == 0)
@@ -143,9 +142,13 @@ namespace SFMLApp
                 ShortUpDatePlayer(Tag, 1);
             }
         }
-        public void FirePlayer(string Tag, Tuple<double,double> Speed)
+        public void FirePlayer(string TagPlayer, string TagArrow, Tuple<double,double> Speed)
         {
-            arrows[Tag].Speed = Speed;
+            double x = Map.RPlayer / Math.Sqrt(1+Speed.Item2*Speed.Item2/(Speed.Item1*Speed.Item1));
+            if (x * Speed.Item1 < 0)
+                x = -x;
+            double y = Speed.Item1 * x / Speed.Item2;
+            arrows.Add(TagArrow, new MArrow(TagArrow, x, y));
         }
         private void ShortUpDateArrow(string Tag, int Time)
         {
@@ -163,10 +166,8 @@ namespace SFMLApp
         {
             for (int i = 0; i < Time; ++i)
             {
-                ShortUpDateArrow(Tag, 1);
-                ShortUpDateArrow(Tag, 1);
-                ShortUpDateArrow(Tag, 1);
-                ShortUpDateArrow(Tag, 1);
+                for(int j=0;j<4;++j)
+                    ShortUpDateArrow(Tag, 1);
             }
         }
         public void UpDate()
@@ -188,8 +189,7 @@ namespace SFMLApp
     }
     public enum MEvents
     {
-        PlayerPlayer,
-        PlayerStone,
+        PlayerDrop,
         PlayerArrow
     }
 }
