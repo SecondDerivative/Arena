@@ -13,7 +13,7 @@ namespace SFMLApp
         public double x { get; set; }
         public double y { get; set; }
         public bool Exist { get; set; }
-        private string Tag;
+        public string Tag { get; private set; }
         public Entity(string Tag,double x,double y,int r)
         {
             this.r = r;
@@ -71,7 +71,16 @@ namespace SFMLApp
         private Dictionary<string, MPlayer> players;
         private Dictionary<string, MArrow> arrows;
         private List<List<Square>> Field;
+        private Dictionary<string, MDrop> drops;
 
+        public MEvent NextEvent()
+        {
+            return Q.Dequeue();
+        }
+        public void AddDrop(string Tag,double x,double y, Drops drop)
+        {
+            drops.Add(Tag, new MDrop(Tag, x, y, drop));
+        }
         private Square getSquare(double x,double y)
         {
             return Field[(int)Math.Floor(x) / Rwidth][(int)Math.Floor(y) / Rwidth];
@@ -118,6 +127,7 @@ namespace SFMLApp
             this.players = new Dictionary<string, MPlayer>();
             this.arrows = new Dictionary<string, MArrow>();
             this.Field = new List<List<Square>>();
+            this.drops = new Dictionary<string, MDrop>();
             for (int x = 0; x < Pheight; ++x)
                 this.Field.Add(new List<Square>());
             for(int y = 0; y < Pheight; ++y)
@@ -125,9 +135,8 @@ namespace SFMLApp
                 {
                     this.Field[y].Add(new Square(x,y));
                 }
-            Timer = new Stopwatch();
-            Timer.Start();
-            Q = new Queue<MEvent>();
+            this.Timer = new Stopwatch();
+            this.Q = new Queue<MEvent>();
         }
         public void AddPlayer(string Tag)
         {
@@ -140,7 +149,7 @@ namespace SFMLApp
             players[Tag].y = y;
             players[Tag].Exist = true;
         }
-        private void StopPlayer(string Tag)
+        public void StopPlayer(string Tag)
         {
             players[Tag].Speed = new Tuple<double, double>(0, 0);
         }
@@ -167,6 +176,13 @@ namespace SFMLApp
             }
             players[Tag].x += Line.Item1;
             players[Tag].y += Line.Item2;
+            foreach (var d in drops)
+            {
+                if (IsCrossEntity(d.Value, Pl))
+                {
+                    Q.Enqueue(new MEvent(MEvents.PlayerDrop, Tag, d.Value.Tag));
+                }
+            }
         }
         private void UpDatePlayer(string Tag,int Time)
         {
@@ -180,23 +196,31 @@ namespace SFMLApp
         }
         public void FirePlayer(string TagPlayer, string TagArrow, Tuple<double,double> Speed)
         {
-            double x = Map.RPlayer / Math.Sqrt(1+Speed.Item2*Speed.Item2/(Speed.Item1*Speed.Item1));
-            if (x * Speed.Item1 < 0)
-                x = -x;
-            double y = Speed.Item1 * x / Speed.Item2;
+            double abs = Math.Sqrt(Speed.Item1*Speed.Item1+Speed.Item2*Speed.Item2);
+            double x = RPlayer * Speed.Item1 / abs;
+            double y = RPlayer * Speed.Item2 / abs;
             arrows.Add(TagArrow, new MArrow(TagArrow, x, y));
         }
         private void ShortUpDateArrow(string Tag, int Time)
         {
             MArrow Ar = arrows[Tag];
             Tuple<double, double> Line = new Tuple<double, double>(Time * Ar.Speed.Item1 / 4, Time * Ar.Speed.Item2 / 4);
-            if (IsEntityWillInSquare(Ar,Line))
+            if (IsEntityInSquare(Ar))
             {
-                //add event
+                arrows.Remove(Tag);
                 return;
             }
             arrows[Tag].x += Line.Item1;
             arrows[Tag].y += Line.Item2;
+            foreach (var p in players)
+            {
+                if (IsCrossEntity(p.Value, Ar))
+                {
+                    Q.Enqueue(new MEvent(MEvents.PlayerArrow, p.Key, Tag));
+                    arrows.Remove(Tag);
+                    return;
+                }
+            }
         }
         private void UpDateArrow(string Tag, int Time)
         {
@@ -205,10 +229,22 @@ namespace SFMLApp
                 for(int j=0;j<4;++j)
                     ShortUpDateArrow(Tag, 1);
             }
+            if (IsEntityInSquare(arrows[Tag]))
+            {
+                arrows.Remove(Tag);
+            }
         }
         public void UpDate()
         {
-
+            int Time = (int)Timer.ElapsedMilliseconds;
+            foreach (var p in players)
+            {
+                UpDatePlayer(p.Key,Time);
+            }
+            foreach (var a in arrows)
+            {
+                UpDateArrow(a.Key, Time);
+            }
         }
     }
     public class MEvent
