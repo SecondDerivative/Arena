@@ -62,8 +62,9 @@ namespace SFMLApp
         public static int RPlayer = 10;
         public static int Rwidth = 32;
         public static int RArrow = 5;
+        public static int RDrop = 10;
 
-
+        private Queue<MEvent> Q;
         private Stopwatch Timer;
         private int width, height;
         private int Pwidth, Pheight;
@@ -71,6 +72,43 @@ namespace SFMLApp
         private Dictionary<string, MArrow> arrows;
         private List<List<Square>> Field;
 
+        private Square getSquare(double x,double y)
+        {
+            return Field[(int)Math.Floor(x) / Rwidth][(int)Math.Floor(y) / Rwidth];
+        }
+        private Square getSquare(int x,int y)
+        {
+            return Field[x][y];
+        }
+        private bool IsEntityInSquare(Entity e)
+        {
+            List<Square> a = new List<Square>();
+            int x = (int)Math.Floor(e.x) / Rwidth;
+            int y = (int)Math.Floor(e.y) / Rwidth;
+            a.Add(getSquare(x, y));
+            a.Add(getSquare(x+1, y));
+            a.Add(getSquare(x-1, y));
+            a.Add(getSquare(x, y+1));
+            a.Add(getSquare(x, y-1));
+            a.Add(getSquare(x+1, y-1));
+            a.Add(getSquare(x+1, y+1));
+            a.Add(getSquare(x-1, y+1));
+            a.Add(getSquare(x-1, y-1));
+
+            bool ans = false;
+            foreach (Square i in a)
+            {
+                if (!i.isEmpty)
+                    ans = true;
+            }
+            return ans;
+        }
+        private bool IsEntityWillInSquare(Entity e,Tuple<double,double> Speed)
+        {
+            e.x += Speed.Item1;
+            e.y += Speed.Item2;
+            return IsEntityInSquare(e);
+        }
         private Map(int width, int height)
         {
             this.width = width;
@@ -89,6 +127,7 @@ namespace SFMLApp
                 }
             Timer = new Stopwatch();
             Timer.Start();
+            Q = new Queue<MEvent>();
         }
         public void AddPlayer(string Tag)
         {
@@ -121,10 +160,9 @@ namespace SFMLApp
         {
             MPlayer Pl = players[Tag];
             Tuple<double, double> Line = new Tuple<double, double>(Time * Pl.Speed.Item1 / 4, Time * Pl.Speed.Item2 / 4);
-            if (!IsSquareEmpty(Pl.x + Line.Item1, Pl.y + Line.Item1))
+            if (IsEntityWillInSquare(Pl,Line))
             {
                 StopPlayer(Tag);
-                //add event;
                 return;
             }
             players[Tag].x += Line.Item1;
@@ -136,10 +174,8 @@ namespace SFMLApp
                 return;
             for(int i = 0; i < Time; ++i)
             {
-                ShortUpDatePlayer(Tag, 1);
-                ShortUpDatePlayer(Tag, 1);
-                ShortUpDatePlayer(Tag, 1);
-                ShortUpDatePlayer(Tag, 1);
+                for(int j=0;j<4;++j)
+                    ShortUpDatePlayer(Tag, 1);
             }
         }
         public void FirePlayer(string TagPlayer, string TagArrow, Tuple<double,double> Speed)
@@ -154,7 +190,7 @@ namespace SFMLApp
         {
             MArrow Ar = arrows[Tag];
             Tuple<double, double> Line = new Tuple<double, double>(Time * Ar.Speed.Item1 / 4, Time * Ar.Speed.Item2 / 4);
-            if (!IsSquareEmpty(Ar.x + Line.Item1, Ar.y + Line.Item1))
+            if (IsEntityWillInSquare(Ar,Line))
             {
                 //add event
                 return;
@@ -191,5 +227,18 @@ namespace SFMLApp
     {
         PlayerDrop,
         PlayerArrow
+    }
+    public class MDrop : Entity
+    {
+        public Drops drop;
+        public MDrop(string Tag, double x, double y,Drops drop) : base(Tag, x, y, Map.RDrop)
+        {
+            this.drop = drop;
+        }
+    }
+    public enum Drops
+    {
+        heal,
+        arrows
     }
 }
