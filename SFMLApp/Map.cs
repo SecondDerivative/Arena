@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
 
 namespace SFMLApp
 {
@@ -34,11 +35,45 @@ namespace SFMLApp
     {
         public MPlayer(string Tag,double x,double y):base(Tag, x, y, Map.RPlayer)
         {}
+        public static MPlayer Load(string save)
+        {
+            string[] args = save.Split().ToArray();
+            string Tag = args[0];
+            bool tmp;
+            bool Exist = Boolean.TryParse(args[1],out tmp);
+            double x = double.Parse(args[2]),y=double.Parse(args[3]);
+            Tuple<double, double> Speed = new Tuple<double, double>(double.Parse(args[4]),double.Parse(args[5]));
+            MPlayer Pl = new MPlayer(Tag, x, y);
+            Pl.Speed = Speed;
+            Pl.Exist = Exist;
+            return Pl;
+        }
+        public override string ToString()
+        {
+            return this.Tag+" "+this.Exist+" "+this.x+" "+this.y+" "+this.Speed.Item1+" "+this.Speed.Item2;
+        }
     }
     public class MArrow : MovableEntity
     {
         public MArrow(string Tag,double x, double y):base(Tag, x, y, Map.RArrow)
         {}
+        public static MArrow Load(string save)
+        {
+            string[] args = save.Split().ToArray();
+            string Tag = args[0];
+            bool tmp;
+            bool Exist = Boolean.TryParse(args[1], out tmp);
+            double x = double.Parse(args[2]), y = double.Parse(args[3]);
+            Tuple<double, double> Speed = new Tuple<double, double>(double.Parse(args[4]), double.Parse(args[5]));
+            MArrow Ar = new MArrow(Tag, x, y);
+            Ar.Speed = Speed;
+            Ar.Exist = Exist;
+            return Ar;
+        }
+        public override string ToString()
+        {
+            return this.Tag + " " + this.Exist + " " + this.x + " " + this.y + " " + this.Speed.Item1 + " " + this.Speed.Item2;
+        }
     }
     public class Square
     {
@@ -74,6 +109,85 @@ namespace SFMLApp
         private List<List<Square>> Field;
         private Dictionary<string, MDrop> drops;
 
+        public void LoadMap(string path)
+        {
+            using (StreamReader sr = File.OpenText(path))
+            {
+                string s = "";
+                List<string> args = new List<string>();
+                while ((s = sr.ReadLine()) != null)
+                {
+                    Console.WriteLine(s);
+                    args.Add(s);
+                }
+                int[] tmp = args[0].Split().Select(x => int.Parse(x)).ToArray();
+                this.width = tmp[0];this.height = tmp[1];
+                int couPl = int.Parse(args[1]);
+                players = new Dictionary<string, MPlayer>();
+                for (int i = 2; i < couPl+2; ++i)
+                {
+                    string stmp = args[i];
+                    string[] Tmp = stmp.Split().ToArray();
+                    players.Add(Tmp[0], MPlayer.Load(stmp));
+                }
+                int couArr = int.Parse(args[couPl+2]);
+                arrows = new Dictionary<string, MArrow>();
+                for (int i = couPl+3; i < couPl+3+couArr; ++i)
+                {
+                    string stmp = args[i];
+                    string[] Tmp = stmp.Split().ToArray();
+                    arrows.Add(Tmp[0], MArrow.Load(stmp));
+                }
+                int couDro = int.Parse(args[couArr+couPl+3]);
+                drops = new Dictionary<string, MDrop>();
+                for (int i = couPl + 4 + couArr; i < couPl + 4 + couArr+couDro; ++i)
+                {
+                    string stmp = args[i];
+                    string[] Tmp = stmp.Split().ToArray();
+                    drops.Add(Tmp[0], MDrop.Load(stmp));
+                }
+                int index = couPl + couArr + couDro + 4;
+                bool tmpb;
+                for(int y = 0; y < this.Pheight; ++y)
+                {
+                    string line = args[y + index];
+                    bool[] bol = line.Split().Select(x => bool.TryParse(x, out tmpb)).ToArray();
+                    for (int x = 0; x < Pwidth; ++x)
+                        Field[x][y] = new Square(x, y, bol[x]);
+                }
+            }
+        }
+        public void SaveMap(string path)
+        {
+            File.Create(path);
+            using (StreamWriter sw = File.CreateText(path))
+            {
+                sw.WriteLine(this.width+" "+this.height);
+                sw.WriteLine(players.Count);
+                foreach (var p in players)
+                {
+                    sw.WriteLine(p.Value.ToString());
+                }
+                sw.WriteLine(arrows.Count);
+                foreach (var a in arrows)
+                {
+                    sw.WriteLine(a.Value.ToString());
+                }
+                sw.WriteLine(drops.Count);
+                foreach (var d in drops)
+                {
+                    sw.WriteLine(d.Value.ToString());
+                }
+                sw.WriteLine(Pwidth+" "+Pheight);
+                for (int y = 0; y < Pheight; ++y) {
+                    for (int x = 0; x < Pwidth-1; ++x)
+                        sw.Write(Field[x][y].isEmpty+" ");
+                    sw.WriteLine(Field[Pwidth-1][y].isEmpty);
+                    sw.WriteLine();
+                }
+
+            }
+        }
         private double Length(double x1,double y1,double x2,double y2)
         {
             return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
@@ -330,6 +444,23 @@ namespace SFMLApp
         {
             this.drop = drop;
         }
+        public override string ToString()
+        {
+            return this.Tag + " " + this.Exist + " " + this.x + " " + this.y + " " + this.drop;
+        }
+        public static MDrop Load(string save)
+        {
+            string[] args = save.Split().ToArray();
+            string Tag = args[0];
+            bool tmp;
+            bool Exist = Boolean.TryParse(args[1], out tmp);
+            double x = double.Parse(args[2]), y = double.Parse(args[3]);
+            Drops drop = (Drops)int.Parse(args[4]);
+            MDrop Dr = new MDrop(Tag, x, y,drop);
+            Dr.Exist = Exist;
+            return Dr;
+        }
+
     }
     public enum Drops
     {
