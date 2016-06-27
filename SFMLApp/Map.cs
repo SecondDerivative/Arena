@@ -42,7 +42,8 @@ namespace SFMLApp
     }
     public class Square
     {
-        private int x, y;
+        public int x { get; private set; }
+        public int y { get; private set; }
         public bool isEmpty { get; private set; }
         public Square(int x,int y)
         {
@@ -73,6 +74,32 @@ namespace SFMLApp
         private List<List<Square>> Field;
         private Dictionary<string, MDrop> drops;
 
+        private double Length(double x1,double y1,double x2,double y2)
+        {
+            return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+        }
+        private double mul(double x1,double y1,double x2,double y2)
+        {
+            return (x1 * x2 + y1 * y2);
+        }
+        private double Length(double x,double y,double x1,double y1,double x2,double y2)
+        {
+            double len = ((y1 - y2) * x + (x2 - x1) * y + (x1 * y2 - x2 * y1)) * ((y1 - y2) * x + (x2 - x1) * y + (x1 * y2 - x2 * y1)) / ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+            if (mul(x-x1,y-y1,x2-x1,y2-y1)<0||mul(x-x2,y-y2,x2-x1,y2-y1)<0)
+            {
+                return Math.Min(Length(x, y, x1, y1), Length(x, y, x2, y2));
+            }
+            return len;
+        }
+        private bool IsCrossCircleSquare(double x,double y,double r,double x1,double y1,double x2,double y2)
+        {
+            double len1 = Length(x, y, x1, y1, x2, y1);
+            double len2 = Length(x, y, x1, y1, x1, y2);
+            double len3 = Length(x, y, x2, y2, x1, y2);
+            double len4 = Length(x, y, x2, y2, x2, y1);
+            double len = Math.Min(Math.Min(len1,len2),Math.Min(len3,len4));
+            return len < r * r;
+        }
         public MEvent NextEvent()
         {
             return Q.Dequeue();
@@ -107,7 +134,7 @@ namespace SFMLApp
             bool ans = false;
             foreach (Square i in a)
             {
-                if (!i.isEmpty)
+                if (IsCrossCircleSquare(e.x,e.y,Map.RPlayer,i.x*Map.Rwidth,i.y*Map.Rwidth,i.x*Map.Rwidth+Rwidth-1,i.y*Map.Rwidth+Rwidth-1)&&!i.isEmpty)
                     ans = true;
             }
             return ans;
@@ -163,11 +190,15 @@ namespace SFMLApp
         }
         private bool IsCrossEntity(Entity a,Entity b)
         {
+            if (!a.Exist || !b.Exist)
+                return false;
             return (a.r+b.r)*(a.r+b.r)-(a.x-b.x)*(a.x - b.x)+(a.y-b.y)* (a.y - b.y)>=0;
         }
         private void ShortUpDatePlayer(string Tag, int Time)
         {
             MPlayer Pl = players[Tag];
+            if(Pl.Speed.Item1 == 0 && Pl.Speed.Item2 == 0)
+                return;
             Tuple<double, double> Line = new Tuple<double, double>(Time * Pl.Speed.Item1 / 4, Time * Pl.Speed.Item2 / 4);
             if (IsEntityWillInSquare(Pl,Line))
             {
@@ -221,6 +252,10 @@ namespace SFMLApp
                     return;
                 }
             }
+            if (IsEntityInSquare(arrows[Tag]))
+            {
+                arrows.Remove(Tag);
+            }
         }
         private void UpDateArrow(string Tag, int Time)
         {
@@ -237,14 +272,19 @@ namespace SFMLApp
         public void UpDate()
         {
             int Time = (int)Timer.ElapsedMilliseconds;
-            foreach (var p in players)
+            for(int i = 0; i < 4 * Time;++i)
             {
-                UpDatePlayer(p.Key,Time);
+                foreach (var p in players)
+                {
+                    ShortUpDatePlayer(p.Key, 1);
+                }
+                foreach (var a in arrows)
+                {
+                    ShortUpDateArrow(a.Key, 1);
+                }
+
             }
-            foreach (var a in arrows)
-            {
-                UpDateArrow(a.Key, Time);
-            }
+            Timer.Restart();
         }
     }
     public class MEvent
