@@ -69,7 +69,7 @@ namespace SFMLApp
         private Stopwatch Timer;
         private int width, height;
         private int Pwidth, Pheight;
-        private Dictionary<string, MPlayer> players;
+        public Dictionary<string, MPlayer> players;
         private Dictionary<string, MArrow> arrows;
         private List<List<Square>> Field;
         private Dictionary<string, MDrop> drops;
@@ -102,6 +102,8 @@ namespace SFMLApp
         }
         public MEvent NextEvent()
         {
+            if (Q.Count == 0)
+                return null;
             return Q.Dequeue();
         }
         public void AddDrop(string Tag,double x,double y, Drops drop)
@@ -122,13 +124,21 @@ namespace SFMLApp
             int x = (int)Math.Floor(e.x) / Rwidth;
             int y = (int)Math.Floor(e.y) / Rwidth;
             a.Add(getSquare(x, y));
+            if(x+1<Pwidth)
             a.Add(getSquare(x+1, y));
+            if(x>=1)
             a.Add(getSquare(x-1, y));
+            if(y+1<Pheight)
             a.Add(getSquare(x, y+1));
+            if(y>=1)
             a.Add(getSquare(x, y-1));
+            if(x+1<Pwidth&&y>=1)
             a.Add(getSquare(x+1, y-1));
+            if(x+1<Pwidth&&y+1<Pheight)
             a.Add(getSquare(x+1, y+1));
+            if(x>1&&y+1<Pheight)
             a.Add(getSquare(x-1, y+1));
+            if(x>1&&y>=1)
             a.Add(getSquare(x-1, y-1));
 
             bool ans = false;
@@ -145,7 +155,7 @@ namespace SFMLApp
             e.y += Speed.Item2;
             return IsEntityInSquare(e);
         }
-        private Map(int width, int height)
+        public Map(int width, int height)
         {
             this.width = width;
             this.height = height;
@@ -207,13 +217,17 @@ namespace SFMLApp
             }
             players[Tag].x += Line.Item1;
             players[Tag].y += Line.Item2;
+            List<string> del = new List<string>();
             foreach (var d in drops)
             {
                 if (IsCrossEntity(d.Value, Pl))
                 {
                     Q.Enqueue(new MEvent(MEvents.PlayerDrop, Tag, d.Value.Tag));
+                    del.Add(d.Key);
                 }
             }
+            for (int i = 0; i < del.Count; ++i)
+                drops.Remove(del[i]);
         }
         private void UpDatePlayer(string Tag,int Time)
         {
@@ -232,7 +246,7 @@ namespace SFMLApp
             double y = RPlayer * Speed.Item2 / abs;
             arrows.Add(TagArrow, new MArrow(TagArrow, x, y));
         }
-        private void ShortUpDateArrow(string Tag, int Time)
+        public void ShortUpDateArrow(string Tag, int Time)
         {
             MArrow Ar = arrows[Tag];
             Tuple<double, double> Line = new Tuple<double, double>(Time * Ar.Speed.Item1 / 4, Time * Ar.Speed.Item2 / 4);
@@ -272,7 +286,12 @@ namespace SFMLApp
         public void UpDate()
         {
             int Time = (int)Timer.ElapsedMilliseconds;
-            for(int i = 0; i < 4 * Time;++i)
+            UpDate(Time);
+            Timer.Restart();
+        }
+        public void UpDate(int Time)
+        {
+            for (int i = 0; i < 4 * Time; ++i)
             {
                 foreach (var p in players)
                 {
