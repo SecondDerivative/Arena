@@ -27,7 +27,7 @@ namespace Tests
             map.AddDrop("Drop1", 10, 20, Drops.arrows);
             map.AddPlayer("Player1");
             map.SpawnPlayer("Player1", 10, 10);
-            map.FirePlayer("Player1", "Arrow1", new Tuple<double, double>(10, 10));
+            map.FirePlayer("Player1", "Arrow1", 10, 10);
             map.ShortUpDateArrow("Arrow1", 10);
             map.MovePlayer("Player1", new Tuple<double, double>(1, 2));
             map.NextEvent();
@@ -49,8 +49,19 @@ namespace Tests
             Assert.True(ev.Tag == MEvents.PlayerDrop);
             Assert.True(ev.Tag1 == "p1");
             Assert.True(ev.Tag2 == "d1");
-
-
+        }
+        [Fact]
+        public void TestMapSave()
+        {
+            var map = new Map(1000,700);
+            map.AddPlayer("p1");
+            map.AddPlayer("p2");
+            map.SpawnPlayer("p1", 10, 20);
+            map.SpawnPlayer("p2",30,60);
+            map.FirePlayer("p1", "a1", 1, 2);
+            map.MovePlayer("p2", new Tuple<double, double>(-1,-2));
+            map.UpDate(5);
+            map.SaveMap("D:/save.txt");
         }
     }
 }

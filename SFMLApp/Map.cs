@@ -55,8 +55,8 @@ namespace SFMLApp
     }
     public class MArrow : MovableEntity
     {
-        public MArrow(string Tag,double x, double y):base(Tag, x, y, Map.RArrow)
-        {}
+        public MArrow(string Tag,double x, double y,double SpeedX,double SpeedY):base(Tag, x, y, Map.RArrow)
+        { this.Speed = new Tuple<double, double>(SpeedX, SpeedY); }
         public static MArrow Load(string save)
         {
             string[] args = save.Split().ToArray();
@@ -64,9 +64,7 @@ namespace SFMLApp
             bool tmp;
             bool Exist = Boolean.TryParse(args[1], out tmp);
             double x = double.Parse(args[2]), y = double.Parse(args[3]);
-            Tuple<double, double> Speed = new Tuple<double, double>(double.Parse(args[4]), double.Parse(args[5]));
-            MArrow Ar = new MArrow(Tag, x, y);
-            Ar.Speed = Speed;
+            MArrow Ar = new MArrow(Tag, x, y, double.Parse(args[4]), double.Parse(args[5]));
             Ar.Exist = Exist;
             return Ar;
         }
@@ -84,7 +82,7 @@ namespace SFMLApp
         {
             this.x = x;
             this.y = y;
-            this.isEmpty = false;
+            this.isEmpty = true;
         }
         public Square(int x, int y,bool b)
         {
@@ -96,16 +94,17 @@ namespace SFMLApp
     public class Map
     {
         public static int RPlayer = 10;
-        public static int Rwidth = 32;
+        public static int Rwidth = 10;
         public static int RArrow = 5;
         public static int RDrop = 10;
 
+        private Queue<string> ForDelArrow;
         private Queue<MEvent> Q;
         private Stopwatch Timer;
         private int width, height;
         private int Pwidth, Pheight;
         public Dictionary<string, MPlayer> players;
-        private Dictionary<string, MArrow> arrows;
+        public Dictionary<string, MArrow> arrows;
         private List<List<Square>> Field;
         private Dictionary<string, MDrop> drops;
 
@@ -159,7 +158,6 @@ namespace SFMLApp
         }
         public void SaveMap(string path)
         {
-            File.Create(path);
             using (StreamWriter sw = File.CreateText(path))
             {
                 sw.WriteLine(this.width+" "+this.height);
@@ -183,7 +181,6 @@ namespace SFMLApp
                     for (int x = 0; x < Pwidth-1; ++x)
                         sw.Write(Field[x][y].isEmpty+" ");
                     sw.WriteLine(Field[Pwidth-1][y].isEmpty);
-                    sw.WriteLine();
                 }
 
             }
@@ -279,15 +276,16 @@ namespace SFMLApp
             this.arrows = new Dictionary<string, MArrow>();
             this.Field = new List<List<Square>>();
             this.drops = new Dictionary<string, MDrop>();
-            for (int x = 0; x < Pheight; ++x)
+            for (int x = 0; x < Pwidth; ++x)
                 this.Field.Add(new List<Square>());
-            for(int y = 0; y < Pheight; ++y)
-                for(int x = 0; x < Pwidth; ++x)
+            for(int x = 0; x < Pwidth; ++x)
+                for(int y = 0; y < Pheight; ++y)
                 {
-                    this.Field[y].Add(new Square(x,y));
+                    this.Field[x].Add(new Square(x,y));
                 }
             this.Timer = new Stopwatch();
             this.Q = new Queue<MEvent>();
+            this.ForDelArrow = new Queue<string>();
         }
         public void AddPlayer(string Tag)
         {
@@ -312,11 +310,11 @@ namespace SFMLApp
         {
             return Field[((int)Math.Floor(x)) / Rwidth][((int)Math.Floor(y)) / Rwidth].isEmpty;
         }
-        private bool IsCrossEntity(Entity a,Entity b)
+        public bool IsCrossEntity(Entity a,Entity b)
         {
             if (!a.Exist || !b.Exist)
                 return false;
-            return (a.r+b.r)*(a.r+b.r)-(a.x-b.x)*(a.x - b.x)+(a.y-b.y)* (a.y - b.y)>=0;
+            return (a.r+b.r)*(a.r+b.r)-(a.x - b.x) * (a.x - b.x) - (a.y-b.y) * (a.y - b.y)>=0;
         }
         private void ShortUpDatePlayer(string Tag, int Time)
         {
@@ -353,20 +351,20 @@ namespace SFMLApp
                     ShortUpDatePlayer(Tag, 1);
             }
         }
-        public void FirePlayer(string TagPlayer, string TagArrow, Tuple<double,double> Speed)
+        public void FirePlayer(string TagPlayer, string TagArrow, double SpeedX,double SpeedY)
         {
-            double abs = Math.Sqrt(Speed.Item1*Speed.Item1+Speed.Item2*Speed.Item2);
-            double x = RPlayer * Speed.Item1 / abs;
-            double y = RPlayer * Speed.Item2 / abs;
-            arrows.Add(TagArrow, new MArrow(TagArrow, x, y));
+            double abs = Math.Sqrt(SpeedX*SpeedX+SpeedY*SpeedY);
+            double x = (RPlayer+RArrow+1) * SpeedX / abs;
+            double y = (RPlayer+RArrow+1) * SpeedY / abs;
+            arrows.Add(TagArrow, new MArrow(TagArrow, x+players[TagPlayer].x, y+players[TagPlayer].y,SpeedX,SpeedY));
         }
         public void ShortUpDateArrow(string Tag, int Time)
         {
             MArrow Ar = arrows[Tag];
-            Tuple<double, double> Line = new Tuple<double, double>(Time * Ar.Speed.Item1 / 4, Time * Ar.Speed.Item2 / 4);
+            Tuple<double, double> Line = new Tuple<double, double>(Time * Ar.Speed.Item1 / 4.0, Time * Ar.Speed.Item2 / 4.0);
             if (IsEntityInSquare(Ar))
             {
-                arrows.Remove(Tag);
+                this.ForDelArrow.Enqueue(Tag);
                 return;
             }
             arrows[Tag].x += Line.Item1;
@@ -376,13 +374,13 @@ namespace SFMLApp
                 if (IsCrossEntity(p.Value, Ar))
                 {
                     Q.Enqueue(new MEvent(MEvents.PlayerArrow, p.Key, Tag));
-                    arrows.Remove(Tag);
+                    this.ForDelArrow.Enqueue(Tag);
                     return;
                 }
             }
             if (IsEntityInSquare(arrows[Tag]))
             {
-                arrows.Remove(Tag);
+                this.ForDelArrow.Enqueue(Tag);
             }
         }
         private void UpDateArrow(string Tag, int Time)
@@ -415,9 +413,13 @@ namespace SFMLApp
                 {
                     ShortUpDateArrow(a.Key, 1);
                 }
-
+                while (this.ForDelArrow.Count>0)
+                {
+                    string s = ForDelArrow.Dequeue();
+                    if (arrows.ContainsKey(s))
+                        arrows.Remove(s);
+                }
             }
-            Timer.Restart();
         }
     }
     public class MEvent
