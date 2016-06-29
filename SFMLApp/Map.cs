@@ -287,6 +287,7 @@ namespace SFMLApp
             this.Q = new Queue<MEvent>();
             this.ForDelArrow = new Queue<string>();
         }
+        public Map(string path) { }
         public void AddPlayer(string Tag)
         {
             players.Add(Tag, new MPlayer(Tag,0,0));
@@ -298,6 +299,7 @@ namespace SFMLApp
             players[Tag].y = y;
             players[Tag].Exist = true;
         }
+        public void SpawnPlayer(string Tag) { }
         public void StopPlayer(string Tag)
         {
             players[Tag].Speed = new Tuple<double, double>(0, 0);

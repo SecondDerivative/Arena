@@ -11,14 +11,14 @@ namespace Tests
 {
     public class Test
     {
-        [Fact]
-        public void ControlTest()
-        {
-            var control = new Control(1024, 768);
-            control.UpDate(0);
-            control.UpDate(1000);
-            control.UpDate(40);
-        }
+        //[Fact]
+        //public void ControlTest()
+        //{
+          //  var control = new Control(1024, 768);
+           // control.UpDate(0);
+            //control.UpDate(1000);
+            //control.UpDate(40);
+        //}
         [Fact]
         public void TestMap()
         {
@@ -63,5 +63,20 @@ namespace Tests
             map.UpDate(5);
             map.SaveMap("D:/save.txt");
         }
+
+        [Fact]
+        public void UtilyTest()
+        {
+            Assert.True(25 == SFMLApp.Utily.Hypot2(3, 4), "Bad Hypot2(int)");
+            Assert.True(SFMLApp.Utily.DoubleIsEqual(0.3, 0.1 + 0.2), "Bad double cmp");
+            Assert.True(SFMLApp.Utily.DoubleIsEqual(5, SFMLApp.Utily.Hypot(3, 4)), "Bad Hypot");
+            Assert.True(1000 == SFMLApp.Utily.GetTag(1000).Length, "bad tag");
+        }
+
+        //[Fact]
+        //public void ArenaTest()
+        //{
+            //wait some method
+        //}
     }
 }
