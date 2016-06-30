@@ -119,6 +119,7 @@ namespace SFMLApp
         public static int RDrop = 10;
 
         private Queue<string> ForDelArrow;
+        private List<Tuple<double, double>> dropSpawners;
         private List<Tuple<double, double>> spawners;
         private Queue<MEvent> Q;
         private Stopwatch Timer;
@@ -129,11 +130,40 @@ namespace SFMLApp
         private List<List<Square>> Field;
         private Dictionary<string, MDrop> drops;
 
-        private void AddSpawner(double x, double y)
+        public void SpawnDrops(string Tag)
+        {
+
+            foreach (var ds in dropSpawners)
+            {
+                Entity e = new Entity("", ds.Item1, ds.Item2, RDrop);
+                bool bol = true;
+                foreach (var d in drops)
+                {
+                    if (IsCrossEntity(d.Value, e))
+                    {
+                        bol = false;
+                    }
+                }
+                if (bol)
+                {
+                    SpawnDrops(Tag, ds.Item1, ds.Item2);
+                    return;
+                }
+            }
+        }
+        private void AddDropSpawner(double x,double y)
+        {
+            dropSpawners.Add(new Tuple<double, double>(x, y));
+        }
+        public void SpawnDrops(string Tag, double x,double y)
+        {
+            this.drops.Add(Tag, new MDrop(Tag, x, y));
+        }
+        private void AddSpawner(double x,double y)
         {
             spawners.Add(new Tuple<double, double>(x, y));
         }
-        public Map LoadMap(string path)
+        public void LoadMap(string path)
         {
             using (StreamReader sr = File.OpenText(path))
             {
@@ -144,43 +174,47 @@ namespace SFMLApp
                     args.Add(s);
                 }
                 int[] tmp = args[0].Split().Select(x => int.Parse(x)).ToArray();
-                Map M = new Map(tmp[0], tmp[1]);
+                this.width = tmp[0];this.height = tmp[1];
                 int couPl = int.Parse(args[1]);
-                M.players = new Dictionary<string, MPlayer>();
-                for (int i = 2; i < couPl + 2; ++i)
+                this.players = new Dictionary<string, MPlayer>();
+                for (int i = 2; i < couPl+2; ++i)
                 {
                     string stmp = args[i];
                     string[] Tmp = stmp.Split().ToArray();
-                    M.players.Add(Tmp[0], MPlayer.Load(stmp));
+                    this.players.Add(Tmp[0], MPlayer.Load(stmp));
                 }
-                int couArr = int.Parse(args[couPl + 2]);
-                M.arrows = new Dictionary<string, MArrow>();
-                for (int i = couPl + 3; i < couPl + 3 + couArr; ++i)
+                int couArr = int.Parse(args[couPl+2]);
+                this.arrows = new Dictionary<string, MArrow>();
+                for (int i = couPl+3; i < couPl+3+couArr; ++i)
                 {
                     string stmp = args[i];
                     string[] Tmp = stmp.Split().ToArray();
-                    M.arrows.Add(Tmp[0], MArrow.Load(stmp));
+                    this.arrows.Add(Tmp[0], MArrow.Load(stmp));
                 }
-                int couDro = int.Parse(args[couArr + couPl + 3]);
-                M.drops = new Dictionary<string, MDrop>();
-                for (int i = couPl + 4 + couArr; i < couPl + 4 + couArr + couDro; ++i)
+                int couDro = int.Parse(args[couArr+couPl+3]);
+                this.drops = new Dictionary<string, MDrop>();
+                for (int i = couPl + 4 + couArr; i < couPl + 4 + couArr+couDro; ++i)
                 {
                     string stmp = args[i];
                     string[] Tmp = stmp.Split().ToArray();
-                    M.drops.Add(Tmp[0], MDrop.Load(stmp));
+                    this.drops.Add(Tmp[0], MDrop.Load(stmp));
                 }
                 int index = couPl + couArr + couDro + 4;
-                tmp = args[index].Split().Select(x => int.Parse(x)).ToArray();
-                this.Pwidth = tmp[0]; this.Pheight = tmp[1];
+                tmp = args[index].Split().Select(x=>int.Parse(x)).ToArray();
+                this.Pwidth = tmp[0];this.Pheight = tmp[1];
+                for (int x = 0; x < this.Pwidth; ++x)
+                    this.Field.Add(new List<Square>());
+                for (int x = 0; x < this.Pwidth; ++x)
+                    for (int y = 0; y < this.Pheight; ++y)
+                        this.Field[x].Add(new Square(x, y));
                 bool tmpb;
-                for (int y = 0; y < M.Pheight; ++y)
+                for(int y = 0; y < this.Pheight; ++y)
                 {
                     string line = args[y + index + 1];
                     bool[] bol = line.Split().Select(x => bool.TryParse(x, out tmpb)).ToArray();
                     for (int x = 0; x < Pwidth; ++x)
-                        M.Field[x][y] = new Square(x, y, bol[x]);
+                        this.Field[x][y] = new Square(x, y, bol[x]);
                 }
-                return M;
             }
         }
         public void SaveMap(string path)
@@ -300,65 +334,26 @@ namespace SFMLApp
             this.arrows = new Dictionary<string, MArrow>();
             this.Field = new List<List<Square>>();
             this.drops = new Dictionary<string, MDrop>();
+            this.spawners = new List<Tuple<double, double>>();
+            this.dropSpawners = new List<Tuple<double, double>>();
             for (int x = 0; x < Pwidth; ++x)
                 this.Field.Add(new List<Square>());
-            for (int x = 0; x < Pwidth; ++x)
-                for (int y = 0; y < Pheight; ++y)
-                {
-                    this.Field[x].Add(new Square(x, y));
-                }
+            for(int x = 0; x < Pwidth; ++x)
+                for(int y = 0; y < Pheight; ++y)
+                    this.Field[x].Add(new Square(x,y));
             this.Timer = new Stopwatch();
             this.Q = new Queue<MEvent>();
             this.ForDelArrow = new Queue<string>();
         }
         public Map(string path)
         {
-            using (StreamReader sr = File.OpenText(path))
-            {
-                string s = "";
-                List<string> args = new List<string>();
-                while ((s = sr.ReadLine()) != null)
-                {
-                    args.Add(s);
-                }
-                int[] tmp = args[0].Split().Select(x => int.Parse(x)).ToArray();
-                this.width = tmp[0]; this.height = tmp[1];
-                int couPl = int.Parse(args[1]);
-                this.players = new Dictionary<string, MPlayer>();
-                for (int i = 2; i < couPl + 2; ++i)
-                {
-                    string stmp = args[i];
-                    string[] Tmp = stmp.Split().ToArray();
-                    this.players.Add(Tmp[0], MPlayer.Load(stmp));
-                }
-                int couArr = int.Parse(args[couPl + 2]);
-                this.arrows = new Dictionary<string, MArrow>();
-                for (int i = couPl + 3; i < couPl + 3 + couArr; ++i)
-                {
-                    string stmp = args[i];
-                    string[] Tmp = stmp.Split().ToArray();
-                    this.arrows.Add(Tmp[0], MArrow.Load(stmp));
-                }
-                int couDro = int.Parse(args[couArr + couPl + 3]);
-                this.drops = new Dictionary<string, MDrop>();
-                for (int i = couPl + 4 + couArr; i < couPl + 4 + couArr + couDro; ++i)
-                {
-                    string stmp = args[i];
-                    string[] Tmp = stmp.Split().ToArray();
-                    this.drops.Add(Tmp[0], MDrop.Load(stmp));
-                }
-                int index = couPl + couArr + couDro + 4;
-                tmp = args[index].Split().Select(x => int.Parse(x)).ToArray();
-                this.Pwidth = tmp[0]; this.Pheight = tmp[1];
-                bool tmpb;
-                for (int y = 0; y < this.Pheight; ++y)
-                {
-                    string line = args[y + index + 1];
-                    bool[] bol = line.Split().Select(x => bool.TryParse(x, out tmpb)).ToArray();
-                    for (int x = 0; x < Pwidth; ++x)
-                        this.Field[x][y] = new Square(x, y, bol[x]);
-                }
-            }
+
+            this.Timer = new Stopwatch();
+            this.Q = new Queue<MEvent>();
+            this.ForDelArrow = new Queue<string>();
+            this.spawners = new List<Tuple<double, double>>();
+            this.dropSpawners = new List<Tuple<double, double>>();
+            LoadMap(path);
         }
         public void AddPlayer(string Tag)
         {
