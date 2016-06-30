@@ -70,7 +70,19 @@
 		public void pickedUpItem(Item i){
 			inventory.addItem(i);
 		}
-		public void respawn(){
+        public void pickedUpItem(int id)
+        {
+            inventory.addItem(id);
+        }
+        public void pickedUpItem(Item i, int cnt)
+        {
+            inventory.addItem(i, cnt);
+        }
+        public void pickedUpItem(int id, int cnt)
+        {
+            inventory.addItem(id, cnt);
+        }
+        public void respawn(){
 			Health = 100;
 			inventory.clearInventory ();
 			rightHand = 0;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,10 @@ namespace SFMLApp
         private Dictionary<string, Player> players;
         private SortedSet<string> PlayersTag;
         private Dictionary<string, AArow> Arrows;
+        private Stopwatch timer;
         public Dictionary<string, int> kill { get; private set; }
         public Dictionary<string, int> death { get; private set; }
+        public Dictionary<string, ADrop> drops { get; private set; }
 
         public Arena()
         {
@@ -22,6 +25,7 @@ namespace SFMLApp
             players = new Dictionary<string, Player>();
             PlayersTag = new SortedSet<string>();
             Arrows = new Dictionary<string, AArow>();
+            timer = new Stopwatch(); 
         }
 
         public void NewMap(string name)
@@ -32,6 +36,7 @@ namespace SFMLApp
                 map.AddPlayer(i);
                 players[i].respawn();
             }
+            timer.Restart();
         }
 
         public void MovePlayer(string tag, Tuple<double, double> speed)
@@ -74,7 +79,14 @@ namespace SFMLApp
                 }
                 if (evnt.Tag == MEvents.PlayerDrop)
                 {
+                    var drop = drops[evnt.Tag2];
+                    players[evnt.Tag1].pickedUpItem(drop.id, drop.Count);
                 }
+            }
+            if (timer.ElapsedMilliseconds > 30000)
+            {
+                timer.Restart();
+                //add drop to map
             }
         }
 
@@ -85,6 +97,23 @@ namespace SFMLApp
             players[tag].respawn();
             map.AddPlayer(tag);
             map.SpawnPlayer(tag);
+        }
+        public void RemovePlayer(string tag)
+        {
+            map.RemovePlayer(tag);
+            players.Remove(tag);
+            kill.Remove(tag);
+            death.Remove(tag);
+        }
+        public void Pause()
+        {
+            map.Pause();
+            timer.Stop();
+        }
+        public void Run()
+        {
+            map.Run();
+            timer.Start();
         }
     }
 
@@ -97,6 +126,17 @@ namespace SFMLApp
         {
             creater = crt;
             this.dmg = dmg;
+        }
+    }
+
+    public class ADrop
+    {
+        public int Count { get; private set; }
+        public int id { get; private set; }
+        public ADrop(int cnt, int id)
+        {
+            Count = cnt;
+            this.id = id;
         }
     }
 }
