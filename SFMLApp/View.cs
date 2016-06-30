@@ -100,18 +100,18 @@ namespace SFMLApp
 		}
 
 		public void OnMouseMove(ref MouseMoveEventArgs args) {
-			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused);
-			MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused);
+			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
+			MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
 		}
 
 		public void OnMouseDown(ref MouseButtonEventArgs args) {
-			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Active);
-			MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Active);
+			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Active, ButtonStatus.Focused);
+			MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Active, ButtonStatus.Focused);
 		}
 
 		public void OnMouseUp(ref MouseButtonEventArgs args) {
-			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused);
-			MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused);
+			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Active);
+			MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Active);
 		}
 
     }

@@ -31,9 +31,12 @@ namespace SFMLApp {
 		public Color styleTextColorActive;
 		public Color styleTextColorFocused;
 
-		public int InnerTextSize;
 		public Font TextFont = Fonts.Arial;
+		public int InnerTextSize;
 		public string InnerText = "";
+
+		public int PaddingX { get; set; }
+		public int PaddingY { get; set; }
 
 		public Button(int positionX, int positionY, int width, int height) {
 			PositionX = positionX;
@@ -56,13 +59,20 @@ namespace SFMLApp {
 			InnerTextSize = TextSize;
 		}
 
+		public void SetStyles(int paddingX, int paddingY) {
+			PaddingX = paddingX;
+			PaddingY = paddingY;
+		}
+
 		public bool CheckPosition(int mousex, int mousey) {
 			return (mousex > PositionX) && (mousey > PositionY) && (mousex < PositionX + Width) && (mousey < PositionY + Height);
 		}
 
-		public void CheckFocusing(int mousex, int mousey, ButtonStatus applystatus) {
-			if (CheckPosition(mousex, mousey)) {
-				status = applystatus;
+		public void CheckFocusing(int mouseX, int mouseY, ButtonStatus ApplyStatus, ButtonStatus ApplyArgument) {
+			if (CheckPosition(mouseX, mouseY)) {
+				if (status == ApplyArgument) {
+					status = ApplyStatus;
+				}
 			} else {
 				status = ButtonStatus.Default;
 			}
