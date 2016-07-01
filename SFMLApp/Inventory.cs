@@ -1,10 +1,9 @@
 ﻿namespace SFMLApp
 {
-	public class Inventory
-	{
+	public class Inventory {
 		private int Mana;
 		private int nArrows;
-		private int [] inventory;
+		private int[] inventory;
 		public static int totalNumberofItems = 20;
 
 		public Inventory() {
@@ -37,22 +36,31 @@
 			Mana = Mana + i;
 		}
 
-		public void addItem(Item item)
-        {
+		public void addItem(Item item) {
 			inventory[item.id]++;
         }
 
-		public bool isInStock(Item item)
-        {
+        public void addItem(Item item, int cnt) {
+            inventory[item.id] += cnt;
+        }
+
+        public void addItem(int id) {
+            inventory[id]++;
+        }
+
+        public void addItem(int id, int cnt) {
+            inventory[id] += cnt;
+        }
+
+        public bool isInStock(Item item) {
 			return inventory[item.id] > 0;
         }
 
-		public int howMuchItems(Item item)
-        {
+		public int howMuchItems(Item item) {
 			return inventory[item.id];
         }
 
-		public void clearInventory(){
+		public void clearInventory() {
 			for (int i = 1; i < totalNumberofItems; i++) {
 				inventory [i] = 0;
 			}

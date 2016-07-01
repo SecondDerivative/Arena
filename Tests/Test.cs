@@ -14,6 +14,7 @@ namespace Tests
         //[Fact]
         //public void ControlTest()
         //{
+              //wait when dich go away
           //  var control = new Control(1024, 768);
            // control.UpDate(0);
             //control.UpDate(1000);
@@ -24,7 +25,7 @@ namespace Tests
         {
             var map = new Map(10000, 10000);
             map.UpDate(10);
-            map.AddDrop("Drop1", 10, 20, Drops.arrows);
+            map.AddDrop("Drop1", 10, 20);
             map.AddPlayer("Player1");
             map.SpawnPlayer("Player1", 10, 10);
             map.FirePlayer("Player1", "Arrow1", 10, 10);
@@ -42,7 +43,7 @@ namespace Tests
             var map = new Map(1000, 5000);
             map.AddPlayer("p1");
             map.SpawnPlayer("p1", 10, 10);
-            map.AddDrop("d1", 20, 20, Drops.heal);
+            map.AddDrop("d1", 20, 20);
             map.MovePlayer("p1", new Tuple<double, double>(2, 2));
             map.UpDate(10);
             var ev = map.NextEvent();
@@ -61,7 +62,7 @@ namespace Tests
             map.FirePlayer("p1", "a1", 1, 2);
             map.MovePlayer("p2", new Tuple<double, double>(-1,-2));
             map.UpDate(5);
-            map.SaveMap("D:/save.txt");
+            //map.SaveMap("D:/save.txt");
         }
 
         [Fact]
@@ -76,7 +77,7 @@ namespace Tests
         //[Fact]
         //public void ArenaTest()
         //{
-            //wait some method
+            //wait map file
         //}
     }
 }

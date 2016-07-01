@@ -15,7 +15,7 @@ namespace SFMLApp
         public double y { get; set; }
         public bool Exist { get; set; }
         public string Tag { get; private set; }
-        public Entity(string Tag,double x,double y,int r)
+        public Entity(string Tag, double x, double y, int r)
         {
             this.r = r;
             this.x = x;
@@ -33,12 +33,13 @@ namespace SFMLApp
     public class MovableEntity : Entity
     {
         public Tuple<double, double> Speed;
-        public MovableEntity(string Tag,double x,double y,int r):base(Tag,x,y,r){
+        public MovableEntity(string Tag, double x, double y, int r) : base(Tag, x, y, r)
+        {
             this.Speed = new Tuple<double, double>(0, 0);
         }
-        public MovableEntity(Entity E):base(E.Tag,E.x,E.y,E.r)
+        public MovableEntity(Entity E) : base(E.Tag, E.x, E.y, E.r)
         {
-            this.Speed = new Tuple<double, double>(0,0);
+            this.Speed = new Tuple<double, double>(0, 0);
         }
         public MovableEntity Load(string s)
         {
@@ -52,16 +53,16 @@ namespace SFMLApp
     }
     public class MPlayer : MovableEntity
     {
-        public MPlayer(string Tag,double x,double y):base(Tag, x, y, Map.RPlayer)
-        {}
+        public MPlayer(string Tag, double x, double y) : base(Tag, x, y, Map.RPlayer)
+        { }
         public static MPlayer Load(string save)
         {
             string[] args = save.Split().ToArray();
             string Tag = args[0];
             bool tmp;
-            bool Exist = Boolean.TryParse(args[1],out tmp);
-            double x = double.Parse(args[2]),y=double.Parse(args[3]);
-            Tuple<double, double> Speed = new Tuple<double, double>(double.Parse(args[4]),double.Parse(args[5]));
+            bool Exist = Boolean.TryParse(args[1], out tmp);
+            double x = double.Parse(args[2]), y = double.Parse(args[3]);
+            Tuple<double, double> Speed = new Tuple<double, double>(double.Parse(args[4]), double.Parse(args[5]));
             MPlayer Pl = new MPlayer(Tag, x, y);
             Pl.Speed = Speed;
             Pl.Exist = Exist;
@@ -69,12 +70,12 @@ namespace SFMLApp
         }
         public override string ToString()
         {
-            return this.Tag+" "+this.Exist+" "+this.x+" "+this.y+" "+this.Speed.Item1+" "+this.Speed.Item2;
+            return this.Tag + " " + this.Exist + " " + this.x + " " + this.y + " " + this.Speed.Item1 + " " + this.Speed.Item2;
         }
     }
     public class MArrow : MovableEntity
     {
-        public MArrow(string Tag,double x, double y,double SpeedX,double SpeedY):base(Tag, x, y, Map.RArrow)
+        public MArrow(string Tag, double x, double y, double SpeedX, double SpeedY) : base(Tag, x, y, Map.RArrow)
         { this.Speed = new Tuple<double, double>(SpeedX, SpeedY); }
         public static MArrow Load(string save)
         {
@@ -97,13 +98,13 @@ namespace SFMLApp
         public int x { get; private set; }
         public int y { get; private set; }
         public bool isEmpty { get; private set; }
-        public Square(int x,int y)
+        public Square(int x, int y)
         {
             this.x = x;
             this.y = y;
             this.isEmpty = true;
         }
-        public Square(int x, int y,bool b)
+        public Square(int x, int y, bool b)
         {
             this.x = x;
             this.y = y;
@@ -129,7 +130,7 @@ namespace SFMLApp
         private List<List<Square>> Field;
         private Dictionary<string, MDrop> drops;
 
-        public void SpawnDrops(string Tag,Drops drop)
+        public void SpawnDrops(string Tag)
         {
 
             foreach (var ds in dropSpawners)
@@ -145,7 +146,7 @@ namespace SFMLApp
                 }
                 if (bol)
                 {
-                    SpawnDrops(Tag, ds.Item1, ds.Item2,drop);
+                    SpawnDrops(Tag, ds.Item1, ds.Item2);
                     return;
                 }
             }
@@ -154,13 +155,13 @@ namespace SFMLApp
         {
             dropSpawners.Add(new Tuple<double, double>(x, y));
         }
-        public void SpawnDrops(string Tag, double x,double y,Drops drop)
+        public void SpawnDrops(string Tag, double x,double y)
         {
-            this.drops.Add(Tag, new MDrop(Tag, x, y, drop));
+            this.drops.Add(Tag, new MDrop(Tag, x, y));
         }
         private void AddSpawner(double x,double y)
         {
-            spawners.Add(new Tuple<double, double>(x,y));
+            spawners.Add(new Tuple<double, double>(x, y));
         }
         public void LoadMap(string path)
         {
@@ -209,7 +210,7 @@ namespace SFMLApp
                 bool tmpb;
                 for(int y = 0; y < this.Pheight; ++y)
                 {
-                    string line = args[y + index+1];
+                    string line = args[y + index + 1];
                     bool[] bol = line.Split().Select(x => bool.TryParse(x, out tmpb)).ToArray();
                     for (int x = 0; x < Pwidth; ++x)
                         this.Field[x][y] = new Square(x, y, bol[x]);
@@ -220,7 +221,7 @@ namespace SFMLApp
         {
             using (StreamWriter sw = File.CreateText(path))
             {
-                sw.WriteLine(this.width+" "+this.height);
+                sw.WriteLine(this.width + " " + this.height);
                 sw.WriteLine(players.Count);
                 foreach (var p in players)
                 {
@@ -236,35 +237,36 @@ namespace SFMLApp
                 {
                     sw.WriteLine(d.Value.ToString());
                 }
-                sw.WriteLine(Pwidth+" "+Pheight);
-                for (int y = 0; y < Pheight; ++y) {
-                    for (int x = 0; x < Pwidth-1; ++x)
-                        sw.Write(Field[x][y].isEmpty+" ");
-                    sw.WriteLine(Field[Pwidth-1][y].isEmpty);
+                sw.WriteLine(Pwidth + " " + Pheight);
+                for (int y = 0; y < Pheight; ++y)
+                {
+                    for (int x = 0; x < Pwidth - 1; ++x)
+                        sw.Write(Field[x][y].isEmpty + " ");
+                    sw.WriteLine(Field[Pwidth - 1][y].isEmpty);
                 }
 
             }
         }
-        private double mul(double x1,double y1,double x2,double y2)
+        private double mul(double x1, double y1, double x2, double y2)
         {
             return (x1 * x2 + y1 * y2);
         }
-        private double Length(double x,double y,double x1,double y1,double x2,double y2)
+        private double Length(double x, double y, double x1, double y1, double x2, double y2)
         {
             double len = ((y1 - y2) * x + (x2 - x1) * y + (x1 * y2 - x2 * y1)) * ((y1 - y2) * x + (x2 - x1) * y + (x1 * y2 - x2 * y1)) / ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-            if (mul(x-x1,y-y1,x2-x1,y2-y1)<0||mul(x-x2,y-y2,x2-x1,y2-y1)<0)
+            if (mul(x - x1, y - y1, x2 - x1, y2 - y1) < 0 || mul(x - x2, y - y2, x2 - x1, y2 - y1) < 0)
             {
-                return Math.Min(Utily.Hypot2(x-x1,y-y1),Utily.Hypot2(x-x2,y-y2));
+                return Math.Min(Utily.Hypot2(x - x1, y - y1), Utily.Hypot2(x - x2, y - y2));
             }
             return len;
         }
-        private bool IsCrossCircleSquare(double x,double y,double r,double x1,double y1,double x2,double y2)
+        private bool IsCrossCircleSquare(double x, double y, double r, double x1, double y1, double x2, double y2)
         {
             double len1 = Length(x, y, x1, y1, x2, y1);
             double len2 = Length(x, y, x1, y1, x1, y2);
             double len3 = Length(x, y, x2, y2, x1, y2);
             double len4 = Length(x, y, x2, y2, x2, y1);
-            double len = Math.Min(Math.Min(len1,len2),Math.Min(len3,len4));
+            double len = Math.Min(Math.Min(len1, len2), Math.Min(len3, len4));
             return len < r * r;
         }
         public MEvent NextEvent()
@@ -273,15 +275,15 @@ namespace SFMLApp
                 return null;
             return Q.Dequeue();
         }
-        public void AddDrop(string Tag,double x,double y, Drops drop)
+        public void AddDrop(string Tag, double x, double y)
         {
-            drops.Add(Tag, new MDrop(Tag, x, y, drop));
+            drops.Add(Tag, new MDrop(Tag, x, y));
         }
-        private Square getSquare(double x,double y)
+        private Square getSquare(double x, double y)
         {
             return Field[(int)Math.Floor(x) / Rwidth][(int)Math.Floor(y) / Rwidth];
         }
-        private Square getSquare(int x,int y)
+        private Square getSquare(int x, int y)
         {
             return Field[x][y];
         }
@@ -291,32 +293,32 @@ namespace SFMLApp
             int x = (int)Math.Floor(e.x) / Rwidth;
             int y = (int)Math.Floor(e.y) / Rwidth;
             a.Add(getSquare(x, y));
-            if(x+1<Pwidth)
-            a.Add(getSquare(x+1, y));
-            if(x>=1)
-            a.Add(getSquare(x-1, y));
-            if(y+1<Pheight)
-            a.Add(getSquare(x, y+1));
-            if(y>=1)
-            a.Add(getSquare(x, y-1));
-            if(x+1<Pwidth&&y>=1)
-            a.Add(getSquare(x+1, y-1));
-            if(x+1<Pwidth&&y+1<Pheight)
-            a.Add(getSquare(x+1, y+1));
-            if(x>1&&y+1<Pheight)
-            a.Add(getSquare(x-1, y+1));
-            if(x>1&&y>=1)
-            a.Add(getSquare(x-1, y-1));
+            if (x + 1 < Pwidth)
+                a.Add(getSquare(x + 1, y));
+            if (x >= 1)
+                a.Add(getSquare(x - 1, y));
+            if (y + 1 < Pheight)
+                a.Add(getSquare(x, y + 1));
+            if (y >= 1)
+                a.Add(getSquare(x, y - 1));
+            if (x + 1 < Pwidth && y >= 1)
+                a.Add(getSquare(x + 1, y - 1));
+            if (x + 1 < Pwidth && y + 1 < Pheight)
+                a.Add(getSquare(x + 1, y + 1));
+            if (x > 1 && y + 1 < Pheight)
+                a.Add(getSquare(x - 1, y + 1));
+            if (x > 1 && y >= 1)
+                a.Add(getSquare(x - 1, y - 1));
 
             bool ans = false;
             foreach (Square i in a)
             {
-                if (IsCrossCircleSquare(e.x,e.y,Map.RPlayer,i.x*Map.Rwidth,i.y*Map.Rwidth,i.x*Map.Rwidth+Rwidth-1,i.y*Map.Rwidth+Rwidth-1)&&!i.isEmpty)
+                if (IsCrossCircleSquare(e.x, e.y, Map.RPlayer, i.x * Map.Rwidth, i.y * Map.Rwidth, i.x * Map.Rwidth + Rwidth - 1, i.y * Map.Rwidth + Rwidth - 1) && !i.isEmpty)
                     ans = true;
             }
             return ans;
         }
-        private bool IsEntityWillInSquare(Entity e,Tuple<double,double> Speed)
+        private bool IsEntityWillInSquare(Entity e, Tuple<double, double> Speed)
         {
             e.x += Speed.Item1;
             e.y += Speed.Item2;
@@ -345,6 +347,7 @@ namespace SFMLApp
         }
         public Map(string path)
         {
+
             this.Timer = new Stopwatch();
             this.Q = new Queue<MEvent>();
             this.ForDelArrow = new Queue<string>();
@@ -354,10 +357,14 @@ namespace SFMLApp
         }
         public void AddPlayer(string Tag)
         {
-            players.Add(Tag, new MPlayer(Tag,0,0));
+            players.Add(Tag, new MPlayer(Tag, 0, 0));
             players[Tag].Exist = false;
         }
-        public void SpawnPlayer(string Tag,int x,int y)
+        public void RemovePlayer(string tag)
+        {
+            players.Remove(tag);
+        }
+        public void SpawnPlayer(string Tag, int x, int y)
         {
             players[Tag].x = x;
             players[Tag].y = y;
@@ -367,11 +374,11 @@ namespace SFMLApp
         {
             foreach (var p in spawners)
             {
-                Entity e = new Entity("",p.Item1,p.Item2,RPlayer);
+                Entity e = new Entity("", p.Item1, p.Item2, RPlayer);
                 bool bol = true;
                 foreach (var pl in players)
                 {
-                    if (IsCrossEntity(pl.Value,e))
+                    if (IsCrossEntity(pl.Value, e))
                     {
                         bol = false;
                     }
@@ -387,19 +394,19 @@ namespace SFMLApp
         {
             players[Tag].Speed = new Tuple<double, double>(0, 0);
         }
-        public void MovePlayer(string Tag,Tuple<double,double> Speed)
+        public void MovePlayer(string Tag, Tuple<double, double> Speed)
         {
             players[Tag].Speed = Speed;
         }
-        private bool IsSquareEmpty(double x,double y)
+        private bool IsSquareEmpty(double x, double y)
         {
             return Field[((int)Math.Floor(x)) / Rwidth][((int)Math.Floor(y)) / Rwidth].isEmpty;
         }
-        public bool IsCrossEntity(Entity a,Entity b)
+        public bool IsCrossEntity(Entity a, Entity b)
         {
             if (!a.Exist || !b.Exist)
                 return false;
-            return (a.r+b.r)*(a.r+b.r)-(a.x - b.x) * (a.x - b.x) - (a.y-b.y) * (a.y - b.y)>=0;
+            return (a.r + b.r) * (a.r + b.r) - (a.x - b.x) * (a.x - b.x) - (a.y - b.y) * (a.y - b.y) >= 0;
         }
         private void ShortUpDatePlayer(string Tag, int Time)
         {
@@ -439,22 +446,22 @@ namespace SFMLApp
             for (int i = 0; i < del.Count; ++i)
                 drops.Remove(del[i]);
         }
-        private void UpDatePlayer(string Tag,int Time)
+        private void UpDatePlayer(string Tag, int Time)
         {
             if (players[Tag].Speed.Item1 == 0 && players[Tag].Speed.Item2 == 0)
                 return;
-            for(int i = 0; i < Time; ++i)
+            for (int i = 0; i < Time; ++i)
             {
-                for(int j=0;j<4;++j)
+                for (int j = 0; j < 4; ++j)
                     ShortUpDatePlayer(Tag, 1);
             }
         }
-        public void FirePlayer(string TagPlayer, string TagArrow, double SpeedX,double SpeedY)
+        public void FirePlayer(string TagPlayer, string TagArrow, double SpeedX, double SpeedY)
         {
-            double abs = Math.Sqrt(SpeedX*SpeedX+SpeedY*SpeedY);
-            double x = (RPlayer+RArrow+1) * SpeedX / abs;
-            double y = (RPlayer+RArrow+1) * SpeedY / abs;
-            arrows.Add(TagArrow, new MArrow(TagArrow, x+players[TagPlayer].x, y+players[TagPlayer].y,SpeedX,SpeedY));
+            double abs = Math.Sqrt(SpeedX * SpeedX + SpeedY * SpeedY);
+            double x = (RPlayer + RArrow + 1) * SpeedX / abs;
+            double y = (RPlayer + RArrow + 1) * SpeedY / abs;
+            arrows.Add(TagArrow, new MArrow(TagArrow, x + players[TagPlayer].x, y + players[TagPlayer].y, SpeedX, SpeedY));
         }
         public void ShortUpDateArrow(string Tag, int Time)
         {
@@ -485,7 +492,7 @@ namespace SFMLApp
         {
             for (int i = 0; i < Time; ++i)
             {
-                for(int j=0;j<4;++j)
+                for (int j = 0; j < 4; ++j)
                     ShortUpDateArrow(Tag, 1);
             }
             if (IsEntityInSquare(arrows[Tag]))
@@ -511,7 +518,7 @@ namespace SFMLApp
                 {
                     ShortUpDateArrow(a.Key, 1);
                 }
-                while (this.ForDelArrow.Count>0)
+                while (this.ForDelArrow.Count > 0)
                 {
                     string s = ForDelArrow.Dequeue();
                     if (arrows.ContainsKey(s))
@@ -519,13 +526,22 @@ namespace SFMLApp
                 }
             }
         }
+
+        public void Pause()
+        {
+            Timer.Stop();
+        }
+        public void Run()
+        {
+            Timer.Start();
+        }
     }
     public class MEvent
     {
         public MEvents Tag { get; private set; }
         public string Tag1 { get; private set; }
         public string Tag2 { get; private set; }
-        public MEvent(MEvents Tag,string Tag1,string Tag2)
+        public MEvent(MEvents Tag, string Tag1, string Tag2)
         {
             this.Tag = Tag;
             this.Tag1 = Tag1;
@@ -539,14 +555,11 @@ namespace SFMLApp
     }
     public class MDrop : Entity
     {
-        public Drops drop;
-        public MDrop(string Tag, double x, double y,Drops drop) : base(Tag, x, y, Map.RDrop)
-        {
-            this.drop = drop;
-        }
+        public MDrop(string Tag, double x, double y) : base(Tag, x, y, Map.RDrop)
+        { }
         public override string ToString()
         {
-            return this.Tag + " " + this.Exist + " " + this.x + " " + this.y + " " + this.drop;
+            return this.Tag + " " + this.Exist + " " + this.x + " " + this.y;
         }
         public static MDrop Load(string save)
         {
@@ -555,8 +568,7 @@ namespace SFMLApp
             bool tmp;
             bool Exist = Boolean.TryParse(args[1], out tmp);
             double x = double.Parse(args[2]), y = double.Parse(args[3]);
-            Drops drop = (Drops)int.Parse(args[4]);
-            MDrop Dr = new MDrop(Tag, x, y,drop);
+            MDrop Dr = new MDrop(Tag, x, y);
             Dr.Exist = Exist;
             return Dr;
         }
