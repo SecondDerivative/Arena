@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System;
+using SFML.Graphics;
 
 public class SaveTextFile {
 
-	public List<string> Properties;
-	public List<string> Values;
+	public List<string> Properties { get; private set; }
+	public List<string> Values { get; private set; }
 
 	private int indexread = -1;
 
@@ -68,6 +69,14 @@ public class SaveTextFile {
 		return Convert.ToSingle(Values[indexread]);
 	}
 
+	public Color GetPropertyColor(string property) {
+		if (++indexread >= Properties.Count || Properties[indexread] != property) {
+			IndexProperty(property);
+		}
+		string[] parts = Values[indexread].Split(';');
+		return new Color(Convert.ToByte(parts[0]), Convert.ToByte(parts[1]), Convert.ToByte(parts[2]), Convert.ToByte(parts[3]));
+	}
+
 	public void AddElement(string property, string value) {
 		Properties.Add(property);
 		Values.Add(value);
@@ -81,5 +90,10 @@ public class SaveTextFile {
 	public void AddElement(string property, float value) {
 		Properties.Add(property);
 		Values.Add(value.ToString());
+	}
+
+	public void AddElement(string property, Color color) {
+		Properties.Add(property);
+		Values.Add(color.R.ToString() + ";" + color.G.ToString() + ";" + color.B.ToString() + ";" + color.A.ToString());
 	}
 }

@@ -130,6 +130,12 @@
     <Content Include="csfml-window-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\Buttons\MainMenuExitButton.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Buttons\MainMenuStartButton.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\Menu.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

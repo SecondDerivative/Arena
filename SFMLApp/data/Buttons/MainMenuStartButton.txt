@@ -1,0 +1,15 @@
+paddingX=77
+paddingY=15
+width=300
+height=80
+styleDefault=data/Styles/Default.png
+styleActive=data/Styles/Active.png
+styleFocused=data/Styles/Focused.png
+TextFont=data/Fonts/Furore.otf
+InnerTextSize=40
+InnerText=Start
+styleTextColorDefault=255;0;0;255
+styleTextColorActive=255;0;255;255
+styleTextColorFocused=0;255;0;255
+positionX=150
+positionY=150

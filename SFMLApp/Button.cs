@@ -45,6 +45,26 @@ namespace SFMLApp {
 			Height = height;
 		}
 
+		public Button(string path) {
+			SaveTextFile file = new SaveTextFile();
+			file.Load(path);
+			PositionX = file.GetPropertyInt("positionX");
+			PositionY = file.GetPropertyInt("positionY");
+			Width = file.GetPropertyInt("width");
+			Height = file.GetPropertyInt("height");
+			styleDefault = new Texture(file.GetPropertyString("styleDefault"));
+			styleActive = new Texture(file.GetPropertyString("styleActive"));
+			styleFocused = new Texture(file.GetPropertyString("styleFocused"));
+			TextFont = new Font(file.GetPropertyString("TextFont"));
+			InnerTextSize = file.GetPropertyInt("InnerTextSize");
+			InnerText = file.GetPropertyString("InnerText");
+			PaddingX = file.GetPropertyInt("paddingX");
+			PaddingY = file.GetPropertyInt("paddingY");
+			styleTextColorDefault = file.GetPropertyColor("styleTextColorDefault");
+			styleTextColorActive = file.GetPropertyColor("styleTextColorActive");
+			styleTextColorFocused = file.GetPropertyColor("styleTextColorFocused");
+		}
+
 		public void SetStyles(Texture ButtonStyleDefault, Texture ButtonStyleFocused, Texture ButtonStyleActive, Font ButtonStyleFont) {
 			styleDefault = ButtonStyleDefault;
 			styleFocused = ButtonStyleFocused;
