@@ -6,13 +6,15 @@ namespace SFMLApp
 {
 	public abstract class Item
 	{
-		public int Damage { get; protected set; }
-		public int Range { get; protected set; }
 		public string Name { get; protected set; }
 		public int id { get; protected set; }
-		abstract public int attack ();
-		abstract public int attack (Inventory i);
-		public int getRange() { return Range; }
+	}
+	public abstract class Weapon : Item
+	{
+		public int Damage { get; protected set; }
+		public int Range { get; protected set; }
+		abstract public int attack();
+		abstract public int attack(Inventory i);
 		public void Create(int dmg, int ran, string name, int i)
 		{
 			Damage = dmg;
@@ -21,30 +23,47 @@ namespace SFMLApp
 			id = i;
 		}
 	}
-	class ItemSword : Item
+	public abstract class Consumable : Item
+	{
+		public int Damage { get; protected set; }
+		public void Create(string n, int d, int i)
+		{
+			Damage = d;
+			Name = n;
+			id = i;
+		}
+	}
+	public class Arrow : Consumable
+	{
+		public Arrow(string n,int d, int i)
+		{
+			base.Create(n, d, i);
+		}
+	}
+	class ItemSword : Weapon
 	{
 		public ItemSword(string n, int dmg, int ran, int id)
 		{
 			base.Create (dmg, ran, n, id);
 		}
 		override public int attack(){return Damage;}
-		override public int attack(Inventory i){return 0;}
+		override public int attack(Inventory i){return Damage;}
 	}
-	class ItemBow : Item
+	class ItemBow : Weapon
 	{
 		public ItemBow(string n, int dmg, int ran, int id){base.Create (dmg, ran, n, id);}
 		override public int attack (Inventory i)
 		{
-			if (i.getArrows() > 0)
+			if (i.getArrowsAmount() > 0)
 			{
-				i.addArrows(-1);
-				return Damage;
+				i.addArrows(i.getCurrentArrow(),-1);
+				return Damage+i.getCurrentArrow().Damage;
 			}
 			else { return 0; }
 		}
 		override public int attack(){ return 0;}
 	}
-	class Magic : Item
+	class Magic : Weapon
 	{
 		private int ManaCost;
 		public Magic(string n,int dmg, int ran, int mana, int id)
@@ -65,30 +84,43 @@ namespace SFMLApp
 		}
 		override public int attack(){return 0;}
 	}
-	class Fist : Item{
+	class Fist : Weapon{
 		public Fist(){base.Create (2, 1, "Fist", 0);}
 		override public int attack(){return Damage;}
-		override public int attack(Inventory i){return 0;}
+		override public int attack(Inventory i){return Damage;}
 	}
 
 	public static class Items
 	{
 		public static List<Item> allItems;
+		public static List<Arrow> allArrows;
 		public static void getAllItems(){
 			allItems = new List<Item>();
 			allItems.Add (new Fist());
-			StreamReader fileReader = new StreamReader("Weapons.txt");
+			int currentIndex=1;
+			StreamReader fileReader = new StreamReader("data/Weapons/Weapons.txt");
 			fileReader.ReadLine();
-			for (int i = 1; i < 4; i++) {
+			for (int i = currentIndex; i < currentIndex+3; i++) {
 				allItems.Add (new ItemSword (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
+				currentIndex++;
 			}
 			fileReader.ReadLine ();
-			for (int i = 4; i < 7; i++) {
+			for (int i = currentIndex; i < currentIndex + 3; i++) {
 				allItems.Add (new ItemBow (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
+				currentIndex++;
 			}
 			fileReader.ReadLine ();
-			for (int i = 7; i < 10; i++) {
+			for (int i = currentIndex; i < currentIndex + 3; i++) {
 				allItems.Add (new Magic (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), Int32.Parse(fileReader.ReadLine()), i));
+				currentIndex++;
+			}
+			fileReader.ReadLine();
+			allArrows = new List<Arrow>();
+			allArrows.Add(new Arrow("Wooden Arrow",2, 0));
+			currentIndex = 1;
+			for (int i = currentIndex; i < currentIndex + 3; i++)
+			{
+				allArrows.Add(new Arrow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), i));
 			}
 		}
 	}

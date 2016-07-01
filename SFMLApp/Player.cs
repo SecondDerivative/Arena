@@ -61,8 +61,8 @@
 		public Item getItemRight(){
 			return inventory.getItem(rightHand);
 		}
-		public void pickUpArrow(int nArrowsPickedUp){
-			inventory.addArrows(nArrowsPickedUp);
+		public void pickUpArrow(Arrow arrowType,int nArrowsPickedUp){
+			inventory.addArrows(arrowType, nArrowsPickedUp);
 		}
 		public void addedMana(int nManaAdded){
 			inventory.addMana(nManaAdded);
@@ -70,6 +70,7 @@
 		public void pickedUpItem(Item i){
 			inventory.addItem(i);
 		}
+		public void selectArrow(Arrow i) { inventory.setCurrentArrow(i.id); }
 		public void respawn(){
 			Health = 100;
 			inventory.clearInventory ();
