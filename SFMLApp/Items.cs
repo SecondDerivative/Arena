@@ -18,12 +18,14 @@ namespace SFMLApp
 	{
 		public int Damage { get; protected set; }
 		public int Range { get; protected set; }
+        public int Reloading { get; private set; }
 		abstract public int attack();
 		abstract public int attack(Inventory i);
-		public void Create(int dmg, int ran, string name, int i)
+		public void Create(int dmg, int ran, string name, int i, int kd)
 		{
 			Damage = dmg;
 			Range = ran;
+            Reloading = kd;
 			base.Create(name, i);
 		}
 	}
@@ -38,16 +40,16 @@ namespace SFMLApp
 	}
 	class ItemSword : Weapon
 	{
-		public ItemSword(string n, int dmg, int ran, int id)
-		{
-			base.Create (dmg, ran, n, id);
+		public ItemSword(string n, int dmg, int ran, int id, int kd)
+        {
+			base.Create (dmg, ran, n, id, kd);
 		}
 		override public int attack(){return Damage;}
 		override public int attack(Inventory i){return Damage;}
 	}
 	class ItemBow : Weapon
 	{
-		public ItemBow(string n, int dmg, int ran, int id){base.Create (dmg, ran, n, id);}
+		public ItemBow(string n, int dmg, int ran, int id, int kd) {base.Create (dmg, ran, n, id, kd);}
 		override public int attack (Inventory i)
 		{
 			if (i.getArrowsAmount() > 0)
@@ -62,9 +64,9 @@ namespace SFMLApp
 	class Magic : Weapon
 	{
 		private int ManaCost;
-		public Magic(string n,int dmg, int ran, int mana, int id)
+		public Magic(string n,int dmg, int ran, int mana, int id, int kd)
 		{
-			base.Create (dmg, ran, n, id);
+			base.Create (dmg, ran, n, id, kd);
 			ManaCost = mana;
 		}
 		override public int attack(Inventory i)
@@ -81,7 +83,7 @@ namespace SFMLApp
 		override public int attack(){return 0;}
 	}
 	class Fist : Weapon{
-		public Fist(){base.Create (2, 1, "Fist", 0);}
+		public Fist() {base.Create (2, 1, "Fist", 0, 1000);}
 		override public int attack(){return Damage;}
 		override public int attack(Inventory i){return Damage;}
 	}
@@ -97,17 +99,17 @@ namespace SFMLApp
 			StreamReader fileReader = new StreamReader("data/Weapons/Weapons.txt");
 			fileReader.ReadLine();
 			for (int i = currentIndex; i < currentIndex+3; i++) {
-				allItems.Add (new ItemSword (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
+				allItems.Add (new ItemSword (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i, 1000));
 			}
 			currentIndex += 3;
 			fileReader.ReadLine ();
 			for (int i = currentIndex; i < currentIndex + 3; i++) {
-				allItems.Add (new ItemBow (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
+				allItems.Add (new ItemBow (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i, 1000));
 			}
 			currentIndex += 3;
 			fileReader.ReadLine ();
 			for (int i = currentIndex; i < currentIndex + 3; i++) {
-				allItems.Add (new Magic (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), Int32.Parse(fileReader.ReadLine()), i));
+				allItems.Add (new Magic (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), Int32.Parse(fileReader.ReadLine()), i, 1000));
 			}
 			currentIndex += 3;
 			fileReader.ReadLine();

@@ -1,4 +1,6 @@
-﻿namespace SFMLApp
+﻿using System.Diagnostics;
+
+namespace SFMLApp
 {
 	public class Player
 	{
@@ -6,6 +8,7 @@
 		public Inventory inventory{ get; private set; }
 		public int leftHand{ get; private set; }
 		public int rightHand{ get; private set; }
+        private Stopwatch LeftReloadTimer, RightReloadTimer;
 		public Player()
 		{
 			inventory = new Inventory();
@@ -15,28 +18,34 @@
 			//setting fists as a weapon
 			leftHand = 0;
 			rightHand = 0;
+            LeftReloadTimer = new Stopwatch();
+            LeftReloadTimer.Start();
+            RightReloadTimer = new Stopwatch();
+            RightReloadTimer.Start();
 		}
-		public int attack(){
-			int total=0;
-			if (inventory.getItem(leftHand).GetType() == typeof(ItemBow)) {
-				total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
-			} else {
-				if (inventory.getItem(leftHand).GetType () == typeof(Magic)) {
-					total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack (inventory);
-				} else {
-					total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack ();
-				}
-			}
-			if (inventory.getItem(rightHand).GetType () == typeof(ItemBow)) {
-				total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack (inventory);
-			} else {
-				if (rightHand.GetType () == typeof(Magic)) {
-					total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack (inventory);
-				} else {
-					total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack ();
-				}
-			}
-			return total;
+        public int attack() {
+            int total = 0;
+            if (LeftReloadTimer.ElapsedMilliseconds >= ((Weapon)Items.allItems[leftHand]).Reloading)
+            {
+                LeftReloadTimer.Restart();
+                if (inventory.getItem(leftHand).GetType() == typeof(ItemBow))
+                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
+                else if (inventory.getItem(leftHand).GetType() == typeof(Magic))
+                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
+                else 
+                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack();
+            }
+            if (RightReloadTimer.ElapsedMilliseconds >= ((Weapon)Items.allItems[rightHand]).Reloading)
+            {
+                RightReloadTimer.Restart();
+                if (inventory.getItem(rightHand).GetType() == typeof(ItemBow))
+                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
+                else if (rightHand.GetType() == typeof(Magic))
+                        total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
+                else
+                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack();
+            }
+        	return total;
 		}
 		public void recieveDamage(int dmg){
 			if (Health > 0 & Health < dmg)
@@ -88,6 +97,8 @@
 			inventory.clearInventory ();
 			rightHand = 0;
 			leftHand = 0;
-		}
-	}
+            LeftReloadTimer.Restart();
+            RightReloadTimer.Restart();
+        }
+    }
 }
