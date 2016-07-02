@@ -90,6 +90,7 @@ namespace Tests
 		public void PlayerTest()
 		{
 			var player = new Player();
+			Items.getAllItems();
 			player.attack();
 			player.pickedUpItem(Items.allItems[3]);
 			player.takeItemLeft(player.inventory.getItem(3));

@@ -89,7 +89,6 @@ namespace SFMLApp
 	public static class Items
 	{
 		public static List<Item> allItems;
-		public static List<Arrow> allArrows;
 		public static void getAllItems(){
 			allItems = new List<Item>();
 			allItems.Add (new Fist());
@@ -97,26 +96,25 @@ namespace SFMLApp
 			StreamReader fileReader = new StreamReader("data/Weapons/Weapons.txt");
 			fileReader.ReadLine();
 			for (int i = currentIndex; i < currentIndex+3; i++) {
-				allItems.Add (new ItemSword (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
+				allItems.Add(new ItemSword (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
 			}
 			currentIndex += 3;
 			fileReader.ReadLine ();
 			for (int i = currentIndex; i < currentIndex + 3; i++) {
-				allItems.Add (new ItemBow (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
+				allItems.Add(new ItemBow (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()),i));
 			}
 			currentIndex += 3;
 			fileReader.ReadLine ();
 			for (int i = currentIndex; i < currentIndex + 3; i++) {
-				allItems.Add (new Magic (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), Int32.Parse(fileReader.ReadLine()), i));
+				allItems.Add(new Magic (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), Int32.Parse(fileReader.ReadLine()),i));
 			}
 			currentIndex += 3;
 			fileReader.ReadLine();
-			allArrows = new List<Arrow>();
-			allArrows.Add(new Arrow("Wooden Arrow",2, 0));
+			allItems.Add(new Arrow("Wooden Arrow",2, 0));
 			currentIndex = 1;
 			for (int i = currentIndex; i < currentIndex + 2; i++)
 			{
-				allArrows.Add(new Arrow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), i));
+				allItems.Add(new Arrow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), i));
 			}
 		}
 	}

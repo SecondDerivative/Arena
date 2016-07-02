@@ -5,13 +5,13 @@
 		private int[] nArrows;
 		private int currentArrow;
 		private int [] inventory;
-		private static int totalNumberofItems = 20;
-		private static int totalNumberofArrows = 3;
+		public static int totalNumberofItems = 9;//Both starts counting with 0
+		public static int totalNumberofArrows = 2;//Starts counting with 0
 		public Inventory() {
 			Mana = 100;
-			nArrows = new int[totalNumberofArrows];
-			inventory = new int[totalNumberofItems];
-			currentArrow = 0;
+			nArrows = new int[totalNumberofArrows+1];
+			inventory = new int[totalNumberofItems+1];
+			currentArrow = 0;//changes from 0 to 2;
         }
 
 		public Item getItem(int i) {
@@ -23,7 +23,7 @@
 		}
 		public int getArrowsAmount(){return nArrows[currentArrow];}
 		public void addArrows(Arrow a, int i){nArrows[a.id] = nArrows[a.id] + i;}
-		public Arrow getCurrentArrow() { return Items.allArrows[currentArrow]; }
+		public Arrow getCurrentArrow() { return (Arrow)Items.allItems[totalNumberofItems+currentArrow]; }
 		public void setCurrentArrow(int i){ currentArrow = i; }
 		public int getMana(){return Mana;}
 		public void addMana(int i){Mana = Mana + i;}
