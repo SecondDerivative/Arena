@@ -87,18 +87,18 @@ namespace Tests
             Assert.True(1000 == SFMLApp.Utily.GetTag(1000).Length, "bad tag");
         }
 
-		//[Fact]
-	//	public void PlayerTest()
-	//	{
-	//		var player = new Player();
-	//		player.attack();
-	//		player.pickedUpItem(Items.allItems[3]);
-	//		player.takeItemLeft(player.inventory.getItem(3));
-	//		player.attack();
-	//		player.recieveDamage(100);
-	//		player.isDead();
-	//		player.respawn();
-	//	}
+		[Fact]
+		public void PlayerTest()
+		{
+			var player = new Player();
+			player.attack();
+			player.pickedUpItem(Items.allItems[3]);
+			player.takeItemLeft(player.inventory.getItem(3));
+			player.attack();
+			player.recieveDamage(100);
+			player.isDead();
+			player.respawn();
+		}
         [Fact]
         public void ArenaTest()
         {
