@@ -10,10 +10,17 @@ using SFML.Graphics;
 
 namespace SFMLApp
 {
+    public enum ControlState
+    {
+        MainState
+    }
+
     public class Control
     {
         public View view { get; private set; }
         private int Width, Height;
+        private ControlState state;
+        private Arena arena;
 
         public Control(int Width, int Height)
         {
@@ -21,12 +28,18 @@ namespace SFMLApp
             this.Height = Height;
             view = new View(Width, Height);
             view.InitEvents(Close, KeyDown, MouseDown, MouseUp, MouseMove);
+            state = ControlState.MainState;
+            arena = new Arena();
+            arena.NewMap("bag");
         }
         
         public void UpDate(long time)
         {
-            view.Clear(Color.Black);
-            view.DrawMenu();
+            if (state == ControlState.MainState)
+            {
+                arena.Update();
+                view.DrawBattle(arena.players, arena.Arrows, arena.drops, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
+            }
             if (time > 0)
                 view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.White);
         }
@@ -42,7 +55,6 @@ namespace SFMLApp
 
         public void MouseUp(object sender, MouseButtonEventArgs e)
         {
-			//view.MainForm.Size = new Vector2u(512, 372);
 			view.OnMouseUp(ref e);
         }
 

@@ -1,6 +1,6 @@
 ﻿namespace SFMLApp
 {
-	class Player
+	public class Player
 	{
 		public int Health { get; private set; }
 		public Inventory inventory{ get; private set; }

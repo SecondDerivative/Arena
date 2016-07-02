@@ -130,6 +130,9 @@
     <Content Include="csfml-window-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\Maps\bag.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\Menu.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
