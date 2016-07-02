@@ -8,6 +8,11 @@ namespace SFMLApp
 	{
 		public string Name { get; protected set; }
 		public int id { get; protected set; }
+		public void Create(string n, int i)
+		{
+			Name = n;
+			id = i;
+		}
 	}
 	public abstract class Weapon : Item
 	{
@@ -19,25 +24,16 @@ namespace SFMLApp
 		{
 			Damage = dmg;
 			Range = ran;
-			Name = name;
-			id = i;
+			base.Create(name, i);
 		}
 	}
-	public abstract class Consumable : Item
+	public class Arrow : Item
 	{
 		public int Damage { get; protected set; }
-		public void Create(string n, int d, int i)
+		public Arrow(string n, int d, int i)
 		{
 			Damage = d;
-			Name = n;
-			id = i;
-		}
-	}
-	public class Arrow : Consumable
-	{
-		public Arrow(string n,int d, int i)
-		{
-			base.Create(n, d, i);
+			Create(n, i);
 		}
 	}
 	class ItemSword : Weapon
@@ -102,23 +98,23 @@ namespace SFMLApp
 			fileReader.ReadLine();
 			for (int i = currentIndex; i < currentIndex+3; i++) {
 				allItems.Add (new ItemSword (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
-				currentIndex++;
 			}
+			currentIndex += 3;
 			fileReader.ReadLine ();
 			for (int i = currentIndex; i < currentIndex + 3; i++) {
 				allItems.Add (new ItemBow (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), i));
-				currentIndex++;
 			}
+			currentIndex += 3;
 			fileReader.ReadLine ();
 			for (int i = currentIndex; i < currentIndex + 3; i++) {
 				allItems.Add (new Magic (fileReader.ReadLine (), Int32.Parse (fileReader.ReadLine ()), Int32.Parse (fileReader.ReadLine ()), Int32.Parse(fileReader.ReadLine()), i));
-				currentIndex++;
 			}
+			currentIndex += 3;
 			fileReader.ReadLine();
 			allArrows = new List<Arrow>();
 			allArrows.Add(new Arrow("Wooden Arrow",2, 0));
 			currentIndex = 1;
-			for (int i = currentIndex; i < currentIndex + 3; i++)
+			for (int i = currentIndex; i < currentIndex + 2; i++)
 			{
 				allArrows.Add(new Arrow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), i));
 			}

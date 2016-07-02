@@ -1,6 +1,6 @@
 ﻿namespace SFMLApp
 {
-	class Player
+	public class Player
 	{
 		public int Health { get; private set; }
 		public Inventory inventory{ get; private set; }
@@ -19,21 +19,21 @@
 		public int attack(){
 			int total=0;
 			if (inventory.getItem(leftHand).GetType() == typeof(ItemBow)) {
-				total = total + inventory.getItem(leftHand).attack(inventory);
+				total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
 			} else {
 				if (inventory.getItem(leftHand).GetType () == typeof(Magic)) {
-					total = total + inventory.getItem(leftHand).attack (inventory);
+					total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack (inventory);
 				} else {
-					total = total + inventory.getItem(leftHand).attack ();
+					total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack ();
 				}
 			}
 			if (inventory.getItem(rightHand).GetType () == typeof(ItemBow)) {
-				total = total + inventory.getItem(rightHand).attack (inventory);
+				total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack (inventory);
 			} else {
 				if (rightHand.GetType () == typeof(Magic)) {
-					total = total + inventory.getItem(rightHand).attack (inventory);
+					total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack (inventory);
 				} else {
-					total = total + inventory.getItem(rightHand).attack ();
+					total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack ();
 				}
 			}
 			return total;
@@ -71,7 +71,19 @@
 			inventory.addItem(i);
 		}
 		public void selectArrow(Arrow i) { inventory.setCurrentArrow(i.id); }
-		public void respawn(){
+        public void pickedUpItem(int id)
+        {
+            inventory.addItem(id);
+        }
+        public void pickedUpItem(Item i, int cnt)
+        {
+            inventory.addItem(i, cnt);
+        }
+        public void pickedUpItem(int id, int cnt)
+        {
+            inventory.addItem(id, cnt);
+        }
+        public void respawn(){
 			Health = 100;
 			inventory.clearInventory ();
 			rightHand = 0;

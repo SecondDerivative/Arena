@@ -11,20 +11,21 @@ namespace Tests
 {
     public class Test
     {
-        [Fact]
-        public void ControlTest()
-        {
-            var control = new Control(1024, 768);
-            control.UpDate(0);
-            control.UpDate(1000);
-            control.UpDate(40);
-        }
+        //[Fact]
+        //public void ControlTest()
+        //{
+              //wait when dich go away
+          //  var control = new Control(1024, 768);
+           // control.UpDate(0);
+            //control.UpDate(1000);
+            //control.UpDate(40);
+        //}
         [Fact]
         public void TestMap()
         {
             var map = new Map(10000, 10000);
             map.UpDate(10);
-            map.AddDrop("Drop1", 10, 20, Drops.arrows);
+            map.AddDrop("Drop1", 10, 20);
             map.AddPlayer("Player1");
             map.SpawnPlayer("Player1", 10, 10);
             map.FirePlayer("Player1", "Arrow1", 10, 10);
@@ -42,7 +43,7 @@ namespace Tests
             var map = new Map(1000, 5000);
             map.AddPlayer("p1");
             map.SpawnPlayer("p1", 10, 10);
-            map.AddDrop("d1", 20, 20, Drops.heal);
+            map.AddDrop("d1", 20, 20);
             map.MovePlayer("p1", new Tuple<double, double>(2, 2));
             map.UpDate(10);
             var ev = map.NextEvent();
@@ -61,7 +62,33 @@ namespace Tests
             map.FirePlayer("p1", "a1", 1, 2);
             map.MovePlayer("p2", new Tuple<double, double>(-1,-2));
             map.UpDate(5);
-            map.SaveMap("D:/save.txt");
+            //map.SaveMap("D:/save.txt");
         }
+
+        [Fact]
+        public void UtilyTest()
+        {
+            Assert.True(25 == SFMLApp.Utily.Hypot2(3, 4), "Bad Hypot2(int)");
+            Assert.True(SFMLApp.Utily.DoubleIsEqual(0.3, 0.1 + 0.2), "Bad double cmp");
+            Assert.True(SFMLApp.Utily.DoubleIsEqual(5, SFMLApp.Utily.Hypot(3, 4)), "Bad Hypot");
+            Assert.True(1000 == SFMLApp.Utily.GetTag(1000).Length, "bad tag");
+        }
+		[Fact]
+		public void PlayerTest()
+		{
+			var player = new Player();
+			player.attack();
+			player.pickedUpItem(Items.allItems[3]);
+			player.takeItemLeft(player.inventory.getItem(3));
+			player.attack();
+			player.recieveDamage(100);
+			player.isDead();
+			player.respawn();
+		}
+        //[Fact]
+        //public void ArenaTest()
+        //{
+            //wait map file
+        //}
     }
 }

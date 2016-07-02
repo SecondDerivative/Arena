@@ -30,6 +30,18 @@
         {
 			inventory[item.id]++;
         }
+        public void addItem(Item item, int cnt)
+        {
+            inventory[item.id] += cnt;
+        }
+        public void addItem(int id)
+        {
+            inventory[id]++;
+        }
+        public void addItem(int id, int cnt)
+        {
+            inventory[id] += cnt;
+        }
         public bool isInStock(Item item)
         {
 			return inventory[item.id] > 0;

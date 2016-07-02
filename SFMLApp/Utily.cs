@@ -38,5 +38,23 @@ namespace SFMLApp
         {
             return x * x + y * y;
         }
+
+        public static string GetTag(int len)
+        {
+            string ans = "";
+            for (int i = 0; i < len; ++i)
+                ans += (char)('a' + Next() % 26);
+            return ans;
+        }
+
+        public static bool DoubleIsEqual(double d1, double d2)
+        {
+            return Math.Abs(d1 - d2) < 1e-10;
+        }
+
+        public static bool DoubleIsEqual(double d1, double d2, double eps)
+        {
+            return Math.Abs(d1 - d2) < eps;
+        }
     }
 }

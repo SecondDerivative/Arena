@@ -74,6 +74,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arena.cs" />
     <Compile Include="Control.cs" />
     <Compile Include="Fonts.cs" />
     <Compile Include="Inventory.cs" />
