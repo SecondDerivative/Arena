@@ -1,0 +1,33 @@
+--------
+Dagger
+15
+2
+Claymore
+20
+3
+Frostmorne
+40
+4
+--------
+Wooden bow
+10
+5
+Iron bow
+20
+7
+Demonic bow
+30
+8
+--------
+Fireball
+13
+5
+20
+Lightning
+25
+7
+25
+Curse
+35
+9
+45

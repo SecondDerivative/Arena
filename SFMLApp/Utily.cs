@@ -56,5 +56,15 @@ namespace SFMLApp
         {
             return Math.Abs(d1 - d2) < eps;
         }
+
+        public static Tuple<T, T> MakePair<T>(T a, T b)
+        {
+            return new Tuple<T, T>(a, b);
+        }
+
+        public static Tuple<T1, T2> MakePair<T1, T2>(T1 a, T2 b)
+        {
+            return new Tuple<T1, T2>(a, b);
+        }
     }
 }

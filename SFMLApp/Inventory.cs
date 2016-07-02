@@ -1,24 +1,25 @@
 ﻿namespace SFMLApp
 {
-	public class Inventory
-	{
+	public class Inventory {
 		private int Mana;
 		private int[] nArrows;
 		private int currentArrow;
 		private int [] inventory;
 		private static int totalNumberofItems = 20;
 		private static int totalNumberofArrows = 3;
-        public Inventory()
-        {
+		public Inventory() {
 			Mana = 100;
 			nArrows = new int[totalNumberofArrows];
 			inventory = new int[totalNumberofItems];
+			currentArrow = 0;
         }
-		public Item getItem(int i){
-			if (inventory [i] > 0)
+
+		public Item getItem(int i) {
+			if (inventory[i] > 0) {
 				return Items.allItems[i];
-			else
+			} else {
 				return null;
+			}
 		}
 		public int getArrowsAmount(){return nArrows[currentArrow];}
 		public void addArrows(Arrow a, int i){nArrows[a.id] = nArrows[a.id] + i;}
@@ -26,31 +27,31 @@
 		public void setCurrentArrow(int i){ currentArrow = i; }
 		public int getMana(){return Mana;}
 		public void addMana(int i){Mana = Mana + i;}
-		public void addItem(Item item)
-        {
+		public void addItem(Item item) {
 			inventory[item.id]++;
         }
-        public void addItem(Item item, int cnt)
-        {
+
+        public void addItem(Item item, int cnt) {
             inventory[item.id] += cnt;
         }
-        public void addItem(int id)
-        {
+
+        public void addItem(int id) {
             inventory[id]++;
         }
-        public void addItem(int id, int cnt)
-        {
+
+        public void addItem(int id, int cnt) {
             inventory[id] += cnt;
         }
-        public bool isInStock(Item item)
-        {
+
+        public bool isInStock(Item item) {
 			return inventory[item.id] > 0;
         }
-        public int howMuchItems(Item item)
-        {
+
+		public int howMuchItems(Item item) {
 			return inventory[item.id];
         }
-		public void clearInventory(){
+
+		public void clearInventory() {
 			for (int i = 1; i < totalNumberofItems; i++) {
 				inventory [i] = 0;
 			}
