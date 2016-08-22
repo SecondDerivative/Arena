@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,14 +14,15 @@ namespace SFMLApp {
     public class View {
 
         public RenderWindow MainForm { get; private set; }
+
 		private int Width;
 		private int Height;
-        private Sprite Menu;
-		private Button MenuButtonStart;
-		private Button MenuButtonExit;
 
-        public void InitEvents(EventHandler Close, EventHandler<KeyEventArgs> KeyDown, EventHandler<MouseButtonEventArgs> MouseDown, EventHandler<MouseButtonEventArgs> MouseUp, EventHandler<MouseMoveEventArgs> MouseMove)
-        {
+		private Sprite Menu;
+        private Button MenuButtonStart;
+        private Button MenuButtonExit;
+
+        public void InitEvents(EventHandler Close, EventHandler<KeyEventArgs> KeyDown, EventHandler<MouseButtonEventArgs> MouseDown, EventHandler<MouseButtonEventArgs> MouseUp, EventHandler<MouseMoveEventArgs> MouseMove) {
             MainForm.Closed += Close;
             MainForm.KeyPressed += KeyDown;
             MainForm.MouseButtonPressed += MouseDown;
@@ -31,7 +33,7 @@ namespace SFMLApp {
         public View(int Width, int Height) {
             this.Width = Width;
             this.Height = Height;
-            MainForm = new RenderWindow(new VideoMode((uint)Width, (uint)Height), "SFML.net", Styles.Titlebar | Styles.Close);            
+            MainForm = new RenderWindow(new VideoMode((uint)Width, (uint)Height), "SFML.net", Styles.Titlebar | Styles.Close);
             Menu = new Sprite(new Texture("data/Menu.png"));
             Menu.Position = new Vector2f(0, 0);
 			MenuButtonStart = new Button("data/Buttons/MainMenuStartButton.txt");
@@ -48,8 +50,8 @@ namespace SFMLApp {
 
         public void DrawMenu() {
             MainForm.Draw(Menu);
-			DrawButton(ref MenuButtonStart);
-			DrawButton(ref MenuButtonExit);
+            DrawButton(ref MenuButtonStart);
+            DrawButton(ref MenuButtonExit);
         }
 
 		private void DrawButton(ref Button button) {
@@ -77,23 +79,43 @@ namespace SFMLApp {
             Text TextOut = new Text(s, Font);
             TextOut.CharacterSize = (uint)size;
             TextOut.Color = cl;
-			TextOut.Position = new Vector2f(x, y);
+            TextOut.Position = new Vector2f(x, y);
             MainForm.Draw(TextOut);
         }
 
-		public void DrawBattle() {
+        public void DrawBattle(Dictionary<string, Player> ArenaPlayers,  // словарь игроков (инфа)
+								Dictionary<string, AArow> ArenaArrows,   // словарь стрел (инфа)
+								Dictionary<string, ADrop> ArenaDrops,    // словарь дроп (инфа)
+								Dictionary<string, MPlayer> MapPlayers,  // словарь игроков (координаты)
+								Dictionary<string, MArrow> MapArrows,    // словарь стрел (координаты)
+								Dictionary<string, MDrop> MapDrops,		 // словарь дроп (координаты)
+								List<List<Square>> Field,				 // 2-мерный массив
+								string PlayerTag = "JaleChaki") {
+			Clear(new Color(0, 0, 0, 255));		 
+            foreach (var p in MapPlayers) {
+				if (p.Value.Tag == PlayerTag) {
+					Sprite healthbar = new Sprite(new Texture("data/HealthBar.png"));
+					healthbar.Position = new Vector2f(Width - 350, 0);
+					healthbar.Scale = new Vector2f(1, 1);
+					MainForm.Draw(healthbar);
+					//Sprite healthState = new Sprite(new Texture("data/HealthState.png"));
+					//healthState.Position
+					break;
+				}
+			}
+        }
 
-		}
+        public void OnMouseMove(ref MouseMoveEventArgs args)
+        {
+            MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
+            MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
+        }
 
-		public void OnMouseMove(ref MouseMoveEventArgs args) {
-			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
-			MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
-		}
-
-		public void OnMouseDown(ref MouseButtonEventArgs args) {
-			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Active, ButtonStatus.Focused);
-			MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Active, ButtonStatus.Focused);
-		}
+        public void OnMouseDown(ref MouseButtonEventArgs args)
+        {
+            MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Active, ButtonStatus.Focused);
+            MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Active, ButtonStatus.Focused);
+        }
 
 		public void OnMouseUp(ref MouseButtonEventArgs args) {
 			MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Active);

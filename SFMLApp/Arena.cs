@@ -9,37 +9,38 @@ namespace SFMLApp
 {
     public class Arena
     {
-        private Map map;
-        private Dictionary<string, Player> players;
-        private SortedSet<string> PlayersTag;
-        private Dictionary<string, AArow> Arrows;
+        public Map map { get; private set; }
+        public Dictionary<string, Player> players { get; private set; }
+        public Dictionary<string, AArow> Arrows { get; private set; }
+        public Dictionary<string, ADrop> drops { get; private set; }
         private Stopwatch timer;
         public Dictionary<string, int> kill { get; private set; }
         public Dictionary<string, int> death { get; private set; }
-        public Dictionary<string, ADrop> drops { get; private set; }
 
         public Arena()
         {
             kill = new Dictionary<string, int>();
             death = new Dictionary<string, int>();
             players = new Dictionary<string, Player>();
-            PlayersTag = new SortedSet<string>();
             Arrows = new Dictionary<string, AArow>();
-            timer = new Stopwatch(); 
+            timer = new Stopwatch();
         }
 
         public void NewMap(string name)
         {
             map = new Map("./data/Maps/" + name + ".txt");
-            foreach (string i in PlayersTag)
+            foreach (var i in players)
             {
-                map.AddPlayer(i);
-                players[i].respawn();
+                map.AddPlayer(i.Key);
+                players[i.Key].respawn();
             }
             timer.Restart();
-        }
+			//** for graphics testing (JaleChaki)
+			AddPlayer("JaleChaki");
+			//**
+		}
 
-        public void MovePlayer(string tag, Tuple<double, double> speed)
+		public void MovePlayer(string tag, Tuple<double, double> speed)
         {
             map.MovePlayer(tag, speed);
         }
@@ -51,7 +52,8 @@ namespace SFMLApp
             if (dmg <= 0)
                 return;
             string arTag = Utily.GetTag(10);
-            Arrows[arTag] = new AArow(tag, dmg);
+            //need change RH to CurrentArrow
+            Arrows[arTag] = new AArow(tag, dmg, players[tag].rightHand);
             map.FirePlayer(tag, arTag, vect.Item1, vect.Item2);
         }
 
@@ -64,7 +66,6 @@ namespace SFMLApp
         {
             map.UpDate();
             MEvent evnt;
-            //need change
             while ((evnt = map.NextEvent()) != null)
             {
                 if (evnt.Tag == MEvents.PlayerArrow)
@@ -117,15 +118,17 @@ namespace SFMLApp
         }
     }
 
-    public class AArow
+    public struct AArow
     {
         public int dmg { get; set; }
         public string creater { get; set; }
+        public int id { get; private set; }
 
-        public AArow(string crt, int dmg)
+        public AArow(string crt, int dmg, int id)
         {
             creater = crt;
             this.dmg = dmg;
+            this.id = id;
         }
     }
 

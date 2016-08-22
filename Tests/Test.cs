@@ -23,7 +23,20 @@ namespace Tests
         [Fact]
         public void TestMap()
         {
-            var map = new Map(10000, 10000);
+            var map = new Map("data/Maps/bag.txt");
+            bool IsFrame = true;
+            for (int i = 0; i < map.Pheight; ++i)
+                IsFrame = IsFrame && !(map.Field[0][i].isEmpty);
+            Assert.True(IsFrame, "Bad left");
+            for (int i = 0; i < map.Pheight; ++i)
+                IsFrame = IsFrame && !(map.Field[map.Pwidth - 1][i].isEmpty);
+            Assert.True(IsFrame, "Bad right");
+            for (int i = 0; i < map.Pwidth; ++i)
+                IsFrame = IsFrame && !(map.Field[i][0].isEmpty);
+            Assert.True(IsFrame, "Bad top");
+            for (int i = 0; i < map.Pwidth; ++i)
+                IsFrame = IsFrame && !(map.Field[i][map.Pheight - 1].isEmpty);
+            Assert.True(IsFrame, "Bad bottom");
             map.UpDate(10);
             map.AddDrop("Drop1", 10, 20);
             map.AddPlayer("Player1");
@@ -73,11 +86,29 @@ namespace Tests
             Assert.True(SFMLApp.Utily.DoubleIsEqual(5, SFMLApp.Utily.Hypot(3, 4)), "Bad Hypot");
             Assert.True(1000 == SFMLApp.Utily.GetTag(1000).Length, "bad tag");
         }
-
-        //[Fact]
-        //public void ArenaTest()
-        //{
-            //wait map file
-        //}
+		[Fact]
+		public void PlayerTest()
+		{
+			var player = new Player();
+			player.attack();
+			player.pickedUpItem(Items.allItems[3]);
+			player.takeItemLeft(player.inventory.getItem(3));
+			player.attack();
+			player.recieveDamage(100);
+			player.isDead();
+			player.respawn();
+		}
+        [Fact]
+        public void ArenaTest()
+        {
+            var arena = new Arena();
+            arena.NewMap("bag");
+            arena.AddPlayer("Tolya");
+            arena.AddPlayer("prifio");
+            arena.AddPlayer("aSh");
+            arena.RemovePlayer("aSh");
+            arena.MovePlayer("Tolya", new Tuple<double, double>(3, 4));
+            arena.FirePlayer("prifio", new Tuple<double, double>(4, -3));
+        }
     }
 }
