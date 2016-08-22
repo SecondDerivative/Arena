@@ -44,14 +44,14 @@ namespace SFMLApp
 
         public void FirePlayer(string tag, Tuple<double, double> vect)
         {
-            //need change vect to speed
             int dmg = players[tag].attack();
             if (dmg <= 0)
                 return;
+            Tuple<double, double> NewVect = Utily.Normalizing(vect, players[tag].Speed());
             string arTag = Utily.GetTag(10);
-            //need change RH to CurrentArrow
+            //need change RightHand to CurrentArrow
             Arrows[arTag] = new AArow(tag, dmg, players[tag].rightHand);
-            map.FirePlayer(tag, arTag, vect.Item1, vect.Item2);
+            map.FirePlayer(tag, arTag, NewVect.Item1, NewVect.Item2);
         }
 
         public void StopPlayer(string tag)

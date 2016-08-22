@@ -21,11 +21,11 @@ namespace SFMLApp
         public int Reloading { get; private set; }
         abstract public int attack();
         abstract public int attack(Inventory i);
-        public void Create(int dmg, int ran, string name, int i, int kd)
+        public void Create(int dmg, int ran, string name, int i, int RelodTime)
         {
             Damage = dmg;
             Range = ran;
-            Reloading = kd;
+            Reloading = RelodTime;
             base.Create(name, i);
         }
     }

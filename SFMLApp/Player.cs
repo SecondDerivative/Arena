@@ -48,13 +48,13 @@ namespace SFMLApp
         	return total;
 		}
 		public void recieveDamage(int dmg){
-			if (Health > 0 & Health < dmg)
+			if (Health > 0 && Health < dmg)
 				Health = 0;
 			else
 				Health = Health - dmg;
 		}
 		public bool isDead(){
-			return Health > 0;
+			return Health <= 0;
 		}
 		public void takeItemLeft(Item i){
 			if (inventory.isInStock(i))
@@ -99,6 +99,11 @@ namespace SFMLApp
 			leftHand = 0;
             LeftReloadTimer.Restart();
             RightReloadTimer.Restart();
+        }
+        public double Speed()
+        {
+            //need change
+            return 1;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace SFMLApp
 {
     public enum ControlState
     {
-        MainState
+        BattleState
     }
 
     public class Control
@@ -28,14 +28,14 @@ namespace SFMLApp
             this.Height = Height;
             view = new View(Width, Height);
             view.InitEvents(Close, KeyDown, MouseDown, MouseUp, MouseMove);
-            state = ControlState.MainState;
+            state = ControlState.BattleState;
             arena = new Arena();
             arena.NewMap("bag");
         }
         
         public void UpDate(long time)
         {
-            if (state == ControlState.MainState)
+            if (state == ControlState.BattleState)
             {
                 arena.Update();
                 view.DrawBattle(arena.players, arena.Arrows, arena.drops, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);

@@ -535,7 +535,6 @@ namespace SFMLApp
                 }
             }
         }
-
         public void Pause()
         {
             Timer.Stop();
