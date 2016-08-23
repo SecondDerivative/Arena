@@ -26,7 +26,6 @@ namespace SFMLApp
             MainForm.MouseButtonReleased += MouseUp;
             MainForm.MouseMoved += MouseMove;
         }
-
         public View(int Width, int Height)
         {
             this.Width = Width;
@@ -47,24 +46,20 @@ namespace SFMLApp
             MenuButtonExit.SetStyles(new Color(255, 0, 0), new Color(0, 255, 0), new Color(0, 0, 255), 40);
             #endregion
         }
-
         public void Clear()
         {
             MainForm.Clear(Color.White);
         }
-
         public void Clear(Color cl)
         {
             MainForm.Clear(cl);
         }
-
         public void DrawMenu()
         {
             MainForm.Draw(Menu);
             DrawButton(ref MenuButtonStart);
             DrawButton(ref MenuButtonExit);
         }
-
         private void DrawButton(ref Button button)
         {
             Texture ButtonCurrentStyle = null;
@@ -89,7 +84,6 @@ namespace SFMLApp
             MainForm.Draw(buttonsprite);
             DrawText(button.InnerText, button.PositionX, button.PositionY, button.InnerTextSize, button.TextFont, ButtonTextCurrentColor);
         }
-
         public void DrawText(string s, int x, int y, int size, Font Font, Color cl)
         {
             Text TextOut = new Text(s, Font);
@@ -99,29 +93,72 @@ namespace SFMLApp
             MainForm.Draw(TextOut);
         }
 
-        public void DrawBattle(Dictionary<int, Player> ArenaPlayers, Dictionary<int, AArow> ArenaArrows, Dictionary<int, ADrop> ArenaDrops,
+
+        //BattleDraw and data
+        //...
+
+        public void DrawBattle(Dictionary<int, Player> Players, Dictionary<int, AArow> ArenaArrows, Dictionary<int, ADrop> ArenaDrops, Dictionary<int, APlayer> Aplayer,
             Dictionary<int, MPlayer> MapPlayers, Dictionary<int, MArrow> MapArrows, List<List<Square>> Field, Dictionary<int, MDrop> MapDrops)
         {
-            
+
         }
+        public void UpdateAnimation()
+        {
+
+        }
+        public void AddPlayer(int tag)
+        {
+
+        } 
+        public void RemovePlayer(int tag)
+        {
+
+        }
+        public void AddDrop(int tag)
+        {
+
+        }
+        public void RemoveDrop(int tag)
+        {
+
+        }
+        public void AddArrow(int tag)
+        {
+
+        }
+        public void RemoveArrow(int tag)
+        {
+
+        }
+        public void NewGame()
+        {
+            //Cleare all data
+        }
+        public Tuple<double, double> AngleByMousePos(int x, int y)
+        {
+            return Utily.MakePair<double>(0, 0);
+        }        
+        public void Scroll(int i)
+        {
+            //if i == 1 - forward scroll. i == -1 - back scroll
+        }
+        
+        //end BattleDraw and data
 
         public void OnMouseMove(ref MouseMoveEventArgs args)
         {
             MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
             MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
         }
-
         public void OnMouseDown(ref MouseButtonEventArgs args)
         {
             MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Active, ButtonStatus.Focused);
             MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Active, ButtonStatus.Focused);
         }
-
         public void OnMouseUp(ref MouseButtonEventArgs args)
         {
             MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Active);
             MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Active);
         }
-
     }
 }
