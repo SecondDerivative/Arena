@@ -38,15 +38,15 @@ namespace Tests
                 IsFrame = IsFrame && !(map.Field[i][map.Pheight - 1].isEmpty);
             Assert.True(IsFrame, "Bad bottom");
             map.UpDate(10);
-            map.AddDrop("Drop1", 10, 20);
-            map.AddPlayer("Player1");
-            map.SpawnPlayer("Player1", 10, 10);
-            map.FirePlayer("Player1", "Arrow1", 10, 10);
-            map.ShortUpDateArrow("Arrow1", 10);
-            map.MovePlayer("Player1", new Tuple<double, double>(1, 2));
+            map.AddDrop(1, 10, 20);
+            map.AddPlayer(1);
+            map.SpawnPlayer(1, 10, 10);
+            map.FirePlayer(1, 1, 10, 10);
+            map.ShortUpDateArrow(1, 10);
+            map.MovePlayer(1, new Tuple<double, double>(1, 2));
             map.NextEvent();
             map.UpDate(100);
-            map.StopPlayer("Player1");
+            map.StopPlayer(1);
             map.UpDate(10);
             map.UpDate();
         }
@@ -54,26 +54,26 @@ namespace Tests
         public void TestEvents()
         {
             var map = new Map(1000, 5000);
-            map.AddPlayer("p1");
-            map.SpawnPlayer("p1", 10, 10);
-            map.AddDrop("d1", 20, 20);
-            map.MovePlayer("p1", new Tuple<double, double>(2, 2));
+            map.AddPlayer(1);
+            map.SpawnPlayer(1, 10, 10);
+            map.AddDrop(1, 20, 20);
+            map.MovePlayer(1, new Tuple<double, double>(2, 2));
             map.UpDate(10);
             var ev = map.NextEvent();
             Assert.True(ev.Tag == MEvents.PlayerDrop);
-            Assert.True(ev.Tag1 == "p1");
-            Assert.True(ev.Tag2 == "d1");
+            Assert.True(ev.Tag1 == 1);
+            Assert.True(ev.Tag2 == 1);
         }
         [Fact]
         public void TestMapSave()
         {
             var map = new Map(1000,700);
-            map.AddPlayer("p1");
-            map.AddPlayer("p2");
-            map.SpawnPlayer("p1", 10, 20);
-            map.SpawnPlayer("p2",30,60);
-            map.FirePlayer("p1", "a1", 1, 2);
-            map.MovePlayer("p2", new Tuple<double, double>(-1,-2));
+            map.AddPlayer(1);
+            map.AddPlayer(2);
+            map.SpawnPlayer(1, 10, 20);
+            map.SpawnPlayer(2,30,60);
+            map.FirePlayer(1, 1, 1, 2);
+            map.MovePlayer(2, new Tuple<double, double>(-1,-2));
             map.UpDate(5);
             //map.SaveMap("D:/save.txt");
         }
@@ -84,7 +84,6 @@ namespace Tests
             Assert.True(25 == SFMLApp.Utily.Hypot2(3, 4), "Bad Hypot2(int)");
             Assert.True(SFMLApp.Utily.DoubleIsEqual(0.3, 0.1 + 0.2), "Bad double cmp");
             Assert.True(SFMLApp.Utily.DoubleIsEqual(5, SFMLApp.Utily.Hypot(3, 4)), "Bad Hypot");
-            Assert.True(1000 == SFMLApp.Utily.GetTag(1000).Length, "bad tag");
         }
 
 		[Fact]

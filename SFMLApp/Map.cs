@@ -14,8 +14,8 @@ namespace SFMLApp
         public double x { get; set; }
         public double y { get; set; }
         public bool Exist { get; set; }
-        public string Tag { get; private set; }
-        public Entity(string Tag, double x, double y, int r)
+        public int Tag { get; private set; }
+        public Entity(int Tag, double x, double y, int r)
         {
             this.r = r;
             this.x = x;
@@ -26,14 +26,14 @@ namespace SFMLApp
         public static Entity Load(string s)
         {
             string[] args = s.Split().ToArray();
-            Entity E = new Entity(args[0], double.Parse(args[1]), double.Parse(args[2]), int.Parse(args[3]));
+            Entity E = new Entity(int.Parse(args[0]), double.Parse(args[1]), double.Parse(args[2]), int.Parse(args[3]));
             return E;
         }
     }
     public class MovableEntity : Entity
     {
         public Tuple<double, double> Speed;
-        public MovableEntity(string Tag, double x, double y, int r) : base(Tag, x, y, r)
+        public MovableEntity(int Tag, double x, double y, int r) : base(Tag, x, y, r)
         {
             this.Speed = new Tuple<double, double>(0, 0);
         }
@@ -53,12 +53,12 @@ namespace SFMLApp
     }
     public class MPlayer : MovableEntity
     {
-        public MPlayer(string Tag, double x, double y) : base(Tag, x, y, Map.RPlayer)
+        public MPlayer(int Tag, double x, double y) : base(Tag, x, y, Map.RPlayer)
         { }
         public static MPlayer Load(string save)
         {
             string[] args = save.Split().ToArray();
-            string Tag = args[0];
+            int Tag = int.Parse(args[0]);
             bool tmp;
             bool Exist = Boolean.TryParse(args[1], out tmp);
             double x = double.Parse(args[2]), y = double.Parse(args[3]);
@@ -75,12 +75,12 @@ namespace SFMLApp
     }
     public class MArrow : MovableEntity
     {
-        public MArrow(string Tag, double x, double y, double SpeedX, double SpeedY) : base(Tag, x, y, Map.RArrow)
+        public MArrow(int Tag, double x, double y, double SpeedX, double SpeedY) : base(Tag, x, y, Map.RArrow)
         { this.Speed = new Tuple<double, double>(SpeedX, SpeedY); }
         public static MArrow Load(string save)
         {
             string[] args = save.Split().ToArray();
-            string Tag = args[0];
+            int Tag = int.Parse(args[0]);
             bool tmp;
             bool Exist = Boolean.TryParse(args[1], out tmp);
             double x = double.Parse(args[2]), y = double.Parse(args[3]);
@@ -118,7 +118,7 @@ namespace SFMLApp
         public static int RArrow = 5;
         public static int RDrop = 10;
 
-        private Queue<string> ForDelArrow;
+        private Queue<int> ForDelArrow;
         private List<Tuple<double, double>> dropSpawners;
         private List<Tuple<double, double>> spawners;
         private Queue<MEvent> Q;
@@ -126,17 +126,17 @@ namespace SFMLApp
         private int width, height;
         public int Pheight {get; private set;}
         public int Pwidth { get; private set; }
-        public Dictionary<string, MPlayer> players { get; private set; }
-        public Dictionary<string, MArrow> arrows { get; private set; }
+        public Dictionary<int, MPlayer> players { get; private set; }
+        public Dictionary<int, MArrow> arrows { get; private set; }
         public List<List<Square>> Field { get; private set; }
-        public Dictionary<string, MDrop> drops { get; private set; }
+        public Dictionary<int, MDrop> drops { get; private set; }
 
-        public void SpawnDrops(string Tag)
+        public void SpawnDrops(int Tag)
         {
 
             foreach (var ds in dropSpawners)
             {
-                Entity e = new Entity("", ds.Item1, ds.Item2, RDrop);
+                Entity e = new Entity(0, ds.Item1, ds.Item2, RDrop);
                 bool bol = true;
                 foreach (var d in drops)
                 {
@@ -156,7 +156,7 @@ namespace SFMLApp
         {
             dropSpawners.Add(new Tuple<double, double>(x, y));
         }
-        public void SpawnDrops(string Tag, double x, double y)
+        public void SpawnDrops(int Tag, double x, double y)
         {
             this.drops.Add(Tag, new MDrop(Tag, x, y));
         }
@@ -177,28 +177,28 @@ namespace SFMLApp
                 int[] tmp = args[0].Split().Select(x => int.Parse(x)).ToArray();
                 this.width = tmp[0]; this.height = tmp[1];
                 int couPl = int.Parse(args[1]);
-                this.players = new Dictionary<string, MPlayer>();
+                this.players = new Dictionary<int, MPlayer>();
                 for (int i = 2; i < couPl + 2; ++i)
                 {
                     string stmp = args[i];
                     string[] Tmp = stmp.Split().ToArray();
-                    this.players.Add(Tmp[0], MPlayer.Load(stmp));
+                    this.players.Add(int.Parse(Tmp[0]), MPlayer.Load(stmp));
                 }
                 int couArr = int.Parse(args[couPl + 2]);
-                this.arrows = new Dictionary<string, MArrow>();
+                this.arrows = new Dictionary<int, MArrow>();
                 for (int i = couPl + 3; i < couPl + 3 + couArr; ++i)
                 {
                     string stmp = args[i];
                     string[] Tmp = stmp.Split().ToArray();
-                    this.arrows.Add(Tmp[0], MArrow.Load(stmp));
+                    this.arrows.Add(int.Parse(Tmp[0]), MArrow.Load(stmp));
                 }
                 int couDro = int.Parse(args[couArr + couPl + 3]);
-                this.drops = new Dictionary<string, MDrop>();
+                this.drops = new Dictionary<int, MDrop>();
                 for (int i = couPl + 4 + couArr; i < couPl + 4 + couArr + couDro; ++i)
                 {
                     string stmp = args[i];
                     string[] Tmp = stmp.Split().ToArray();
-                    this.drops.Add(Tmp[0], MDrop.Load(stmp));
+                    this.drops.Add(int.Parse(Tmp[0]), MDrop.Load(stmp));
                 }
                 int index = couPl + couArr + couDro + 4;
                 tmp = args[index].Split().Select(x => int.Parse(x)).ToArray();
@@ -284,7 +284,7 @@ namespace SFMLApp
                 return null;
             return Q.Dequeue();
         }
-        public void AddDrop(string Tag, double x, double y)
+        public void AddDrop(int Tag, double x, double y)
         {
             drops.Add(Tag, new MDrop(Tag, x, y));
         }
@@ -339,10 +339,10 @@ namespace SFMLApp
             this.height = height;
             this.Pwidth = width / Rwidth;
             this.Pheight = height / Rwidth;
-            this.players = new Dictionary<string, MPlayer>();
-            this.arrows = new Dictionary<string, MArrow>();
+            this.players = new Dictionary<int, MPlayer>();
+            this.arrows = new Dictionary<int, MArrow>();
             this.Field = new List<List<Square>>();
-            this.drops = new Dictionary<string, MDrop>();
+            this.drops = new Dictionary<int, MDrop>();
             this.spawners = new List<Tuple<double, double>>();
             this.dropSpawners = new List<Tuple<double, double>>();
             for (int x = 0; x < Pwidth; ++x)
@@ -352,38 +352,38 @@ namespace SFMLApp
                     this.Field[x].Add(new Square(x, y));
             this.Timer = new Stopwatch();
             this.Q = new Queue<MEvent>();
-            this.ForDelArrow = new Queue<string>();
+            this.ForDelArrow = new Queue<int>();
         }
         public Map(string path)
         {
 
             this.Timer = new Stopwatch();
             this.Q = new Queue<MEvent>();
-            this.ForDelArrow = new Queue<string>();
+            this.ForDelArrow = new Queue<int>();
             this.spawners = new List<Tuple<double, double>>();
             this.dropSpawners = new List<Tuple<double, double>>();
             LoadMap(path);
         }
-        public void AddPlayer(string Tag)
+        public void AddPlayer(int Tag)
         {
             players.Add(Tag, new MPlayer(Tag, 0, 0));
             players[Tag].Exist = false;
         }
-        public void RemovePlayer(string tag)
+        public void RemovePlayer(int tag)
         {
             players.Remove(tag);
         }
-        public void SpawnPlayer(string Tag, int x, int y)
+        public void SpawnPlayer(int Tag, int x, int y)
         {
             players[Tag].x = x;
             players[Tag].y = y;
             players[Tag].Exist = true;
         }
-        public void SpawnPlayer(string Tag)
+        public void SpawnPlayer(int Tag)
         {
             foreach (var p in spawners)
             {
-                Entity e = new Entity("", p.Item1, p.Item2, RPlayer);
+                Entity e = new Entity(0, p.Item1, p.Item2, RPlayer);
                 bool bol = true;
                 foreach (var pl in players)
                 {
@@ -399,11 +399,11 @@ namespace SFMLApp
                 }
             }
         }
-        public void StopPlayer(string Tag)
+        public void StopPlayer(int Tag)
         {
             players[Tag].Speed = new Tuple<double, double>(0, 0);
         }
-        public void MovePlayer(string Tag, Tuple<double, double> Speed)
+        public void MovePlayer(int Tag, Tuple<double, double> Speed)
         {
             players[Tag].Speed = Speed;
         }
@@ -417,7 +417,7 @@ namespace SFMLApp
                 return false;
             return (a.r + b.r) * (a.r + b.r) - (a.x - b.x) * (a.x - b.x) - (a.y - b.y) * (a.y - b.y) >= 0;
         }
-        private void ShortUpDatePlayer(string Tag, int Time)
+        private void ShortUpDatePlayer(int Tag, int Time)
         {
             MPlayer Pl = players[Tag];
             if (Pl.Speed.Item1 == 0 && Pl.Speed.Item2 == 0)
@@ -443,7 +443,7 @@ namespace SFMLApp
                 players[Tag].y -= Line.Item2;
                 return;
             }
-            List<string> del = new List<string>();
+            List<int> del = new List<int>();
             foreach (var d in drops)
             {
                 if (IsCrossEntity(d.Value, Pl))
@@ -455,7 +455,7 @@ namespace SFMLApp
             for (int i = 0; i < del.Count; ++i)
                 drops.Remove(del[i]);
         }
-        private void UpDatePlayer(string Tag, int Time)
+        private void UpDatePlayer(int Tag, int Time)
         {
             if (players[Tag].Speed.Item1 == 0 && players[Tag].Speed.Item2 == 0)
                 return;
@@ -465,14 +465,14 @@ namespace SFMLApp
                     ShortUpDatePlayer(Tag, 1);
             }
         }
-        public void FirePlayer(string TagPlayer, string TagArrow, double SpeedX, double SpeedY)
+        public void FirePlayer(int TagPlayer, int TagArrow, double SpeedX, double SpeedY)
         {
             double abs = Math.Sqrt(SpeedX * SpeedX + SpeedY * SpeedY);
             double x = (RPlayer + RArrow + 1) * SpeedX / abs;
             double y = (RPlayer + RArrow + 1) * SpeedY / abs;
             arrows.Add(TagArrow, new MArrow(TagArrow, x + players[TagPlayer].x, y + players[TagPlayer].y, SpeedX, SpeedY));
         }
-        public void ShortUpDateArrow(string Tag, int Time)
+        public void ShortUpDateArrow(int Tag, int Time)
         {
             MArrow Ar = arrows[Tag];
             Tuple<double, double> Line = new Tuple<double, double>(Time * Ar.Speed.Item1 / 4.0, Time * Ar.Speed.Item2 / 4.0);
@@ -497,7 +497,7 @@ namespace SFMLApp
                 this.ForDelArrow.Enqueue(Tag);
             }
         }
-        private void UpDateArrow(string Tag, int Time)
+        private void UpDateArrow(int Tag, int Time)
         {
             for (int i = 0; i < Time; ++i)
             {
@@ -529,7 +529,7 @@ namespace SFMLApp
                 }
                 while (this.ForDelArrow.Count > 0)
                 {
-                    string s = ForDelArrow.Dequeue();
+                    int s = ForDelArrow.Dequeue();
                     if (arrows.ContainsKey(s))
                         arrows.Remove(s);
                 }
@@ -547,9 +547,9 @@ namespace SFMLApp
     public class MEvent
     {
         public MEvents Tag { get; private set; }
-        public string Tag1 { get; private set; }
-        public string Tag2 { get; private set; }
-        public MEvent(MEvents Tag, string Tag1, string Tag2)
+        public int Tag1 { get; private set; }
+        public int Tag2 { get; private set; }
+        public MEvent(MEvents Tag, int Tag1, int Tag2)
         {
             this.Tag = Tag;
             this.Tag1 = Tag1;
@@ -563,7 +563,7 @@ namespace SFMLApp
     }
     public class MDrop : Entity
     {
-        public MDrop(string Tag, double x, double y) : base(Tag, x, y, Map.RDrop)
+        public MDrop(int Tag, double x, double y) : base(Tag, x, y, Map.RDrop)
         { }
         public override string ToString()
         {
@@ -572,7 +572,7 @@ namespace SFMLApp
         public static MDrop Load(string save)
         {
             string[] args = save.Split().ToArray();
-            string Tag = args[0];
+            int Tag = int.Parse(args[0]);
             bool tmp;
             bool Exist = Boolean.TryParse(args[1], out tmp);
             double x = double.Parse(args[2]), y = double.Parse(args[3]);

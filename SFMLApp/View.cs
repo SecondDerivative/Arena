@@ -99,8 +99,8 @@ namespace SFMLApp
             MainForm.Draw(TextOut);
         }
 
-        public void DrawBattle(Dictionary<string, Player> ArenaPlayers, Dictionary<string, AArow> ArenaArrows, Dictionary<string, ADrop> ArenaDrops,
-            Dictionary<string, MPlayer> MapPlayers, Dictionary<string, MArrow> MapArrows, List<List<Square>> Field, Dictionary<string, MDrop> MapDrops)
+        public void DrawBattle(Dictionary<int, Player> ArenaPlayers, Dictionary<int, AArow> ArenaArrows, Dictionary<int, ADrop> ArenaDrops,
+            Dictionary<int, MPlayer> MapPlayers, Dictionary<int, MArrow> MapArrows, List<List<Square>> Field, Dictionary<int, MDrop> MapDrops)
         {
             
         }

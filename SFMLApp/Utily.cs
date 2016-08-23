@@ -9,6 +9,7 @@ namespace SFMLApp
     public static class Utily
     {
         static Random random = new Random();
+        static int LastTag = 0;
 
         public static int Next()
         {
@@ -47,12 +48,9 @@ namespace SFMLApp
             return x * x + y * y;
         }
 
-        public static string GetTag(int len)
+        public static int GetTag()
         {
-            string ans = "";
-            for (int i = 0; i < len; ++i)
-                ans += (char)('a' + Next() % 26);
-            return ans;
+            return LastTag++;
         }
 
         public static bool DoubleIsEqual(double d1, double d2)

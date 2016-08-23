@@ -38,7 +38,7 @@ namespace SFMLApp
             if (state == ControlState.BattleState)
             {
                 arena.Update();
-                view.DrawBattle(arena.players, arena.Arrows, arena.drops, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
+                view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
             }
             if (time > 0)
                 view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.White);
