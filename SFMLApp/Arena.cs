@@ -9,12 +9,14 @@ namespace SFMLApp
 {
     public class Arena
     {
+        public const int WaitRespawnDrop = 30000;
         public Map map { get; private set; }
         public Dictionary<int, Player> players { get; private set; }
         public Dictionary<int, AArow> Arrows { get; private set; }
         public Dictionary<int, ADrop> Drops { get; private set; }
         public Dictionary<int, APlayer> ArenaPlayer { get; private set; }
         private Stopwatch timer;
+        Queue<Tuple<int, int> > DropForRespawn;
         private Dictionary<string, int> TagName;
 
         public Arena()
@@ -22,8 +24,10 @@ namespace SFMLApp
             ArenaPlayer = new Dictionary<int, APlayer>();
             players = new Dictionary<int, Player>();
             Arrows = new Dictionary<int, AArow>();
+            Drops = new Dictionary<int, ADrop>();
             timer = new Stopwatch();
             TagName = new Dictionary<string, int>();
+            DropForRespawn = new Queue<Tuple<int, int> >();
         }
 
         public void NewMap(string name)
@@ -34,6 +38,10 @@ namespace SFMLApp
                 map.AddPlayer(i.Key);
                 players[i.Key].respawn();
             }
+            Arrows.Clear();
+            Drops.Clear();
+            DropForRespawn.Clear();
+            //code for first spawn drop
             timer.Restart();
         }
 
@@ -73,8 +81,12 @@ namespace SFMLApp
                     players[evnt.Tag1].recieveDamage(Arrows[evnt.Tag2].dmg);
                     if (players[evnt.Tag1].isDead())
                     {
-                        ArenaPlayer[Arrows[evnt.Tag2].creater].AddKill(); ;
+                        ArenaPlayer[Arrows[evnt.Tag2].creater].AddKill();
                         ArenaPlayer[evnt.Tag1].AddDeath();
+                        int NewTag = Utily.GetTag(), deadTag = evnt.Tag1;
+                        map.SpawnDrops(NewTag, map.players[deadTag].x, map.players[deadTag].y);
+                        Drops.Add(NewTag, new ADrop(1, players[deadTag].rightHand));
+                        players[deadTag].respawn();
                     }
                     Arrows.Remove(evnt.Tag2);
                 }
@@ -82,12 +94,13 @@ namespace SFMLApp
                 {
                     var drop = Drops[evnt.Tag2];
                     players[evnt.Tag1].pickedUpItem(drop.id, drop.Count);
+                    //if drop.ReasoneSpawn == Enum.Spawner add to Queue
                 }
             }
-            if (timer.ElapsedMilliseconds > 30000)
+            while (DropForRespawn.Count > 0 && DropForRespawn.Peek().Item1 + WaitRespawnDrop > timer.ElapsedMilliseconds)
             {
-                timer.Restart();
-                //add drop to map
+                int num = DropForRespawn.Dequeue().Item2;
+                map.SpawnDrops(num);
             }
         }
 
