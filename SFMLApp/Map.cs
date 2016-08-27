@@ -124,7 +124,7 @@ namespace SFMLApp
         private Queue<MEvent> Q;
         private Stopwatch Timer;
         private int width, height;
-        public int Pheight {get; private set;}
+        public int Pheight { get; private set; }
         public int Pwidth { get; private set; }
         public Dictionary<int, MPlayer> players { get; private set; }
         public Dictionary<int, MArrow> arrows { get; private set; }
@@ -448,7 +448,7 @@ namespace SFMLApp
             {
                 if (IsCrossEntity(d.Value, Pl))
                 {
-                    Q.Enqueue(new MEvent(MEvents.PlayerDrop, Tag, d.Value.Tag));
+                    Q.Enqueue(new MEventDrop(Tag, d.Value.Tag, false));//false need change
                     del.Add(d.Key);
                 }
             }
@@ -479,6 +479,7 @@ namespace SFMLApp
             if (IsEntityInSquare(Ar))
             {
                 this.ForDelArrow.Enqueue(Tag);
+                Q.Enqueue(new MEventDestroyArrow(Tag));
                 return;
             }
             arrows[Tag].x += Line.Item1;
@@ -487,7 +488,7 @@ namespace SFMLApp
             {
                 if (IsCrossEntity(p.Value, Ar))
                 {
-                    Q.Enqueue(new MEvent(MEvents.PlayerArrow, p.Key, Tag));
+                    Q.Enqueue(new MEventArrowHit(p.Key, Tag));
                     this.ForDelArrow.Enqueue(Tag);
                     return;
                 }
@@ -544,23 +545,6 @@ namespace SFMLApp
             Timer.Start();
         }
     }
-    public class MEvent
-    {
-        public MEvents Tag { get; private set; }
-        public int Tag1 { get; private set; }
-        public int Tag2 { get; private set; }
-        public MEvent(MEvents Tag, int Tag1, int Tag2)
-        {
-            this.Tag = Tag;
-            this.Tag1 = Tag1;
-            this.Tag2 = Tag2;
-        }
-    }
-    public enum MEvents
-    {
-        PlayerDrop,
-        PlayerArrow
-    }
     public class MDrop : Entity
     {
         public MDrop(int Tag, double x, double y) : base(Tag, x, y, Map.RDrop)
@@ -586,5 +570,50 @@ namespace SFMLApp
     {
         heal,
         arrows
+    }
+
+    public class MEvent
+    {
+        public MEvents Type { get; private set; }
+        public MEvent(MEvents type)
+        {
+            this.Type = type;
+        }
+    }
+    public class MEventDrop : MEvent
+    {
+        public int TagPlayer { get; private set; }
+        public int TagDrop { get; private set; }//if Drop was spawned by spawner, this return number of spawner
+        public bool BySpawner { get; private set; }
+        public MEventDrop(int TagPlayer, int TagDrop, bool BySpawner) : base(MEvents.PlayerDrop)
+        {
+            this.BySpawner = BySpawner;
+            this.TagDrop = TagDrop;
+            this.TagPlayer = TagPlayer;
+        }
+    }
+    public class MEventArrowHit : MEvent
+    {
+        public int TagArrow { get; private set; }
+        public int TagPlayer { get; private set; }
+        public MEventArrowHit(int TagArrow, int TagPlayer) : base(MEvents.PlayerArrow)
+        {
+            this.TagArrow = TagArrow;
+            this.TagPlayer = TagPlayer;
+        }
+    }
+    public class MEventDestroyArrow : MEvent
+    {
+        public int TagArrow { get; private set; }
+        public MEventDestroyArrow(int TagArrow) : base(MEvents.DestroyArrow)
+        {
+            this.TagArrow = TagArrow;
+        }
+    }
+    public enum MEvents
+    {
+        PlayerDrop,
+        PlayerArrow,
+        DestroyArrow
     }
 }

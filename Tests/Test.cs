@@ -54,15 +54,16 @@ namespace Tests
         public void TestEvents()
         {
             var map = new Map(1000, 5000);
-            map.AddPlayer(1);
-            map.SpawnPlayer(1, 10, 10);
+            map.AddPlayer(0);
+            map.SpawnPlayer(0, 10, 10);
             map.AddDrop(1, 20, 20);
-            map.MovePlayer(1, new Tuple<double, double>(2, 2));
+            map.MovePlayer(0, new Tuple<double, double>(2, 2));
             map.UpDate(10);
             var ev = map.NextEvent();
-            Assert.True(ev.Tag == MEvents.PlayerDrop);
-            Assert.True(ev.Tag1 == 1);
-            Assert.True(ev.Tag2 == 1);
+            Assert.True(ev.Type == MEvents.PlayerDrop);
+            var NewEv = (MEventDrop)ev;
+            Assert.True(NewEv.TagPlayer == 0);
+            Assert.True(NewEv.TagDrop == 1);
         }
         [Fact]
         public void TestMapSave()

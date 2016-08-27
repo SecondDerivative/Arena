@@ -16,7 +16,7 @@ namespace SFMLApp
         public Dictionary<int, ADrop> Drops { get; private set; }
         public Dictionary<int, APlayer> ArenaPlayer { get; private set; }
         private Stopwatch timer;
-        Queue<Tuple<int, int> > DropForRespawn;
+        Queue<Tuple<long, int> > DropForRespawn;
         private Dictionary<string, int> TagName;
 
         public Arena()
@@ -27,7 +27,7 @@ namespace SFMLApp
             Drops = new Dictionary<int, ADrop>();
             timer = new Stopwatch();
             TagName = new Dictionary<string, int>();
-            DropForRespawn = new Queue<Tuple<int, int> >();
+            DropForRespawn = new Queue<Tuple<long, int> >();
         }
 
         public void NewMap(string name)
@@ -73,28 +73,37 @@ namespace SFMLApp
         public void Update()
         {
             map.UpDate();
-            MEvent evnt;
-            while ((evnt = map.NextEvent()) != null)
+            MEvent Event;
+            while ((Event = map.NextEvent()) != null)
             {
-                if (evnt.Tag == MEvents.PlayerArrow)
+                if (Event.Type == MEvents.PlayerArrow)
                 {
-                    players[evnt.Tag1].recieveDamage(Arrows[evnt.Tag2].dmg);
-                    if (players[evnt.Tag1].isDead())
+                    int TagArrow = ((MEventArrowHit)Event).TagArrow;
+                    int TagPlayer = ((MEventArrowHit)Event).TagPlayer;
+                    players[TagPlayer].recieveDamage(Arrows[TagArrow].dmg);
+                    if (players[TagPlayer].isDead())
                     {
-                        ArenaPlayer[Arrows[evnt.Tag2].creater].AddKill();
-                        ArenaPlayer[evnt.Tag1].AddDeath();
-                        int NewTag = Utily.GetTag(), deadTag = evnt.Tag1;
-                        map.SpawnDrops(NewTag, map.players[deadTag].x, map.players[deadTag].y);
-                        Drops.Add(NewTag, new ADrop(1, players[deadTag].rightHand));
-                        players[deadTag].respawn();
+                        ArenaPlayer[Arrows[TagArrow].creater].AddKill();
+                        ArenaPlayer[TagPlayer].AddDeath();
+                        int NewTag = Utily.GetTag();
+                        map.SpawnDrops(NewTag, map.players[TagPlayer].x, map.players[TagPlayer].y);
+                        Drops.Add(NewTag, new ADrop(1, players[TagPlayer].rightHand));
+                        players[TagPlayer].respawn();
                     }
-                    Arrows.Remove(evnt.Tag2);
+                    Arrows.Remove(TagArrow);
                 }
-                if (evnt.Tag == MEvents.PlayerDrop)
+                if (Event.Type == MEvents.PlayerDrop)
                 {
-                    var drop = Drops[evnt.Tag2];
-                    players[evnt.Tag1].pickedUpItem(drop.id, drop.Count);
-                    //if drop.ReasoneSpawn == Enum.Spawner add to Queue
+                    var drop = Drops[((MEventDrop)Event).TagDrop];
+                    players[((MEventDrop)Event).TagPlayer].pickedUpItem(drop.id, drop.Count);
+                    if (((MEventDrop)Event).BySpawner)
+                    {
+                        DropForRespawn.Enqueue(Utily.MakePair<long, int>(timer.ElapsedMilliseconds, ((MEventDrop)Event).TagDrop));
+                    }
+                }
+                if (Event.Type == MEvents.DestroyArrow)
+                {
+                    Arrows.Remove(((MEventDestroyArrow)Event).TagArrow);
                 }
             }
             while (DropForRespawn.Count > 0 && DropForRespawn.Peek().Item1 + WaitRespawnDrop > timer.ElapsedMilliseconds)

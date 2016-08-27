@@ -1,1 +1,1 @@
-.\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\Tests\bin\x86\Debug\Tests.dll  
+.\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\Tests\bin\Debug\Tests.dll  
