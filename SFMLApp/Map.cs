@@ -111,6 +111,20 @@ namespace SFMLApp
             this.isEmpty = b;
         }
     }
+    public class DropSpawner
+    {
+        public double x;
+        public double y;
+        public int id;
+        public int count;
+        public DropSpawner(double x,double y,int id,int count)
+        {
+            this.x = x;
+            this.y = y;
+            this.id = id;
+            this.count = count;
+        }
+    }
     public class Map
     {
         public static int RPlayer = 10;
@@ -119,7 +133,7 @@ namespace SFMLApp
         public static int RDrop = 10;
 
         private Queue<int> ForDelArrow;
-        private List<Tuple<double, double>> dropSpawners;
+        private List<DropSpawner> dropSpawners;
         private List<Tuple<double, double>> spawners;
         private Queue<MEvent> Q;
         private Stopwatch Timer;
@@ -131,12 +145,12 @@ namespace SFMLApp
         public List<List<Square>> Field { get; private set; }
         public Dictionary<int, MDrop> drops { get; private set; }
 
-        public void SpawnDrops(int Tag)
+        public void SpawnDrops(int num)
         {
 
             foreach (var ds in dropSpawners)
             {
-                Entity e = new Entity(0, ds.Item1, ds.Item2, RDrop);
+                Entity e = new Entity(0, ds.x, ds.y, RDrop);
                 bool bol = true;
                 foreach (var d in drops)
                 {
@@ -147,7 +161,7 @@ namespace SFMLApp
                 }
                 if (bol)
                 {
-                    SpawnDrops(Tag, ds.Item1, ds.Item2);
+                    SpawnDrops(Utily.GetTag(), ds.x, ds.x,Reason.BySpawner);
                     return;
                 }
             }
@@ -156,9 +170,9 @@ namespace SFMLApp
         {
             dropSpawners.Add(new Tuple<double, double>(x, y));
         }
-        public void SpawnDrops(int Tag, double x, double y)
+        public void SpawnDrops(int Tag, double x, double y,Reason reason)
         {
-            this.drops.Add(Tag, new MDrop(Tag, x, y));
+            this.drops.Add(Tag, new MDrop(Tag, x, y,reason));
         }
         private void AddSpawner(double x, double y)
         {
@@ -563,8 +577,11 @@ namespace SFMLApp
     }
     public class MDrop : Entity
     {
-        public MDrop(int Tag, double x, double y) : base(Tag, x, y, Map.RDrop)
-        { }
+        public Reason reason;
+        public MDrop(int Tag, double x, double y, Reason reason) : base(Tag, x, y, Map.RDrop)
+        {
+            this.reason = reason;
+        }
         public override string ToString()
         {
             return this.Tag + " " + this.Exist + " " + this.x + " " + this.y;
@@ -581,6 +598,11 @@ namespace SFMLApp
             return Dr;
         }
 
+    }
+    public enum Reason
+    {
+        ByPlayer,
+        BySpawner
     }
     public enum Drops
     {
