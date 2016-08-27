@@ -38,12 +38,12 @@ namespace Tests
                 IsFrame = IsFrame && !(map.Field[i][map.Pheight - 1].isEmpty);
             Assert.True(IsFrame, "Bad bottom");
             map.UpDate(10);
-            map.AddDrop(1, 10, 20);
+            //map.SpawnDrops(1, 10, 20);
             map.AddPlayer(1);
-            map.SpawnPlayer(1, 10, 10);
-            map.FirePlayer(1, 1, 10, 10);
-            map.ShortUpDateArrow(1, 10);
-            map.MovePlayer(1, new Tuple<double, double>(1, 2));
+            //map.SpawnPlayer(1, 10, 10);
+            //map.FirePlayer(1, 1, 10, 10);
+            //map.ShortUpDateArrow(1, 10);
+            //map.MovePlayer(1, new Tuple<double, double>(1, 2));
             map.NextEvent();
             map.UpDate(100);
             map.StopPlayer(1);
@@ -56,7 +56,7 @@ namespace Tests
             var map = new Map(1000, 5000);
             map.AddPlayer(0);
             map.SpawnPlayer(0, 10, 10);
-            map.AddDrop(1, 20, 20);
+            map.SpawnDrops(1, 20, 20);
             map.MovePlayer(0, new Tuple<double, double>(2, 2));
             map.UpDate(10);
             var ev = map.NextEvent();

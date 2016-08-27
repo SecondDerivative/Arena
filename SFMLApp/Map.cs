@@ -58,12 +58,11 @@ namespace SFMLApp
         public static MPlayer Load(string save)
         {
             string[] args = save.Split().ToArray();
-            int Tag = int.Parse(args[0]);
             bool tmp;
-            bool Exist = Boolean.TryParse(args[1], out tmp);
-            double x = double.Parse(args[2]), y = double.Parse(args[3]);
-            Tuple<double, double> Speed = new Tuple<double, double>(double.Parse(args[4]), double.Parse(args[5]));
-            MPlayer Pl = new MPlayer(Tag, x, y);
+            bool Exist = Boolean.TryParse(args[0], out tmp);
+            double x = double.Parse(args[1]), y = double.Parse(args[2]);
+            Tuple<double, double> Speed = new Tuple<double, double>(double.Parse(args[3]), double.Parse(args[4]));
+            MPlayer Pl = new MPlayer(Utily.GetTag(), x, y);
             Pl.Speed = Speed;
             Pl.Exist = Exist;
             return Pl;
@@ -111,6 +110,20 @@ namespace SFMLApp
             this.isEmpty = b;
         }
     }
+    public class DropSpawner
+    {
+        public double x;
+        public double y;
+        public int id;
+        public int count;
+        public DropSpawner(double x,double y,int id,int count)
+        {
+            this.x = x;
+            this.y = y;
+            this.id = id;
+            this.count = count;
+        }
+    }
     public class Map
     {
         public static int RPlayer = 10;
@@ -119,7 +132,7 @@ namespace SFMLApp
         public static int RDrop = 10;
 
         private Queue<int> ForDelArrow;
-        private List<Tuple<double, double>> dropSpawners;
+        private List<DropSpawner> dropSpawners;
         private List<Tuple<double, double>> spawners;
         private Queue<MEvent> Q;
         private Stopwatch Timer;
@@ -131,12 +144,12 @@ namespace SFMLApp
         public List<List<Square>> Field { get; private set; }
         public Dictionary<int, MDrop> drops { get; private set; }
 
-        public void SpawnDrops(int Tag)
+        public void SpawnDrops(int num)
         {
 
             foreach (var ds in dropSpawners)
             {
-                Entity e = new Entity(0, ds.Item1, ds.Item2, RDrop);
+                Entity e = new Entity(0, ds.x, ds.y, RDrop);
                 bool bol = true;
                 foreach (var d in drops)
                 {
@@ -147,18 +160,19 @@ namespace SFMLApp
                 }
                 if (bol)
                 {
-                    SpawnDrops(Tag, ds.Item1, ds.Item2);
+                    int Tag = Utily.GetTag();
+                    this.drops.Add(Tag, new MDrop(Tag, ds.x, ds.y, Reason.BySpawner));
                     return;
                 }
             }
         }
-        private void AddDropSpawner(double x, double y)
+        private void AddDropSpawner(double x, double y,int id,int count)
         {
-            dropSpawners.Add(new Tuple<double, double>(x, y));
+            dropSpawners.Add(new DropSpawner(x,y,id,count));
         }
         public void SpawnDrops(int Tag, double x, double y)
         {
-            this.drops.Add(Tag, new MDrop(Tag, x, y));
+            this.drops.Add(Tag, new MDrop(Tag, x, y,Reason.ByPlayer));
         }
         private void AddSpawner(double x, double y)
         {
@@ -284,10 +298,10 @@ namespace SFMLApp
                 return null;
             return Q.Dequeue();
         }
-        public void AddDrop(int Tag, double x, double y)
-        {
-            drops.Add(Tag, new MDrop(Tag, x, y));
-        }
+        //public void AddDrop(int Tag, double x, double y)
+        //{
+        //    drops.Add(Tag, new MDrop(Tag, x, y));
+        //}
         private Square getSquare(double x, double y)
         {
             return Field[(int)Math.Floor(x) / Rwidth][(int)Math.Floor(y) / Rwidth];
@@ -344,7 +358,7 @@ namespace SFMLApp
             this.Field = new List<List<Square>>();
             this.drops = new Dictionary<int, MDrop>();
             this.spawners = new List<Tuple<double, double>>();
-            this.dropSpawners = new List<Tuple<double, double>>();
+            this.dropSpawners = new List<DropSpawner>();
             for (int x = 0; x < Pwidth; ++x)
                 this.Field.Add(new List<Square>());
             for (int x = 0; x < Pwidth; ++x)
@@ -361,7 +375,7 @@ namespace SFMLApp
             this.Q = new Queue<MEvent>();
             this.ForDelArrow = new Queue<int>();
             this.spawners = new List<Tuple<double, double>>();
-            this.dropSpawners = new List<Tuple<double, double>>();
+            this.dropSpawners = new List<DropSpawner>();
             LoadMap(path);
         }
         public void AddPlayer(int Tag)
@@ -547,8 +561,11 @@ namespace SFMLApp
     }
     public class MDrop : Entity
     {
-        public MDrop(int Tag, double x, double y) : base(Tag, x, y, Map.RDrop)
-        { }
+        public Reason reason;
+        public MDrop(int Tag, double x, double y, Reason reason) : base(Tag, x, y, Map.RDrop)
+        {
+            this.reason = reason;
+        }
         public override string ToString()
         {
             return this.Tag + " " + this.Exist + " " + this.x + " " + this.y;
@@ -560,11 +577,16 @@ namespace SFMLApp
             bool tmp;
             bool Exist = Boolean.TryParse(args[1], out tmp);
             double x = double.Parse(args[2]), y = double.Parse(args[3]);
-            MDrop Dr = new MDrop(Tag, x, y);
+            MDrop Dr = new MDrop(Tag, x, y,Reason.ByPlayer);
             Dr.Exist = Exist;
             return Dr;
         }
 
+    }
+    public enum Reason
+    {
+        ByPlayer,
+        BySpawner
     }
     public enum Drops
     {
