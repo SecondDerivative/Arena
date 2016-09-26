@@ -4,6 +4,7 @@ namespace SFMLApp
 {
 	public class Player
 	{
+        private const int MAX_HP = 150;
 		public int Health { get; private set; }
 		public Inventory inventory{ get; private set; }
 		public int leftHand{ get; private set; }
@@ -104,6 +105,16 @@ namespace SFMLApp
         {
             //need change
             return 1;
+        }
+        public void HealHP(int HPHealed)
+        {
+            if (Health + HPHealed >= MAX_HP)
+            {
+                Health = MAX_HP;
+            }else
+            {
+                Health += HPHealed;
+            }
         }
     }
 }

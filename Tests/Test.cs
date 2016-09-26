@@ -98,6 +98,8 @@ namespace Tests
 			player.recieveDamage(100);
 			player.isDead();
 			player.respawn();
+            var bottle = new HPBottle("bottle", 14, 60);
+            bottle.Consume(player);
 		}
         [Fact]
         public void ArenaTest()

@@ -14,6 +14,42 @@ namespace SFMLApp
             id = i;
         }
     }
+    public abstract class Bottle : Item
+    {
+        public int restore { get; protected set; }
+        public void Create(string n, int i, int r) {
+            restore = r;
+            base.Create(n, i);
+        }
+        public abstract void Consume(Inventory i);
+        public abstract void Consume(Player p);
+    }
+    public class ManaBottle : Bottle
+    {
+        public override void Consume(Inventory i)
+        {
+            i.addMana(restore);
+        }
+        public ManaBottle(string n, int i, int r)
+        {
+            Create(n, i, r);
+        }
+        public override void Consume(Player p) {
+            p.addedMana(restore);
+        }
+    }
+    public class HPBottle : Bottle
+    {
+        public override void Consume(Player p)
+        {
+            p.HealHP(restore);
+        }
+        public override void Consume(Inventory ignored) { }
+        public HPBottle(string n, int i, int r)
+        {
+            Create(n, i, r);
+        }
+    }
     public abstract class Weapon : Item
     {
         public int Damage { get; protected set; }
