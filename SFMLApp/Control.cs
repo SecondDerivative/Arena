@@ -31,6 +31,11 @@ namespace SFMLApp
             state = ControlState.BattleState;
             arena = new Arena();
             arena.NewMap("bag");
+            int tagprifio = arena.AddPlayer("prifio");
+            view.AddPlayer(tagprifio);
+            arena.MovePlayer("prifio", Utily.MakePair<double>(1, 1));
+            view.MovePlayer(tagprifio);
+            arena.FirePlayer("prifio", Utily.MakePair<double>(1, 1));
         }
         
         public void UpDate(long time)
@@ -38,10 +43,11 @@ namespace SFMLApp
             if (state == ControlState.BattleState)
             {
                 arena.Update();
+                view.UpdateAnimation();
                 view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.ArenaPlayer, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
             }
             if (time > 0)
-                view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.White);
+                view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.Black);
         }
 
         public void KeyDown(object sender, KeyEventArgs e)

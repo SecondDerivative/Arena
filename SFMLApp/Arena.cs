@@ -41,13 +41,15 @@ namespace SFMLApp
             Arrows.Clear();
             Drops.Clear();
             DropForRespawn.Clear();
-            //code for first spawn drop
+            for (int i = 0; i < map.dropSpawners.Count; ++i)
+                map.SpawnDrops(i);
             timer.Restart();
         }
 
         public void MovePlayer(string name, Tuple<double, double> speed)
         {
             int tag = TagName[name];
+            double m = players[tag].Speed();
             Tuple<double, double> NewVect = Utily.Normalizing(speed, players[tag].Speed());
             map.MovePlayer(TagName[name], NewVect);
         }
@@ -94,10 +96,15 @@ namespace SFMLApp
                 }
                 if (Event.Type == MEvents.PlayerDrop)
                 {
-                    var drop = Drops[((MEventDrop)Event).TagDrop];
-                    players[((MEventDrop)Event).TagPlayer].pickedUpItem(drop.id, drop.Count);
-                    if (((MEventDrop)Event).BySpawner)
+                    if (!((MEventDrop)Event).BySpawner)
                     {
+                        var drop = Drops[((MEventDrop)Event).TagDrop];
+                        players[((MEventDrop)Event).TagPlayer].pickedUpItem(drop.id, drop.Count);
+                    }
+                    else
+                    {
+                        var drop = map.dropSpawners[((MEventDrop)Event).TagDrop];
+                        players[((MEventDrop)Event).TagPlayer].pickedUpItem(drop.id, drop.count);
                         DropForRespawn.Enqueue(Utily.MakePair<long, int>(timer.ElapsedMilliseconds, ((MEventDrop)Event).TagDrop));
                     }
                 }
@@ -106,7 +113,7 @@ namespace SFMLApp
                     Arrows.Remove(((MEventDestroyArrow)Event).TagArrow);
                 }
             }
-            while (DropForRespawn.Count > 0 && DropForRespawn.Peek().Item1 + WaitRespawnDrop > timer.ElapsedMilliseconds)
+            while (DropForRespawn.Count > 0 && DropForRespawn.Peek().Item1 + WaitRespawnDrop < timer.ElapsedMilliseconds)
             {
                 int num = DropForRespawn.Dequeue().Item2;
                 map.SpawnDrops(num);
@@ -118,10 +125,10 @@ namespace SFMLApp
             return TagName.ContainsKey(name);
         }
 
-        public void AddPlayer(string name)
+        public int AddPlayer(string name)
         {
             if (NickIsUse(name))
-                return;
+                return -1;
             int tag = Utily.GetTag();
             players[tag] = new Player();
             players[tag].respawn();
@@ -129,6 +136,7 @@ namespace SFMLApp
             TagName[name] = tag;
             map.AddPlayer(tag);
             map.SpawnPlayer(tag);
+            return tag;
         }
         public void RemovePlayer(string name)
         {

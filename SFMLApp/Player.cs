@@ -104,7 +104,7 @@ namespace SFMLApp
         public double Speed()
         {
             //need change
-            return 1;
+            return 0.1;
         }
         public void HealHP(int HPHealed)
         {

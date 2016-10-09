@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using SFML.Window;
 using SFML.System;
 using SFML.Audio;
@@ -33,6 +34,8 @@ namespace SFMLApp
             MainForm = new RenderWindow(new VideoMode((uint)Width, (uint)Height), "SFML.net", Styles.Titlebar | Styles.Close);
             Menu = new Sprite(new Texture("data/Menu.png"));
             Menu.Position = new Vector2f(0, 0);
+            Timer = new Stopwatch();
+            Timer.Start();
             #region StartButton params
             MenuButtonStart = new Button(Width / 2 - 150, Height / 2 - 160, 300, 80);
             MenuButtonStart.SetStyles(new Texture("data/Styles/Default.png"), new Texture("data/Styles/Focused.png"), new Texture("data/Styles/Active.png"), Fonts.Arial);
@@ -97,14 +100,106 @@ namespace SFMLApp
         //BattleDraw and data
         //...
 
+        private int NowMouseX = 0, NowMouseY = 0;
+        private int CameraPosX = 0, CameraPosY = 0;
+        private int SizeMapX, SizeMapY;
+        private bool WasInit = false;
+        private Stopwatch Timer;
+
+        bool CameraIsMoving = false;
+        long LastMoveCamera = 0;
+
         public void DrawBattle(Dictionary<int, Player> Players, Dictionary<int, AArow> ArenaArrows, Dictionary<int, ADrop> ArenaDrops, Dictionary<int, APlayer> Aplayer,
             Dictionary<int, MPlayer> MapPlayers, Dictionary<int, MArrow> MapArrows, List<List<Square>> Field, Dictionary<int, MDrop> MapDrops)
         {
+            if (!WasInit)
+            {
+                CameraPosX = CameraPosY = 0;
+                SizeMapX = Field.Count;
+                SizeMapY = Field[0].Count;
+                WasInit = true;
+            }
+            Clear();
+            for (int i = 0; i < SizeMapX; i++)
+            {
+                for (int j = 0; j < SizeMapY; j++)
+                {
+                    if (!Field[i][j].isEmpty)
+                    {
 
+                        //Sprite sp = new Sprite(new Texture(10, 10), new IntRect(i * 10 - CameraPosX, j * 10 - CameraPosY, 10, 10));
+                        //sp.Color = Color.Blue;
+                        //sp.Position = new Vector2f(i * 10 - CameraPosX, j * 10 - CameraPosY);
+                        //MainForm.Draw(sp);
+                        DrawText("#", i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY, 10, Fonts.Arial, Color.Black);
+                    }
+                }
+            }
+            foreach (var i in MapPlayers)
+            {
+                DrawText("||", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
+            }
+            foreach (var i in MapArrows)
+            {
+                DrawText(">", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
+            }
+            foreach (var i in MapDrops)
+            {
+                DrawText("d", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
+            }
+            //DrawText(CameraPosX.ToString(), 20, 20, 10, Fonts.Arial, Color.Black);
+        }
+        public void Pause()
+        {
+            Timer.Stop();
+        }
+        public void Run()
+        {
+            Timer.Start();
         }
         public void UpdateAnimation()
         {
-
+            int DistanceToBoard = 60;
+            double speed = 0.4;
+            long nowTime = Timer.ElapsedMilliseconds;
+            if (NowMouseX < DistanceToBoard)
+            {
+                if (CameraIsMoving)
+                {
+                    CameraPosX -= (int)((nowTime - LastMoveCamera) * speed);// * speed moving
+                }
+                LastMoveCamera = nowTime;
+                CameraIsMoving = true;
+            }
+            if (NowMouseX > Width - DistanceToBoard)
+            {
+                if (CameraIsMoving)
+                {
+                    CameraPosX += (int)((nowTime - LastMoveCamera) * speed);// * speed moving
+                }
+                LastMoveCamera = nowTime;
+                CameraIsMoving = true;
+            }
+            if (NowMouseY < DistanceToBoard)
+            {
+                if (CameraIsMoving)
+                {
+                    CameraPosY -= (int)((nowTime - LastMoveCamera) * speed);// * speed moving
+                }
+                LastMoveCamera = nowTime;
+                CameraIsMoving = true;
+            }
+            if (NowMouseY > Height - DistanceToBoard)
+            {
+                if (CameraIsMoving)
+                {
+                    CameraPosY += (int)((nowTime - LastMoveCamera) * speed);// * speed moving
+                }
+                LastMoveCamera = nowTime;
+                CameraIsMoving = true;
+            }
+            if (NowMouseX >= DistanceToBoard && NowMouseX <= Width - DistanceToBoard && NowMouseY >= DistanceToBoard && NowMouseY <= Height - DistanceToBoard)
+                CameraIsMoving = false;
         }
         public void AddPlayer(int tag)
         {
@@ -130,9 +225,14 @@ namespace SFMLApp
         {
 
         }
+        public void MovePlayer(int tag)
+        {
+        }
         public void NewGame()
         {
             //Cleare all data
+            WasInit = false;
+            Timer.Restart();
         }
         public Tuple<double, double> AngleByMousePos(int x, int y)
         {
@@ -149,6 +249,8 @@ namespace SFMLApp
         {
             MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
             MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Default);
+            NowMouseX = args.X;
+            NowMouseY = args.Y;
         }
         public void OnMouseDown(ref MouseButtonEventArgs args)
         {

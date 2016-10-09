@@ -116,7 +116,7 @@ namespace SFMLApp
         public double y;
         public int id;
         public int count;
-        public DropSpawner(double x,double y,int id,int count)
+        public DropSpawner(double x, double y, int id, int count)
         {
             this.x = x;
             this.y = y;
@@ -132,7 +132,7 @@ namespace SFMLApp
         public static int RDrop = 10;
 
         private Queue<int> ForDelArrow;
-        private List<DropSpawner> dropSpawners;
+        public List<DropSpawner> dropSpawners { get; private set; }
         private List<Tuple<double, double>> spawners;
         private Queue<MEvent> Q;
         private Stopwatch Timer;
@@ -146,33 +146,16 @@ namespace SFMLApp
 
         public void SpawnDrops(int num)
         {
-
-            foreach (var ds in dropSpawners)
-            {
-                Entity e = new Entity(0, ds.x, ds.y, RDrop);
-                bool bol = true;
-                foreach (var d in drops)
-                {
-                    if (IsCrossEntity(d.Value, e))
-                    {
-                        bol = false;
-                    }
-                }
-                if (bol)
-                {
-                    int Tag = Utily.GetTag();
-                    this.drops.Add(Tag, new MDrop(Tag, ds.x, ds.y, Reason.BySpawner));
-                    return;
-                }
-            }
+            var ds = dropSpawners[num];
+            this.drops.Add(Utily.GetTag(), new MDrop(num, ds.x, ds.y, Reason.BySpawner));
         }
-        private void AddDropSpawner(double x, double y,int id,int count)
+        private void AddDropSpawner(double x, double y, int id, int count)
         {
-            dropSpawners.Add(new DropSpawner(x,y,id,count));
+            dropSpawners.Add(new DropSpawner(x, y, id, count));
         }
         public void SpawnDrops(int Tag, double x, double y)
         {
-            this.drops.Add(Tag, new MDrop(Tag, x, y,Reason.ByPlayer));
+            this.drops.Add(Tag, new MDrop(Tag, x, y, Reason.ByPlayer));
         }
         private void AddSpawner(double x, double y)
         {
@@ -214,8 +197,27 @@ namespace SFMLApp
                     string[] Tmp = stmp.Split().ToArray();
                     this.drops.Add(int.Parse(Tmp[0]), MDrop.Load(stmp));
                 }
-                int index = couPl + couArr + couDro + 4;
-                tmp = args[index].Split().Select(x => int.Parse(x)).ToArray();
+                int nowline = 4 + couArr + couDro + couPl;
+                int countSpawn = int.Parse(args[nowline]);
+                ++nowline;
+                spawners = new List<Tuple<double, double>>();
+                for (int i = 0; i < countSpawn; ++i)
+                {
+                    int x = int.Parse(args[nowline].Split()[0]), y = int.Parse(args[nowline].Split()[1]);
+                    ++nowline;
+                    spawners.Add(Utily.MakePair<double>(x, y));
+                }
+                int countSpawnDrop = int.Parse(args[nowline]);
+                ++nowline;
+                dropSpawners = new List<DropSpawner>();
+                for (int i = 0; i < countSpawnDrop; ++i)
+                {
+                    int x = int.Parse(args[nowline].Split()[0]), y = int.Parse(args[nowline].Split()[1]);
+                    int cnt = int.Parse(args[nowline].Split()[2]), id = int.Parse(args[nowline].Split()[3]);
+                    ++nowline;
+                    dropSpawners.Add(new DropSpawner(x, y, cnt, id));
+                }
+                tmp = args[nowline].Split().Select(x => int.Parse(x)).ToArray();
                 this.Pwidth = tmp[0] + 2; this.Pheight = tmp[1] + 2;
                 this.Field = new List<List<Square>>();
                 for (int x = 0; x < this.Pwidth; ++x)
@@ -231,7 +233,7 @@ namespace SFMLApp
                 bool tmpb;
                 for (int y = 1; y < this.Pheight - 1; ++y)
                 {
-                    string line = args[y + index];
+                    string line = args[y + nowline];
                     bool[] bol = line.Split().Select(x => bool.TryParse(x, out tmpb)).ToArray();
                     for (int x = 1; x < Pwidth - 1; ++x)
                         this.Field[x].Add(new Square(x, y, bol[x - 1]));
@@ -370,7 +372,6 @@ namespace SFMLApp
         }
         public Map(string path)
         {
-
             this.Timer = new Stopwatch();
             this.Q = new Queue<MEvent>();
             this.ForDelArrow = new Queue<int>();
@@ -462,7 +463,8 @@ namespace SFMLApp
             {
                 if (IsCrossEntity(d.Value, Pl))
                 {
-                    Q.Enqueue(new MEventDrop(Tag, d.Value.Tag, false));//false need change
+                    bool b = d.Value.reason == Reason.BySpawner;
+                    Q.Enqueue(new MEventDrop(Tag, d.Value.Tag, b));
                     del.Add(d.Key);
                 }
             }
@@ -502,7 +504,7 @@ namespace SFMLApp
             {
                 if (IsCrossEntity(p.Value, Ar))
                 {
-                    Q.Enqueue(new MEventArrowHit(p.Key, Tag));
+                    Q.Enqueue(new MEventArrowHit(Tag, p.Key));
                     this.ForDelArrow.Enqueue(Tag);
                     return;
                 }
@@ -577,7 +579,7 @@ namespace SFMLApp
             bool tmp;
             bool Exist = Boolean.TryParse(args[1], out tmp);
             double x = double.Parse(args[2]), y = double.Parse(args[3]);
-            MDrop Dr = new MDrop(Tag, x, y,Reason.ByPlayer);
+            MDrop Dr = new MDrop(Tag, x, y, Reason.ByPlayer);
             Dr.Exist = Exist;
             return Dr;
         }
