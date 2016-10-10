@@ -80,7 +80,10 @@ namespace SFMLApp
 		public void pickedUpItem(Item i){
 			inventory.addItem(i);
 		}
-		public void selectArrow(Arrow i) { inventory.setCurrentArrow(i.id); }
+		public void selectArrow(Arrow i)
+        {
+            inventory.setCurrentArrow(i.id);
+        }
         public void pickedUpItem(int id)
         {
             inventory.addItem(id);
@@ -100,11 +103,22 @@ namespace SFMLApp
 			leftHand = 0;
             LeftReloadTimer.Restart();
             RightReloadTimer.Restart();
+            rightHand = 3;
+            //start kit
+            inventory.addItem(3);
+            inventory.addItem(9, 3);
+            inventory.setCurrentArrow(9);
         }
         public double Speed()
         {
             //need change
             return 0.1;
+        }
+        public double ArrowSpeed()
+        {
+            if (Items.allItems[rightHand] is Magic)
+                return ((Magic)Items.allItems[rightHand]).speed();
+            return ((Arrow)Items.allItems[rightHand]).speed();
         }
         public void HealHP(int HPHealed)
         {

@@ -80,5 +80,9 @@ namespace SFMLApp
                 return v;
             return MakePair<double>(v.Item1 * Length / len, v.Item2 * Length / len);
         }
+        public static bool IntToBool(int i)
+        {
+            return i != 0;
+        }
     }
 }

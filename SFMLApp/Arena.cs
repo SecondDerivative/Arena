@@ -60,8 +60,7 @@ namespace SFMLApp
             int dmg = players[tag].attack();
             if (dmg <= 0)
                 return;
-            //need change player.Speed() to Arrow.Speed()
-            Tuple<double, double> NewVect = Utily.Normalizing(vect, players[tag].Speed());
+            Tuple<double, double> NewVect = Utily.Normalizing(vect, players[tag].ArrowSpeed());
             int arTag = Utily.GetTag();
             Arrows[arTag] = new AArow(tag, dmg, players[tag].inventory.getCurrentArrow().id);
             map.FirePlayer(tag, arTag, NewVect.Item1, NewVect.Item2);

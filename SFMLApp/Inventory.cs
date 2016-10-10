@@ -2,14 +2,11 @@
 {
 	public class Inventory {
 		private int Mana;
-		private int[] nArrows;
 		private int currentArrow;
 		private int [] inventory;
-		public static int totalNumberofItems = 9;//Both starts counting with 0
-		public static int totalNumberofArrows = 2;//Starts counting with 0
+		public static int totalNumberofItems = 14;//Both starts counting with 0
 		public Inventory() {
 			Mana = 100;
-			nArrows = new int[totalNumberofArrows+1];
 			inventory = new int[totalNumberofItems+1];
 			currentArrow = 0;//changes from 0 to 2;
         }
@@ -21,26 +18,52 @@
 				return null;
 			}
 		}
-		public int getArrowsAmount(){return nArrows[currentArrow];}
-		public void addArrows(Arrow a, int i){nArrows[a.id] = nArrows[a.id] + i;}
-		public Arrow getCurrentArrow() { return (Arrow)Items.allItems[totalNumberofItems+currentArrow]; }
-		public void setCurrentArrow(int i){ currentArrow = i; }
-		public int getMana(){return Mana;}
-		public void addMana(int i){Mana = Mana + i;}
-		public void addItem(Item item) {
-			inventory[item.id]++;
+		public int getArrowsAmount()
+        {
+            return inventory[currentArrow];
+        }
+		public void addArrows(Arrow a, int i)
+        {
+            inventory[a.id] += i;
+        }
+		public Arrow getCurrentArrow()
+        {
+            return (Arrow)Items.allItems[currentArrow];
+        }
+		public void setCurrentArrow(int i)
+        {
+            currentArrow = i;
+        }
+		public int getMana()
+        {
+            return Mana;
+        }
+		public void addMana(int i)
+        {
+            Mana += i;
+        }
+
+        public void addItem(int id, int cnt)
+        {
+            if (Items.allItems[id] is ManaBottle)
+                ((ManaBottle)Items.allItems[id]).Consume(this);
+            else if (Items.allItems[id] is HPBottle)
+                ((HPBottle)Items.allItems[id]).Consume(this);
+            else
+                inventory[id] += cnt;
+        }
+
+        public void addItem(Item item) {
+            addItem(item.id, 1);
         }
 
         public void addItem(Item item, int cnt) {
-            inventory[item.id] += cnt;
+            addItem(item.id, cnt);
         }
 
-        public void addItem(int id) {
-            inventory[id]++;
-        }
-
-        public void addItem(int id, int cnt) {
-            inventory[id] += cnt;
+        public void addItem(int id)
+        {
+            addItem(id, 1);
         }
 
         public bool isInStock(Item item) {

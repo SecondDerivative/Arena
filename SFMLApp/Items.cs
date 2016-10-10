@@ -17,7 +17,8 @@ namespace SFMLApp
     public abstract class Bottle : Item
     {
         public int restore { get; protected set; }
-        public void Create(string n, int i, int r) {
+        public void Create(string n, int i, int r)
+        {
             restore = r;
             base.Create(n, i);
         }
@@ -34,7 +35,8 @@ namespace SFMLApp
         {
             Create(n, i, r);
         }
-        public override void Consume(Player p) {
+        public override void Consume(Player p)
+        {
             p.addedMana(restore);
         }
     }
@@ -68,10 +70,16 @@ namespace SFMLApp
     public class Arrow : Item
     {
         public int Damage { get; protected set; }
-        public Arrow(string n, int d, int i)
+        private double Speed;
+        public Arrow(string n, int d, int i, double speed)
         {
             Damage = d;
             Create(n, i);
+            Speed = speed;
+        }
+        public double speed()
+        {
+            return Speed;
         }
     }
     class ItemSword : Weapon
@@ -100,10 +108,13 @@ namespace SFMLApp
     class Magic : Weapon
     {
         private int ManaCost;
-        public Magic(string n, int dmg, int ran, int mana, int id, int kd)
+        private double Speed;
+
+        public Magic(string n, int dmg, int ran, int mana, int id, int kd, double speed)
         {
             base.Create(dmg, ran, n, id, kd);
             ManaCost = mana;
+            Speed = speed;
         }
         override public int attack(Inventory i)
         {
@@ -117,7 +128,14 @@ namespace SFMLApp
                 return 0;
             }
         }
-        override public int attack() { return 0; }
+        override public int attack()
+        {
+            return 0;
+        }
+        public double speed()
+        {
+            return Speed;
+        }
     }
     class Fist : Weapon
     {
@@ -153,27 +171,43 @@ namespace SFMLApp
             fileReader.ReadLine();
             for (int i = currentIndex; i < currentIndex + 3; i++)
             {
-                ArrayItems.Add(new ItemSword(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), Int32.Parse(fileReader.ReadLine()), i, 1000));
+                ArrayItems.Add(new ItemSword(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()),
+                    Int32.Parse(fileReader.ReadLine()), i, 1000));
             }
             currentIndex += 3;
             fileReader.ReadLine();
             for (int i = currentIndex; i < currentIndex + 3; i++)
             {
-                ArrayItems.Add(new ItemBow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), Int32.Parse(fileReader.ReadLine()), i, 1000));
+                ArrayItems.Add(new ItemBow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()),
+                    Int32.Parse(fileReader.ReadLine()), i, int.Parse(fileReader.ReadLine())));
             }
             currentIndex += 3;
             fileReader.ReadLine();
             for (int i = currentIndex; i < currentIndex + 3; i++)
             {
-                ArrayItems.Add(new Magic(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), Int32.Parse(fileReader.ReadLine()), Int32.Parse(fileReader.ReadLine()), i, 1000));
+                ArrayItems.Add(new Magic(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()),
+                    Int32.Parse(fileReader.ReadLine()), Int32.Parse(fileReader.ReadLine()), i,
+                    int.Parse(fileReader.ReadLine()), double.Parse(fileReader.ReadLine())));
             }
             currentIndex += 3;
             fileReader.ReadLine();
-            ArrayItems.Add(new Arrow("Wooden Arrow", 2, 0));
-            currentIndex = 1;
+            ArrayItems.Add(new Arrow("Wooden Arrow", 2, currentIndex, 0.2));
+            currentIndex++;// = 1;
             for (int i = currentIndex; i < currentIndex + 2; i++)
             {
-                ArrayItems.Add(new Arrow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), i));
+                ArrayItems.Add(new Arrow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()),
+                    i, double.Parse(fileReader.ReadLine())));
+            }
+            fileReader.ReadLine();
+            currentIndex += 2;
+            for (int i = currentIndex; i < currentIndex + 1; i++)
+            {
+                ArrayItems.Add(new HPBottle(fileReader.ReadLine(), i, Int32.Parse(fileReader.ReadLine())));
+            }
+            currentIndex += 1;
+            for (int i = currentIndex; i < currentIndex + 1; i++)
+            {
+                ArrayItems.Add(new ManaBottle(fileReader.ReadLine(), i, Int32.Parse(fileReader.ReadLine())));
             }
         }
     }

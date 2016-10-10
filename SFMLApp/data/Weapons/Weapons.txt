@@ -12,27 +12,43 @@ Frostmorne
 Wooden bow
 10
 5
+1000
 Iron bow
 20
 7
+1000
 Demonic bow
 30
 8
+1000
 --------
 Fireball
 13
 5
 20
+500
+0.1
 Lightning
 25
 7
 25
+500
+0.1
 Curse
 35
 9
 45
+500
+0.1
 --------
 Steel Arrow
 3
+0.2
 Demoic Arrow
 5
+0.2
+-------
+HPHeal
+30
+ManaBottle
+20

@@ -234,7 +234,7 @@ namespace SFMLApp
                 for (int y = 1; y < this.Pheight - 1; ++y)
                 {
                     string line = args[y + nowline];
-                    bool[] bol = line.Split().Select(x => bool.TryParse(x, out tmpb)).ToArray();
+                    bool[] bol = line.Split().Select(x => x == "0").ToArray();
                     for (int x = 1; x < Pwidth - 1; ++x)
                         this.Field[x].Add(new Square(x, y, bol[x - 1]));
                 }
