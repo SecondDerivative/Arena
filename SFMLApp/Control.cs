@@ -32,10 +32,11 @@ namespace SFMLApp
             arena = new Arena();
             arena.NewMap("bag");
             int tagprifio = arena.AddPlayer("prifio");
+            //int tagbot = arena.AddPlayer("bot");
             view.AddPlayer(tagprifio);
             arena.MovePlayer("prifio", Utily.MakePair<double>(1, 1));
-            view.MovePlayer(tagprifio);
-            arena.FirePlayer("prifio", Utily.MakePair<double>(1, 1));
+            view.MovePlayer(tagprifio, Utily.MakePair<double>(1, 1));
+            //arena.FirePlayer("prifio", Utily.MakePair<double>(1, 1));
         }
         
         public void UpDate(long time)

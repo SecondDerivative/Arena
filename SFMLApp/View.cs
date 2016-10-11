@@ -36,6 +36,7 @@ namespace SFMLApp
             Menu.Position = new Vector2f(0, 0);
             Timer = new Stopwatch();
             Timer.Start();
+            NewGame();
             #region StartButton params
             MenuButtonStart = new Button(Width / 2 - 150, Height / 2 - 160, 300, 80);
             MenuButtonStart.SetStyles(new Texture("data/Styles/Default.png"), new Texture("data/Styles/Focused.png"), new Texture("data/Styles/Active.png"), Fonts.Arial);
@@ -101,13 +102,16 @@ namespace SFMLApp
         //...
 
         private int NowMouseX = 0, NowMouseY = 0;
-        private int CameraPosX = 0, CameraPosY = 0;
+        public int CameraPosX = 0, CameraPosY = 0;
         private int SizeMapX, SizeMapY;
         private bool WasInit = false;
         private Stopwatch Timer;
+        private int MainPlayer;
 
         bool CameraIsMoving = false;
         long LastMoveCamera = 0;
+
+        private Dictionary<int, PlayerView> viewPlayers;
 
         public void DrawBattle(Dictionary<int, Player> Players, Dictionary<int, AArow> ArenaArrows, Dictionary<int, ADrop> ArenaDrops, Dictionary<int, APlayer> Aplayer,
             Dictionary<int, MPlayer> MapPlayers, Dictionary<int, MArrow> MapArrows, List<List<Square>> Field, Dictionary<int, MDrop> MapDrops)
@@ -126,18 +130,15 @@ namespace SFMLApp
                 {
                     if (!Field[i][j].isEmpty)
                     {
-
-                        //Sprite sp = new Sprite(new Texture(10, 10), new IntRect(i * 10 - CameraPosX, j * 10 - CameraPosY, 10, 10));
-                        //sp.Color = Color.Blue;
-                        //sp.Position = new Vector2f(i * 10 - CameraPosX, j * 10 - CameraPosY);
-                        //MainForm.Draw(sp);
                         DrawText("#", i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY, 10, Fonts.Arial, Color.Black);
                     }
                 }
             }
             foreach (var i in MapPlayers)
             {
-                DrawText("||", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
+                viewPlayers[i.Key].x = (int)i.Value.x;
+                viewPlayers[i.Key].y = (int)i.Value.y;
+                viewPlayers[i.Key].Draw(this);
             }
             foreach (var i in MapArrows)
             {
@@ -147,6 +148,10 @@ namespace SFMLApp
             {
                 DrawText("d", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
             }
+            var mp = Players[MainPlayer];
+            DrawText("HP " + mp.Health, 10, 30, 30, Fonts.Arial, Color.Black);
+            DrawText("Mana " + mp.inventory.getMana(), 10, 60, 30, Fonts.Arial, Color.Black);
+            DrawText("Arrows " + mp.inventory.getArrowsAmount(), 10, 90, 30, Fonts.Arial, Color.Black);
             //DrawText(CameraPosX.ToString(), 20, 20, 10, Fonts.Arial, Color.Black);
         }
         public void Pause()
@@ -203,11 +208,13 @@ namespace SFMLApp
         }
         public void AddPlayer(int tag)
         {
-
-        } 
+            if (MainPlayer == -1)
+                MainPlayer = tag;
+            viewPlayers.Add(tag, new PlayerView(-1, -1));
+        }
         public void RemovePlayer(int tag)
         {
-
+            viewPlayers.Remove(tag);
         }
         public void AddDrop(int tag)
         {
@@ -225,18 +232,21 @@ namespace SFMLApp
         {
 
         }
-        public void MovePlayer(int tag)
+        public void MovePlayer(int tag, Tuple<double, double> vect)
         {
         }
         public void NewGame()
         {
             //Cleare all data
             WasInit = false;
+            viewPlayers = new Dictionary<int, PlayerView>();
+            MainPlayer = -1;
             Timer.Restart();
         }
         public Tuple<double, double> AngleByMousePos(int x, int y)
         {
-            return Utily.MakePair<double>(0, 0);
+            var mp = viewPlayers[MainPlayer];
+            return Utily.MakePair<double>(x - mp.x, y - mp.y);
         }        
         public void Scroll(int i)
         {
@@ -261,6 +271,21 @@ namespace SFMLApp
         {
             MenuButtonStart.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Active);
             MenuButtonExit.CheckFocusing(args.X, args.Y, ButtonStatus.Focused, ButtonStatus.Active);
+        }
+    }
+
+    public class PlayerView
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+        public PlayerView(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        public void Draw(View view)
+        {
+            view.DrawText("||", x - view.CameraPosX, y - view.CameraPosY, 10, Fonts.Arial, Color.Black);
         }
     }
 }

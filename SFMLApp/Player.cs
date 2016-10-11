@@ -103,11 +103,11 @@ namespace SFMLApp
 			leftHand = 0;
             LeftReloadTimer.Restart();
             RightReloadTimer.Restart();
-            rightHand = 3;
+            rightHand = 4;
             //start kit
-            inventory.addItem(3);
-            inventory.addItem(9, 3);
-            inventory.setCurrentArrow(9);
+            inventory.addItem(4);
+            inventory.addItem(10, 3);
+            inventory.setCurrentArrow(10);
         }
         public double Speed()
         {
@@ -118,7 +118,7 @@ namespace SFMLApp
         {
             if (Items.allItems[rightHand] is Magic)
                 return ((Magic)Items.allItems[rightHand]).speed();
-            return ((Arrow)Items.allItems[rightHand]).speed();
+            return ((Arrow)Items.allItems[inventory.getCurrentArrow().id]).speed();
         }
         public void HealHP(int HPHealed)
         {

@@ -4,7 +4,7 @@
 		private int Mana;
 		private int currentArrow;
 		private int [] inventory;
-		public static int totalNumberofItems = 14;//Both starts counting with 0
+		public static int totalNumberofItems = 15;//Both starts counting with 0
 		public Inventory() {
 			Mana = 100;
 			inventory = new int[totalNumberofItems+1];

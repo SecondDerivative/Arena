@@ -46,7 +46,9 @@ namespace SFMLApp
         {
             p.HealHP(restore);
         }
-        public override void Consume(Inventory ignored) { }
+        public override void Consume(Inventory ignored)
+        {
+        }
         public HPBottle(string n, int i, int r)
         {
             Create(n, i, r);
