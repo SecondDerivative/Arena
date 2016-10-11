@@ -144,10 +144,10 @@ namespace SFMLApp
         public List<List<Square>> Field { get; private set; }
         public Dictionary<int, MDrop> drops { get; private set; }
 
-        public void SpawnDrops(int num)
+        public void SpawnDrops(int num, int tag)
         {
             var ds = dropSpawners[num];
-            this.drops.Add(Utily.GetTag(), new MDrop(num, ds.x, ds.y, Reason.BySpawner));
+            this.drops.Add(tag, new MDrop(tag, ds.x, ds.y, num));
         }
         private void AddDropSpawner(double x, double y, int id, int count)
         {
@@ -155,7 +155,7 @@ namespace SFMLApp
         }
         public void SpawnDrops(int Tag, double x, double y)
         {
-            this.drops.Add(Tag, new MDrop(Tag, x, y, Reason.ByPlayer));
+            this.drops.Add(Tag, new MDrop(Tag, x, y));
         }
         private void AddSpawner(double x, double y)
         {
@@ -215,7 +215,7 @@ namespace SFMLApp
                     int x = int.Parse(args[nowline].Split()[0]), y = int.Parse(args[nowline].Split()[1]);
                     int cnt = int.Parse(args[nowline].Split()[2]), id = int.Parse(args[nowline].Split()[3]);
                     ++nowline;
-                    dropSpawners.Add(new DropSpawner(x, y, cnt, id));
+                    dropSpawners.Add(new DropSpawner(x, y, id, cnt));
                 }
                 tmp = args[nowline].Split().Select(x => int.Parse(x)).ToArray();
                 this.Pwidth = tmp[0] + 2; this.Pheight = tmp[1] + 2;
@@ -434,28 +434,28 @@ namespace SFMLApp
         }
         private void ShortUpDatePlayer(int Tag, int Time)
         {
+            double originX = players[Tag].x, originY = players[Tag].y;
             MPlayer Pl = players[Tag];
             if (Pl.Speed.Item1 == 0 && Pl.Speed.Item2 == 0)
                 return;
             Tuple<double, double> Line = new Tuple<double, double>(Time * Pl.Speed.Item1 / 4, Time * Pl.Speed.Item2 / 4);
             if (IsEntityWillInSquare(Pl, Line))
             {
+                players[Tag].x = originX;
+                players[Tag].y = originY;
                 StopPlayer(Tag);
                 return;
             }
-            players[Tag].x += Line.Item1;
-            players[Tag].y += Line.Item2;
             bool cross = false;
-            MPlayer PL = players[Tag];
             foreach (var pl in players)
             {
-                if (pl.Value.Tag != Tag && IsCrossEntity(pl.Value, PL))
+                if (pl.Value.Tag != Tag && IsCrossEntity(pl.Value, Pl))
                     cross = true;
             }
             if (cross)
             {
-                players[Tag].x -= Line.Item1;
-                players[Tag].y -= Line.Item2;
+                players[Tag].x = originX;
+                players[Tag].y = originY;
                 return;
             }
             List<int> del = new List<int>();
@@ -464,7 +464,10 @@ namespace SFMLApp
                 if (IsCrossEntity(d.Value, Pl))
                 {
                     bool b = d.Value.reason == Reason.BySpawner;
-                    Q.Enqueue(new MEventDrop(Tag, d.Value.Tag, b));
+                    if (d.Value.reason == Reason.BySpawner)
+                        Q.Enqueue(new MEventDrop(Tag, d.Value.Tag, d.Value.NumSpawner));
+                    else
+                        Q.Enqueue(new MEventDrop(Tag, d.Value.Tag));
                     del.Add(d.Key);
                 }
             }
@@ -563,10 +566,17 @@ namespace SFMLApp
     }
     public class MDrop : Entity
     {
-        public Reason reason;
-        public MDrop(int Tag, double x, double y, Reason reason) : base(Tag, x, y, Map.RDrop)
+        public Reason reason { get; set; }
+        public int NumSpawner { get; private set; }
+        public MDrop(int Tag, double x, double y) : base(Tag, x, y, Map.RDrop)
         {
-            this.reason = reason;
+            this.reason = Reason.ByPlayer;
+            NumSpawner = -1;
+        }
+        public MDrop(int Tag, double x, double y, int NumSpawner) : base(Tag, x, y, Map.RDrop)
+        {
+            this.reason = Reason.BySpawner;
+            this.NumSpawner = NumSpawner;
         }
         public override string ToString()
         {
@@ -579,7 +589,7 @@ namespace SFMLApp
             bool tmp;
             bool Exist = Boolean.TryParse(args[1], out tmp);
             double x = double.Parse(args[2]), y = double.Parse(args[3]);
-            MDrop Dr = new MDrop(Tag, x, y, Reason.ByPlayer);
+            MDrop Dr = new MDrop(Tag, x, y);
             Dr.Exist = Exist;
             return Dr;
         }
@@ -608,10 +618,19 @@ namespace SFMLApp
     {
         public int TagPlayer { get; private set; }
         public int TagDrop { get; private set; }//if Drop was spawned by spawner, this return number of spawner
+        public int NumSpawner { get; private set; }
         public bool BySpawner { get; private set; }
-        public MEventDrop(int TagPlayer, int TagDrop, bool BySpawner) : base(MEvents.PlayerDrop)
+        public MEventDrop(int TagPlayer, int TagDrop) : base(MEvents.PlayerDrop)
         {
-            this.BySpawner = BySpawner;
+            this.BySpawner = false;
+            NumSpawner = -1;
+            this.TagDrop = TagDrop;
+            this.TagPlayer = TagPlayer;
+        }
+        public MEventDrop(int TagPlayer, int TagDrop, int NumSpawner) : base(MEvents.PlayerDrop)
+        {
+            this.BySpawner = true;
+            this.NumSpawner = NumSpawner;
             this.TagDrop = TagDrop;
             this.TagPlayer = TagPlayer;
         }

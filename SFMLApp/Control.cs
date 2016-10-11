@@ -22,21 +22,22 @@ namespace SFMLApp
         private ControlState state;
         private Arena arena;
 
+        private int Forward = 0, Left = 0;//whaw button is use on WASD
+        private int MainPlayer;
+
         public Control(int Width, int Height)
         {
             this.Width = Width;
             this.Height = Height;
             view = new View(Width, Height);
-            view.InitEvents(Close, KeyDown, MouseDown, MouseUp, MouseMove);
+            view.InitEvents(Close, KeyDown, KeyUp, MouseDown, MouseUp, MouseMove);
             state = ControlState.BattleState;
             arena = new Arena();
             arena.NewMap("bag");
-            int tagprifio = arena.AddPlayer("prifio");
-            //int tagbot = arena.AddPlayer("bot");
-            view.AddPlayer(tagprifio);
-            arena.MovePlayer("prifio", Utily.MakePair<double>(1, 1));
-            view.MovePlayer(tagprifio, Utily.MakePair<double>(1, 1));
-            //arena.FirePlayer("prifio", Utily.MakePair<double>(1, 1));
+            MainPlayer = arena.AddPlayer("prifio");
+            int tagbot = arena.AddPlayer("bot");
+            view.AddPlayer(MainPlayer);
+            view.AddPlayer(tagbot);
         }
         
         public void UpDate(long time)
@@ -44,6 +45,7 @@ namespace SFMLApp
             if (state == ControlState.BattleState)
             {
                 arena.Update();
+                MovePlayer();
                 view.UpdateAnimation();
                 view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.ArenaPlayer, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
             }
@@ -51,13 +53,64 @@ namespace SFMLApp
                 view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.Black);
         }
 
+        public void MovePlayer()
+        {
+            var vect = view.AngleByMousePos();
+            if (Utily.Hypot2(vect.Item1, vect.Item2) < 150)
+            {
+                arena.MovePlayer("prifio", Utily.MakePair<double>(0, 0));
+                view.MovePlayer(MainPlayer, Utily.MakePair<double>(0, 0));
+            }
+            var newvect = Utily.MakePair<double>(vect.Item1 * Forward + vect.Item2 * Left, vect.Item2 * Forward - vect.Item1 * Left);
+            arena.MovePlayer("prifio", newvect);
+            view.MovePlayer(MainPlayer, newvect);
+        }
+
         public void KeyDown(object sender, KeyEventArgs e)
         {
+            if (state == ControlState.BattleState)
+            {
+                if (e.Code == Keyboard.Key.W)
+                    Forward = 1;
+                if (e.Code == Keyboard.Key.S)
+                    Forward = -1;
+                if (e.Code == Keyboard.Key.A)
+                    Left = 1;
+                if (e.Code == Keyboard.Key.D)
+                    Left = -1;
+                if (e.Code == Keyboard.Key.Q)
+                    arena.players[MainPlayer].NextItem();
+                if (e.Code == Keyboard.Key.E)
+                    arena.ChangeArrow(MainPlayer, 1);
+            }
+        }
+
+        public void KeyUp(object sender, KeyEventArgs e)
+        {
+            if (state == ControlState.BattleState)
+            {
+                if (e.Code == Keyboard.Key.W || e.Code == Keyboard.Key.S)
+                    Forward = 0;
+                if (e.Code == Keyboard.Key.A || e.Code == Keyboard.Key.D)
+                    Left = 0;
+            }
         }
 
         public void MouseDown(object sender, MouseButtonEventArgs e)
         {
 			view.OnMouseDown(ref e);
+            if (state == ControlState.BattleState)
+            {
+                if (e.Button == Mouse.Button.Left)
+                {
+                    var vect = view.AngleByMousePos();
+                    if (Utily.Hypot2(vect.Item1, vect.Item2) == 0)
+                        return;
+                    int tag = arena.FirePlayer("prifio", vect);
+                    if (tag != -1)
+                        view.AddArrow(tag);
+                }
+            }
         }
 
         public void MouseUp(object sender, MouseButtonEventArgs e)

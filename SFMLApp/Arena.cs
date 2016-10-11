@@ -18,7 +18,7 @@ namespace SFMLApp
         private Stopwatch timer;
         Queue<Tuple<long, int> > DropForRespawn;
         private Dictionary<string, int> TagName;
-
+        
         public Arena()
         {
             ArenaPlayer = new Dictionary<int, APlayer>();
@@ -42,7 +42,11 @@ namespace SFMLApp
             Drops.Clear();
             DropForRespawn.Clear();
             for (int i = 0; i < map.dropSpawners.Count; ++i)
-                map.SpawnDrops(i);
+            {
+                int tag = Utily.GetTag();
+                map.SpawnDrops(i, tag);
+                Drops.Add(tag, new ADrop(map.dropSpawners[i].count, map.dropSpawners[i].id));
+            }
             timer.Restart();
         }
 
@@ -54,16 +58,17 @@ namespace SFMLApp
             map.MovePlayer(TagName[name], NewVect);
         }
 
-        public void FirePlayer(string name, Tuple<double, double> vect)
+        public int FirePlayer(string name, Tuple<double, double> vect)
         {
             int tag = TagName[name];
             int dmg = players[tag].attack();
             if (dmg <= 0)
-                return;
+                return -1;
             Tuple<double, double> NewVect = Utily.Normalizing(vect, players[tag].ArrowSpeed());
             int arTag = Utily.GetTag();
             Arrows[arTag] = new AArow(tag, dmg, players[tag].inventory.getCurrentArrow().id);
             map.FirePlayer(tag, arTag, NewVect.Item1, NewVect.Item2);
+            return arTag;
         }
 
         public void StopPlayer(string name)
@@ -88,6 +93,7 @@ namespace SFMLApp
                         ArenaPlayer[TagPlayer].AddDeath();
                         int NewTag = Utily.GetTag();
                         map.SpawnDrops(NewTag, map.players[TagPlayer].x, map.players[TagPlayer].y);
+                        map.SpawnPlayer(TagPlayer);
                         Drops.Add(NewTag, new ADrop(1, players[TagPlayer].rightHand));
                         players[TagPlayer].respawn();
                     }
@@ -95,16 +101,12 @@ namespace SFMLApp
                 }
                 if (Event.Type == MEvents.PlayerDrop)
                 {
-                    if (!((MEventDrop)Event).BySpawner)
+                    var drop = Drops[((MEventDrop)Event).TagDrop];
+                    players[((MEventDrop)Event).TagPlayer].pickedUpItem(drop.id, drop.Count);
+                    Drops.Remove(((MEventDrop)Event).TagDrop);
+                    if (((MEventDrop)Event).BySpawner)
                     {
-                        var drop = Drops[((MEventDrop)Event).TagDrop];
-                        players[((MEventDrop)Event).TagPlayer].pickedUpItem(drop.id, drop.Count);
-                    }
-                    else
-                    {
-                        var drop = map.dropSpawners[((MEventDrop)Event).TagDrop];
-                        players[((MEventDrop)Event).TagPlayer].pickedUpItem(drop.id, drop.count);
-                        DropForRespawn.Enqueue(Utily.MakePair<long, int>(timer.ElapsedMilliseconds, ((MEventDrop)Event).TagDrop));
+                        DropForRespawn.Enqueue(Utily.MakePair<long, int>(timer.ElapsedMilliseconds, ((MEventDrop)Event).NumSpawner));
                     }
                 }
                 if (Event.Type == MEvents.DestroyArrow)
@@ -115,7 +117,9 @@ namespace SFMLApp
             while (DropForRespawn.Count > 0 && DropForRespawn.Peek().Item1 + WaitRespawnDrop < timer.ElapsedMilliseconds)
             {
                 int num = DropForRespawn.Dequeue().Item2;
-                map.SpawnDrops(num);
+                int tag = Utily.GetTag();
+                map.SpawnDrops(num, tag);
+                Drops.Add(tag, new ADrop(map.dropSpawners[num].count, map.dropSpawners[num].id));
             }
         }
 
@@ -146,6 +150,20 @@ namespace SFMLApp
             players.Remove(tag);
             ArenaPlayer.Remove(tag);
             TagName.Remove(name);
+        }
+        public void ChangeItem(int tagPlayer, int type)
+        {
+            if (type == 1)
+                players[tagPlayer].NextItem();
+            else
+                players[tagPlayer].Previtem();
+        }
+        public void ChangeArrow(int tagPlayer, int type)
+        {
+            if (type == 1)
+                players[tagPlayer].NextArrow();
+            else
+                players[tagPlayer].PrevArrow();
         }
         public void Pause()
         {

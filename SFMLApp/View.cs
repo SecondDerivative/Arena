@@ -19,13 +19,14 @@ namespace SFMLApp
         private Button MenuButtonStart;
         private Button MenuButtonExit;
 
-        public void InitEvents(EventHandler Close, EventHandler<KeyEventArgs> KeyDown, EventHandler<MouseButtonEventArgs> MouseDown, EventHandler<MouseButtonEventArgs> MouseUp, EventHandler<MouseMoveEventArgs> MouseMove)
+        public void InitEvents(EventHandler Close, EventHandler<KeyEventArgs> KeyDown, EventHandler<KeyEventArgs> KeyUp, EventHandler<MouseButtonEventArgs> MouseDown, EventHandler<MouseButtonEventArgs> MouseUp, EventHandler<MouseMoveEventArgs> MouseMove)
         {
             MainForm.Closed += Close;
             MainForm.KeyPressed += KeyDown;
             MainForm.MouseButtonPressed += MouseDown;
             MainForm.MouseButtonReleased += MouseUp;
             MainForm.MouseMoved += MouseMove;
+            MainForm.KeyReleased += KeyUp;
         }
         public View(int Width, int Height)
         {
@@ -124,34 +125,61 @@ namespace SFMLApp
                 WasInit = true;
             }
             Clear();
+            RectangleShape Stone = new RectangleShape(new Vector2f(Map.Rwidth, Map.Rwidth));
+            Stone.FillColor = Color.Magenta;
             for (int i = 0; i < SizeMapX; i++)
             {
                 for (int j = 0; j < SizeMapY; j++)
                 {
                     if (!Field[i][j].isEmpty)
                     {
-                        DrawText("#", i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY, 10, Fonts.Arial, Color.Black);
+                        Stone.Position = new Vector2f(i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY);
+                        MainForm.Draw(Stone);
+                        //DrawText("#", i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY, 10, Fonts.Arial, Color.Black);
                     }
                 }
             }
+            CircleShape plr = new CircleShape(Map.RPlayer);
+            plr.FillColor = Color.Blue;
             foreach (var i in MapPlayers)
             {
                 viewPlayers[i.Key].x = (int)i.Value.x;
                 viewPlayers[i.Key].y = (int)i.Value.y;
-                viewPlayers[i.Key].Draw(this);
+                viewPlayers[i.Key].Draw(this, plr);
             }
+            CircleShape arr = new CircleShape(Map.RArrow);
+            arr.FillColor = Color.Red;
             foreach (var i in MapArrows)
             {
-                DrawText(">", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
+                arr.Position = new Vector2f((int)i.Value.x - CameraPosX - Map.RArrow, (int)i.Value.y - CameraPosY - Map.RArrow);
+                MainForm.Draw(arr);
+                //code for color. one color - arrow. one color - magic
+                //DrawText(">", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
+            }
+            CircleShape drop = new CircleShape(Map.RDrop);
+            drop.FillColor = Color.Magenta;
+            foreach (var i in MapDrops)
+            {
+                drop.Position = new Vector2f((int)i.Value.x - CameraPosX - Map.RDrop, (int)i.Value.y - CameraPosY - Map.RDrop);
+                MainForm.Draw(drop);
+                //DrawText("d", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
             }
             foreach (var i in MapDrops)
             {
-                DrawText("d", (int)i.Value.x - CameraPosX, (int)i.Value.y - CameraPosY, 10, Fonts.Arial, Color.Black);
+                var it = Items.allItems[ArenaDrops[i.Key].id];
+                if (it is ItemBow || it is Magic)
+                    DrawText(it.Name, (int)i.Value.x - CameraPosX - 5, (int)i.Value.y - CameraPosY - 5, 10, Fonts.Arial, Color.Black);
+                else if (it is Bottle)
+                    DrawText(it.Name + "(" + ((Bottle)it).restore + ")", (int)i.Value.x - CameraPosX - 5, (int)i.Value.y - CameraPosY - 5, 10, Fonts.Arial, Color.Black);
+                else if (it is Arrow)
+                    DrawText(it.Name + "(" + ArenaDrops[i.Key].Count + ")", (int)i.Value.x - CameraPosX - 5, (int)i.Value.y - CameraPosY - 5, 10, Fonts.Arial, Color.Black);
             }
             var mp = Players[MainPlayer];
             DrawText("HP " + mp.Health, 10, 30, 30, Fonts.Arial, Color.Black);
             DrawText("Mana " + mp.inventory.getMana(), 10, 60, 30, Fonts.Arial, Color.Black);
             DrawText("Arrows " + mp.inventory.getArrowsAmount(), 10, 90, 30, Fonts.Arial, Color.Black);
+            DrawText(Players[MainPlayer].getItemRight().Name, 700, 30, 30, Fonts.Arial, Color.Black);
+            DrawText(Players[MainPlayer].inventory.getCurrentArrow().Name, 700, 60, 30, Fonts.Arial, Color.Black);
             //DrawText(CameraPosX.ToString(), 20, 20, 10, Fonts.Arial, Color.Black);
         }
         public void Pause()
@@ -243,10 +271,10 @@ namespace SFMLApp
             MainPlayer = -1;
             Timer.Restart();
         }
-        public Tuple<double, double> AngleByMousePos(int x, int y)
+        public Tuple<double, double> AngleByMousePos()
         {
             var mp = viewPlayers[MainPlayer];
-            return Utily.MakePair<double>(x - mp.x, y - mp.y);
+            return Utily.MakePair<double>(NowMouseX - mp.x + CameraPosX, NowMouseY - mp.y + CameraPosY);
         }        
         public void Scroll(int i)
         {
@@ -283,9 +311,11 @@ namespace SFMLApp
             this.x = x;
             this.y = y;
         }
-        public void Draw(View view)
+        public void Draw(View view, CircleShape plr)
         {
-            view.DrawText("||", x - view.CameraPosX, y - view.CameraPosY, 10, Fonts.Arial, Color.Black);
+            plr.Position = new Vector2f(x - view.CameraPosX - Map.RPlayer, y - view.CameraPosY - Map.RPlayer);
+            view.MainForm.Draw(plr);
+            //view.DrawText("||", x - view.CameraPosX, y - view.CameraPosY, 10, Fonts.Arial, Color.Black);
         }
     }
 }

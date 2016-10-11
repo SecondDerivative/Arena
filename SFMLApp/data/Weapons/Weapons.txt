@@ -27,26 +27,26 @@ Fireball
 5
 20
 500
-0.1
+0.3
 Lightning
 25
 7
 25
 500
-0.1
+0.3
 Curse
 35
 9
 45
 500
-0.1
+0.3
 --------
 Steel Arrow
 3
-0.2
+0.4
 Demoic Arrow
 5
-0.2
+0.3
 -------
 HPHeal
 30

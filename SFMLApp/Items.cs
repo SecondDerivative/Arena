@@ -193,7 +193,7 @@ namespace SFMLApp
             }
             currentIndex += 3;
             fileReader.ReadLine();
-            ArrayItems.Add(new Arrow("Wooden Arrow", 2, currentIndex, 0.2));
+            ArrayItems.Add(new Arrow("Wooden Arrow", 2, currentIndex, 0.5));
             currentIndex++;// = 1;
             for (int i = currentIndex; i < currentIndex + 2; i++)
             {

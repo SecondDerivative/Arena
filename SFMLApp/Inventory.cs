@@ -66,11 +66,22 @@
             addItem(id, 1);
         }
 
-        public bool isInStock(Item item) {
+        public bool isInStock(int id)
+        {
+            return inventory[id] > 0;
+        }
+
+        public bool isInStock(Item item)
+        {
 			return inventory[item.id] > 0;
         }
 
-		public int howMuchItems(Item item) {
+        public int howMuchItems(int id)
+        {
+            return inventory[id];
+        }
+
+        public int howMuchItems(Item item) {
 			return inventory[item.id];
         }
 

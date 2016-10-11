@@ -30,21 +30,21 @@ namespace SFMLApp
             {
                 LeftReloadTimer.Restart();
                 if (inventory.getItem(leftHand).GetType() == typeof(ItemBow))
-                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
+                    total = total + ((ItemBow)inventory.getItem(leftHand)).attack(inventory);
                 else if (inventory.getItem(leftHand).GetType() == typeof(Magic))
-                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
-                else 
-                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack();
+                    total = total + ((Magic)inventory.getItem(leftHand)).attack(inventory);
+                else if (inventory.getItem(leftHand).GetType() == typeof(ItemSword))
+                    total = total + ((ItemSword)inventory.getItem(leftHand)).attack();
             }
             if (RightReloadTimer.ElapsedMilliseconds >= ((Weapon)Items.allItems[rightHand]).Reloading)
             {
                 RightReloadTimer.Restart();
                 if (inventory.getItem(rightHand).GetType() == typeof(ItemBow))
-                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
-                else if (rightHand.GetType() == typeof(Magic))
-                        total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack(inventory);
-                else
-                    total = total + ((SFMLApp.Weapon)inventory.getItem(leftHand)).attack();
+                    total = total + ((ItemBow)inventory.getItem(rightHand)).attack(inventory);
+                else if (inventory.getItem(rightHand).GetType() == typeof(Magic))
+                        total = total + ((Magic)inventory.getItem(rightHand)).attack(inventory);
+                else if(inventory.getItem(leftHand).GetType() == typeof(ItemSword))
+                    total = total + ((ItemSword)inventory.getItem(rightHand)).attack();
             }
         	return total;
 		}
@@ -71,30 +71,36 @@ namespace SFMLApp
 		public Item getItemRight(){
 			return inventory.getItem(rightHand);
 		}
-		public void pickUpArrow(Arrow arrowType,int nArrowsPickedUp){
+		public void pickUpArrow(Arrow arrowType, int nArrowsPickedUp){
 			inventory.addArrows(arrowType, nArrowsPickedUp);
 		}
 		public void addedMana(int nManaAdded){
 			inventory.addMana(nManaAdded);
 		}
-		public void pickedUpItem(Item i){
-			inventory.addItem(i);
-		}
-		public void selectArrow(Arrow i)
+        public void pickedUpItem(int id, int cnt)
         {
-            inventory.setCurrentArrow(i.id);
+            if (Items.allItems[id] is ManaBottle)
+                ((ManaBottle)Items.allItems[id]).Consume(this);
+            else if (Items.allItems[id] is HPBottle)
+                ((HPBottle)Items.allItems[id]).Consume(this);
+            else
+                inventory.addItem(id, cnt);
         }
-        public void pickedUpItem(int id)
+        public void pickedUpItem(Item i)
         {
-            inventory.addItem(id);
+            pickedUpItem(i.id, 1);
+		}
+		public void pickedUpItem(int id)
+        {
+            pickedUpItem(id, 1);
         }
         public void pickedUpItem(Item i, int cnt)
         {
-            inventory.addItem(i, cnt);
+            pickedUpItem(i.id, cnt);
         }
-        public void pickedUpItem(int id, int cnt)
+        public void selectArrow(Arrow i)
         {
-            inventory.addItem(id, cnt);
+            inventory.setCurrentArrow(i.id);
         }
         public void respawn(){
 			Health = 100;
@@ -106,7 +112,7 @@ namespace SFMLApp
             rightHand = 4;
             //start kit
             inventory.addItem(4);
-            inventory.addItem(10, 3);
+            inventory.addItem(10, 30);
             inventory.setCurrentArrow(10);
         }
         public double Speed()
@@ -129,6 +135,40 @@ namespace SFMLApp
             {
                 Health += HPHealed;
             }
+        }
+        public void NextItem()
+        {
+            int yk = rightHand + 1;
+            int cntItem = Inventory.totalNumberofItems;
+            while (!inventory.isInStock(yk % cntItem) || yk % cntItem == 0
+                || Items.allItems[yk % cntItem] is Arrow)
+                ++yk;
+            rightHand = yk % cntItem;
+        }
+        public void Previtem()
+        {
+            int yk = rightHand - 1;
+            int cntItem = Inventory.totalNumberofItems;
+            while (!inventory.isInStock((yk + cntItem) % cntItem) || (yk + cntItem) % cntItem == 0
+                || Items.allItems[(yk + cntItem) % cntItem] is Arrow)
+                --yk;
+            rightHand = (yk + cntItem) % cntItem;
+        }
+        public void NextArrow()
+        {
+            int yk = inventory.getCurrentArrow().id + 1;
+            int cntItem = Inventory.totalNumberofItems;
+            while (!inventory.isInStock(yk % cntItem) || !(Items.allItems[yk % cntItem] is Arrow))
+                ++yk;
+            inventory.setCurrentArrow(yk % cntItem);
+        }
+        public void PrevArrow()
+        {
+            int yk = inventory.getCurrentArrow().id - 1;
+            int cntItem = Inventory.totalNumberofItems;
+            while (!inventory.isInStock((yk + cntItem) % cntItem) || !(Items.allItems[(yk + cntItem) % cntItem] is Arrow))
+                --yk;
+            inventory.setCurrentArrow(yk % cntItem);
         }
     }
 }
