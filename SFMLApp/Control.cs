@@ -22,7 +22,7 @@ namespace SFMLApp
         private ControlState state;
         private Arena arena;
 
-        private int Forward = 0, Left = 0;//whaw button is use on WASD
+        private int Forward = 0, Left = 0;//what button is use on WASD
         private int MainPlayer;
 
         public Control(int Width, int Height)
