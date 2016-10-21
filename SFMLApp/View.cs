@@ -107,6 +107,7 @@ namespace SFMLApp
         private int SizeMapX, SizeMapY;
         private bool WasInit = false;
         private Stopwatch Timer;
+        private long LastTimerDrawBattle;
         private int MainPlayer;
 
         bool CameraIsMoving = false;
@@ -117,6 +118,8 @@ namespace SFMLApp
         public void DrawBattle(Dictionary<int, Player> Players, Dictionary<int, AArow> ArenaArrows, Dictionary<int, ADrop> ArenaDrops, Dictionary<int, APlayer> Aplayer,
             Dictionary<int, MPlayer> MapPlayers, Dictionary<int, MArrow> MapArrows, List<List<Square>> Field, Dictionary<int, MDrop> MapDrops)
         {
+            long delta = Timer.ElapsedMilliseconds - LastTimerDrawBattle;
+            LastTimerDrawBattle = Timer.ElapsedMilliseconds;
             if (!WasInit)
             {
                 CameraPosX = CameraPosY = 0;
@@ -145,7 +148,8 @@ namespace SFMLApp
             {
                 viewPlayers[i.Key].x = (int)i.Value.x;
                 viewPlayers[i.Key].y = (int)i.Value.y;
-                viewPlayers[i.Key].Draw(this, plr);
+                viewPlayers[i.Key].UpDate(delta);
+                viewPlayers[i.Key].Draw(this);
             }
             CircleShape arr = new CircleShape(Map.RArrow);
             arr.FillColor = Color.Red;
@@ -260,9 +264,6 @@ namespace SFMLApp
         {
 
         }
-        public void MovePlayer(int tag, Tuple<double, double> vect)
-        {
-        }
         public void NewGame()
         {
             //Cleare all data
@@ -270,17 +271,18 @@ namespace SFMLApp
             viewPlayers = new Dictionary<int, PlayerView>();
             MainPlayer = -1;
             Timer.Restart();
+            LastTimerDrawBattle = 0;
         }
         public Tuple<double, double> AngleByMousePos()
         {
             var mp = viewPlayers[MainPlayer];
             return Utily.MakePair<double>(NowMouseX - mp.x + CameraPosX, NowMouseY - mp.y + CameraPosY);
-        }        
+        }
         public void Scroll(int i)
         {
             //if i == 1 - forward scroll. i == -1 - back scroll
         }
-        
+
         //end BattleDraw and data
 
         public void OnMouseMove(ref MouseMoveEventArgs args)
@@ -302,19 +304,56 @@ namespace SFMLApp
         }
     }
 
-    public class PlayerView
+    abstract public class DrawableObject
     {
         public int x { get; set; }
         public int y { get; set; }
-        public PlayerView(int x, int y)
+        public Tuple<double, double> Angle { get; protected set; }
+        private int NumberOfPict;
+        public DrawableObject()
+        {
+
+        }
+        abstract public void Draw(View view);
+        abstract public void UpDate(long Time);
+    }
+
+    public class PlayerView : DrawableObject
+    {
+        public enum PlayerViewState
+        {
+            Stand,
+            Run
+        }
+        //private List<IMAGE_CLASS>[] Runing, Standing;
+        //array for rotate
+
+        public PlayerView(int x, int y) : base()
         {
             this.x = x;
             this.y = y;
+            PlayerTexture = new CircleShape(Map.RPlayer);
+            PlayerTexture.FillColor = Color.Blue;
         }
-        public void Draw(View view, CircleShape plr)
+        public PlayerViewState State { get; private set; }
+        public void UpDateAngle(Tuple<double, double> angle)
         {
-            plr.Position = new Vector2f(x - view.CameraPosX - Map.RPlayer, y - view.CameraPosY - Map.RPlayer);
-            view.MainForm.Draw(plr);
+            Angle = angle;
+            if (Utily.Hypot(angle) == 0)
+                State = PlayerViewState.Stand;
+            else
+                State = PlayerViewState.Run; 
+        }
+        //need remove
+        CircleShape PlayerTexture;
+        public override void UpDate(long Time)
+        {
+            //change anim cadr
+        }
+        override public void Draw(View view) 
+        {
+            PlayerTexture.Position = new Vector2f(x - view.CameraPosX - Map.RPlayer, y - view.CameraPosY - Map.RPlayer);
+            view.MainForm.Draw(PlayerTexture);
             //view.DrawText("||", x - view.CameraPosX, y - view.CameraPosY, 10, Fonts.Arial, Color.Black);
         }
     }

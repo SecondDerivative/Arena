@@ -59,11 +59,9 @@ namespace SFMLApp
             if (Utily.Hypot2(vect.Item1, vect.Item2) < 150)
             {
                 arena.MovePlayer("prifio", Utily.MakePair<double>(0, 0));
-                view.MovePlayer(MainPlayer, Utily.MakePair<double>(0, 0));
             }
             var newvect = Utily.MakePair<double>(vect.Item1 * Forward + vect.Item2 * Left, vect.Item2 * Forward - vect.Item1 * Left);
             arena.MovePlayer("prifio", newvect);
-            view.MovePlayer(MainPlayer, newvect);
         }
 
         public void KeyDown(object sender, KeyEventArgs e)
