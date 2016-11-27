@@ -145,7 +145,7 @@ namespace SFMLApp
                 ++yk;
             rightHand = yk % cntItem;
         }
-        public void Previtem()
+        public void PrevItem()
         {
             int yk = rightHand - 1;
             int cntItem = Inventory.totalNumberofItems;

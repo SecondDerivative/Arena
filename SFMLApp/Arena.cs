@@ -147,7 +147,7 @@ namespace SFMLApp
             if (type == 1)
                 players[tagPlayer].NextItem();
             else
-                players[tagPlayer].Previtem();
+                players[tagPlayer].PrevItem();
         }
         public void ChangeArrow(int tagPlayer, int type)
         {

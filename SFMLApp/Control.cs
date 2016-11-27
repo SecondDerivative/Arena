@@ -45,7 +45,7 @@ namespace SFMLApp
             if (state == ControlState.BattleState)
             {
                 arena.Update();
-                MovePlayer();
+                MovePlayer(MainPlayer);
                 view.UpdateAnimation();
                 view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.ArenaPlayer, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
             }
@@ -53,64 +53,80 @@ namespace SFMLApp
                 view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.Black);
         }
 
-        public void MovePlayer()
+        public void MovePlayer(int tag)
         {
-            var vect = view.AngleByMousePos();
+            var vect = view.AngleByMousePos(); //need change
             if (Utily.Hypot2(vect.Item1, vect.Item2) < 150)
             {
-                arena.MovePlayer(MainPlayer, Utily.MakePair<double>(0, 0));
-                view.MovePlayer(MainPlayer, Utily.MakePair<double>(0, 0));
+                arena.MovePlayer(tag, Utily.MakePair<double>(0, 0));
+                view.MovePlayer(tag, Utily.MakePair<double>(0, 0));
             }
             var newvect = Utily.MakePair<double>(vect.Item1 * Forward + vect.Item2 * Left, vect.Item2 * Forward - vect.Item1 * Left);
-            arena.MovePlayer(MainPlayer, newvect);
-            view.MovePlayer(MainPlayer, newvect);
+            arena.MovePlayer(tag, newvect);
+            view.MovePlayer(tag, newvect);
+            //need create Class for UserKeyBord State. change forward etc
+        }
+
+        public void ReleaseKeyDown(int tag, int key)
+        {
+            if (state == ControlState.BattleState)
+            {
+                if (key == (int)Keyboard.Key.W)
+                    Forward = 1;
+                if (key == (int)Keyboard.Key.S)
+                    Forward = -1;
+                if (key == (int)Keyboard.Key.A)
+                    Left = 1;
+                if (key == (int)Keyboard.Key.D)
+                    Left = -1;
+                if (key == (int)Keyboard.Key.Q)
+                    arena.ChangeItem(tag, 1);
+                if (key == (int)Keyboard.Key.E)
+                    arena.ChangeArrow(tag, 1);
+            }
         }
 
         public void KeyDown(object sender, KeyEventArgs e)
         {
+            ReleaseKeyDown(MainPlayer, (int)e.Code);
+        }
+
+        public void ReleaseKeyUp(int tag, int key)
+        {
             if (state == ControlState.BattleState)
             {
-                if (e.Code == Keyboard.Key.W)
-                    Forward = 1;
-                if (e.Code == Keyboard.Key.S)
-                    Forward = -1;
-                if (e.Code == Keyboard.Key.A)
-                    Left = 1;
-                if (e.Code == Keyboard.Key.D)
-                    Left = -1;
-                if (e.Code == Keyboard.Key.Q)
-                    arena.players[MainPlayer].NextItem();
-                if (e.Code == Keyboard.Key.E)
-                    arena.ChangeArrow(MainPlayer, 1);
+                if (key == (int)Keyboard.Key.W || key == (int)Keyboard.Key.S)
+                    Forward = 0;
+                if (key == (int)Keyboard.Key.A || key == (int)Keyboard.Key.D)
+                    Left = 0;
             }
         }
 
         public void KeyUp(object sender, KeyEventArgs e)
         {
+            ReleaseKeyUp(MainPlayer, (int)e.Code);
+        }
+
+        public void ReleaseMouseDown(int tag, int button)
+        {
             if (state == ControlState.BattleState)
             {
-                if (e.Code == Keyboard.Key.W || e.Code == Keyboard.Key.S)
-                    Forward = 0;
-                if (e.Code == Keyboard.Key.A || e.Code == Keyboard.Key.D)
-                    Left = 0;
+                if (button == (int)Mouse.Button.Left)
+                {
+                    var vect = view.AngleByMousePos();//need change
+                    if (Utily.Hypot2(vect.Item1, vect.Item2) == 0)
+                        return;
+                    int tagArr = arena.FirePlayer(MainPlayer, vect);
+                    if (tagArr != -1)
+                        view.AddArrow(tagArr);
+                }
             }
         }
 
         public void MouseDown(object sender, MouseButtonEventArgs e)
         {
 			view.OnMouseDown(ref e);
-            if (state == ControlState.BattleState)
-            {
-                if (e.Button == Mouse.Button.Left)
-                {
-                    var vect = view.AngleByMousePos();
-                    if (Utily.Hypot2(vect.Item1, vect.Item2) == 0)
-                        return;
-                    int tag = arena.FirePlayer(MainPlayer, vect);
-                    if (tag != -1)
-                        view.AddArrow(tag);
-                }
-            }
+            ReleaseMouseDown(MainPlayer, (int)e.Button);
         }
 
         public void MouseUp(object sender, MouseButtonEventArgs e)
