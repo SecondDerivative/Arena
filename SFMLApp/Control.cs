@@ -58,11 +58,11 @@ namespace SFMLApp
             var vect = view.AngleByMousePos();
             if (Utily.Hypot2(vect.Item1, vect.Item2) < 150)
             {
-                arena.MovePlayer("prifio", Utily.MakePair<double>(0, 0));
+                arena.MovePlayer(MainPlayer, Utily.MakePair<double>(0, 0));
                 view.MovePlayer(MainPlayer, Utily.MakePair<double>(0, 0));
             }
             var newvect = Utily.MakePair<double>(vect.Item1 * Forward + vect.Item2 * Left, vect.Item2 * Forward - vect.Item1 * Left);
-            arena.MovePlayer("prifio", newvect);
+            arena.MovePlayer(MainPlayer, newvect);
             view.MovePlayer(MainPlayer, newvect);
         }
 
@@ -106,7 +106,7 @@ namespace SFMLApp
                     var vect = view.AngleByMousePos();
                     if (Utily.Hypot2(vect.Item1, vect.Item2) == 0)
                         return;
-                    int tag = arena.FirePlayer("prifio", vect);
+                    int tag = arena.FirePlayer(MainPlayer, vect);
                     if (tag != -1)
                         view.AddArrow(tag);
                 }

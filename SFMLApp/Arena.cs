@@ -17,7 +17,6 @@ namespace SFMLApp
         public Dictionary<int, APlayer> ArenaPlayer { get; private set; }
         private Stopwatch timer;
         Queue<Tuple<long, int> > DropForRespawn;
-        private Dictionary<string, int> TagName;
         
         public Arena()
         {
@@ -26,7 +25,6 @@ namespace SFMLApp
             Arrows = new Dictionary<int, AArow>();
             Drops = new Dictionary<int, ADrop>();
             timer = new Stopwatch();
-            TagName = new Dictionary<string, int>();
             DropForRespawn = new Queue<Tuple<long, int> >();
         }
 
@@ -50,17 +48,15 @@ namespace SFMLApp
             timer.Restart();
         }
 
-        public void MovePlayer(string name, Tuple<double, double> speed)
+        public void MovePlayer(int tag, Tuple<double, double> speed)
         {
-            int tag = TagName[name];
             double m = players[tag].Speed();
             Tuple<double, double> NewVect = Utily.Normalizing(speed, players[tag].Speed());
-            map.MovePlayer(TagName[name], NewVect);
+            map.MovePlayer(tag, NewVect);
         }
 
-        public int FirePlayer(string name, Tuple<double, double> vect)
+        public int FirePlayer(int tag, Tuple<double, double> vect)
         {
-            int tag = TagName[name];
             int dmg = players[tag].attack();
             if (dmg <= 0)
                 return -1;
@@ -71,9 +67,9 @@ namespace SFMLApp
             return arTag;
         }
 
-        public void StopPlayer(string name)
+        public void StopPlayer(int tag)
         {
-            map.StopPlayer(TagName[name]);
+            map.StopPlayer(tag);
         }
 
         public void Update()
@@ -123,33 +119,28 @@ namespace SFMLApp
             }
         }
 
-        public bool NickIsUse(string name)
+        public bool TagIsUse(int tag)
         {
-            return TagName.ContainsKey(name);
+            return ArenaPlayer.ContainsKey(tag);
         }
 
         public int AddPlayer(string name)
         {
-            if (NickIsUse(name))
-                return -1;
             int tag = Utily.GetTag();
             players[tag] = new Player();
             players[tag].respawn();
             ArenaPlayer[tag] = new APlayer(name);
-            TagName[name] = tag;
             map.AddPlayer(tag);
             map.SpawnPlayer(tag);
             return tag;
         }
-        public void RemovePlayer(string name)
+        public void RemovePlayer(int tag)
         {
-            if (!NickIsUse(name))
+            if (!TagIsUse(tag))
                 return;
-            int tag = TagName[name];
             map.RemovePlayer(tag);
             players.Remove(tag);
             ArenaPlayer.Remove(tag);
-            TagName.Remove(name);
         }
         public void ChangeItem(int tagPlayer, int type)
         {
