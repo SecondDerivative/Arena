@@ -21,9 +21,10 @@ namespace SFMLApp
         private int Width, Height;
         private ControlState state;
         private Arena arena;
+        private Server server;
 
-        private int Forward = 0, Left = 0;//what button is use on WASD
-        private int MainPlayer;
+        const int CountPlayer = 2;
+        private int[] TagByNum;
 
         public Control(int Width, int Height)
         {
@@ -33,27 +34,46 @@ namespace SFMLApp
             view.InitEvents(Close, KeyDown, KeyUp, MouseDown, MouseUp, MouseMove);
             state = ControlState.BattleState;
             arena = new Arena();
+            server = new Server(CountPlayer);
+            TagByNum = new int[CountPlayer];
+            server.Players[0].IsRemote = false;
             arena.NewMap("bag");
-            MainPlayer = arena.AddPlayer("prifio");
+            TagByNum[0] = arena.AddPlayer("prifio");
             int tagbot = arena.AddPlayer("bot");
-            view.AddPlayer(MainPlayer);
+            view.AddPlayer(TagByNum[0]);
             view.AddPlayer(tagbot);
         }
-        
+
         public void UpDate(long time)
         {
             if (state == ControlState.BattleState)
             {
                 arena.Update();
-                MovePlayer(MainPlayer);
                 view.UpdateAnimation();
                 view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.ArenaPlayer, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
+                for (int i = 0; i < CountPlayer; i++)
+                    if (server.Players[i].IsOnLine || !server.Players[i].IsRemote)
+                    {
+                        while (server.Players[i].KeyDown.Count > 0)
+                        {
+                            int key = server.Players[i].KeyDown.Dequeue();
+                            if (key != -1)//mouse Code
+                                ReleaseKeyDown(TagByNum[i], key);
+                            else
+                            {
+                                int button = server.Players[i].KeyDown.Dequeue();
+                                ReleaseMouseDown(TagByNum[i], button);
+                            }
+                        }
+                        MovePlayer(TagByNum[i], server.Players[i].Forward, server.Players[i].Left);
+                    }
+                //send info
             }
             if (time > 0)
                 view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.Black);
         }
 
-        public void MovePlayer(int tag)
+        public void MovePlayer(int tag, int Forw, int Left)
         {
             var vect = view.AngleByMousePos(); //need change
             if (Utily.Hypot2(vect.Item1, vect.Item2) < 150)
@@ -61,7 +81,7 @@ namespace SFMLApp
                 arena.MovePlayer(tag, Utily.MakePair<double>(0, 0));
                 view.MovePlayer(tag, Utily.MakePair<double>(0, 0));
             }
-            var newvect = Utily.MakePair<double>(vect.Item1 * Forward + vect.Item2 * Left, vect.Item2 * Forward - vect.Item1 * Left);
+            var newvect = Utily.MakePair<double>(vect.Item1 * Forw + vect.Item2 * Left, vect.Item2 * Forw - vect.Item1 * Left);
             arena.MovePlayer(tag, newvect);
             view.MovePlayer(tag, newvect);
             //need create Class for UserKeyBord State. change forward etc
@@ -71,14 +91,6 @@ namespace SFMLApp
         {
             if (state == ControlState.BattleState)
             {
-                if (key == (int)Keyboard.Key.W)
-                    Forward = 1;
-                if (key == (int)Keyboard.Key.S)
-                    Forward = -1;
-                if (key == (int)Keyboard.Key.A)
-                    Left = 1;
-                if (key == (int)Keyboard.Key.D)
-                    Left = -1;
                 if (key == (int)Keyboard.Key.Q)
                     arena.ChangeItem(tag, 1);
                 if (key == (int)Keyboard.Key.E)
@@ -88,23 +100,19 @@ namespace SFMLApp
 
         public void KeyDown(object sender, KeyEventArgs e)
         {
-            ReleaseKeyDown(MainPlayer, (int)e.Code);
+            server.Players[0].AddKey((int)e.Code);
+            //ReleaseKeyDown(MainPlayer, (int)e.Code);
         }
 
         public void ReleaseKeyUp(int tag, int key)
         {
-            if (state == ControlState.BattleState)
-            {
-                if (key == (int)Keyboard.Key.W || key == (int)Keyboard.Key.S)
-                    Forward = 0;
-                if (key == (int)Keyboard.Key.A || key == (int)Keyboard.Key.D)
-                    Left = 0;
-            }
+
         }
 
         public void KeyUp(object sender, KeyEventArgs e)
         {
-            ReleaseKeyUp(MainPlayer, (int)e.Code);
+            //ReleaseKeyUp(MainPlayer, (int)e.Code);
+            server.Players[0].KeyUp((int)e.Code);
         }
 
         public void ReleaseMouseDown(int tag, int button)
@@ -116,7 +124,7 @@ namespace SFMLApp
                     var vect = view.AngleByMousePos();//need change
                     if (Utily.Hypot2(vect.Item1, vect.Item2) == 0)
                         return;
-                    int tagArr = arena.FirePlayer(MainPlayer, vect);
+                    int tagArr = arena.FirePlayer(tag, vect);
                     if (tagArr != -1)
                         view.AddArrow(tagArr);
                 }
@@ -125,18 +133,18 @@ namespace SFMLApp
 
         public void MouseDown(object sender, MouseButtonEventArgs e)
         {
-			view.OnMouseDown(ref e);
-            ReleaseMouseDown(MainPlayer, (int)e.Button);
+            view.OnMouseDown(ref e);
+            server.Players[0].MouseDown((int)e.Button);
         }
 
         public void MouseUp(object sender, MouseButtonEventArgs e)
         {
-			view.OnMouseUp(ref e);
+            view.OnMouseUp(ref e);
         }
 
         public void MouseMove(object sender, MouseMoveEventArgs e)
         {
-			view.OnMouseMove(ref e);
+            view.OnMouseMove(ref e);
         }
 
         public void Close(object send, EventArgs e)

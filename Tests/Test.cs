@@ -106,12 +106,12 @@ namespace Tests
         {
             var arena = new Arena();
             arena.NewMap("bag");
-            arena.AddPlayer("Tolya");
-            arena.AddPlayer("prifio");
-            arena.AddPlayer("aSh");
-            arena.RemovePlayer("aSh");
-            arena.MovePlayer("Tolya", new Tuple<double, double>(3, 4));
-            arena.FirePlayer("prifio", new Tuple<double, double>(4, -3));
+            int tag1 = arena.AddPlayer("Tolya");
+            int tag2 = arena.AddPlayer("prifio");
+            int tag3 = arena.AddPlayer("aSh");
+            arena.RemovePlayer(tag3);
+            arena.MovePlayer(tag1, new Tuple<double, double>(3, 4));
+            arena.FirePlayer(tag2, new Tuple<double, double>(4, -3));
         }
     }
 }
