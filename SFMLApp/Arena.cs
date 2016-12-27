@@ -166,6 +166,76 @@ namespace SFMLApp
             map.Run();
             timer.Start();
         }
+        public Dictionary<int, string> GetAllInfo()
+        {
+            var ans = new Dictionary<int, string>();
+            string mapinfo = map.GetInfo();
+            var small = new Dictionary<int, string>();
+            foreach (var i in players)
+                small.Add(i.Key, i.Value.SmallString());
+            string arenainfo = GetInfo();
+            foreach (var i in players)
+            {
+                string now = mapinfo + "#" + arenainfo + "#";
+                bool wasWrite = false;
+                foreach (var j in players)
+                {
+                    if (j.Key != i.Key)
+                    {
+                        if (wasWrite)
+                            now += ";" + j.Key + " " + small;
+                        else
+                        {
+                            now += j.Key + " " + small;
+                            wasWrite = false;
+                        }                        
+                    }
+                }
+                now += "#" + i.Value.LargeString();
+                ans.Add(i.Key, now);
+            }  
+            return ans;
+        }
+        public string GetInfo()
+        {
+            string ans = "";
+            bool wasWrite = false;
+            foreach (var j in Arrows)
+            {
+                if (wasWrite)
+                    ans += "," + j.Key + " " + j.Value.GetInfo();
+                else
+                {
+                    ans += j.Key + " " + j.Value.GetInfo();
+                    wasWrite = true;
+                }
+            }
+            ans += "#";
+            wasWrite = false;
+            foreach (var j in Drops)
+            {
+                if (wasWrite)
+                    ans += "," + j.Key + " " + j.Value.GetInfo();
+                else
+                {
+                    ans += j.Key + " " + j.Value.GetInfo();
+                    wasWrite = true;
+                }
+            }
+            ans += "#";
+            wasWrite = false;
+            foreach (var j in ArenaPlayer)
+            {
+                if (wasWrite)
+                    ans += "," + j.Key + " " + j.Value.GetInfo();
+                else
+                {
+                    ans += j.Key + " " + j.Value.GetInfo();
+                    wasWrite = true;
+                }
+            }
+            return ans;
+        }    
     }
 
     public struct AArow
@@ -180,6 +250,10 @@ namespace SFMLApp
             this.dmg = dmg;
             this.id = id;
         }
+        public string GetInfo()
+        {
+            return dmg + " " + id;
+        }
     }
 
     public class ADrop
@@ -190,6 +264,10 @@ namespace SFMLApp
         {
             Count = cnt;
             this.id = id;
+        }
+        public string GetInfo()
+        {
+            return Count + " " + id;
         }
     }
 
@@ -210,6 +288,10 @@ namespace SFMLApp
         public void AddDeath()
         {
             ++Death;
+        }
+        public string GetInfo()
+        {
+            return Kill + " " + Death + " " + RealName;
         }
     }
 }

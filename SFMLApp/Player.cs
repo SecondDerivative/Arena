@@ -170,5 +170,17 @@ namespace SFMLApp
                 --yk;
             inventory.setCurrentArrow(yk % cntItem);
         }
+        public string LargeString()
+        {
+            string ans = Health + " " + rightHand + " " + RightReloadTimer.ElapsedMilliseconds + " " +
+                inventory.LargeString();
+            return ans;
+        }
+        public string SmallString()
+        {
+            string ans = Health + " " + rightHand + 
+                inventory.SmallString();
+            return ans;
+        }
     }
 }

@@ -90,5 +90,17 @@
 				inventory [i] = 0;
 			}
 		}
+
+        public string LargeString()
+        {
+            string ans = Mana + " " + currentArrow + " " + totalNumberofItems;
+            for (int i = 0; i < totalNumberofItems; i++)
+                ans += " " + inventory[i];
+            return ans;
+        }
+        public string SmallString()
+        {
+            return currentArrow.ToString();
+        }
     }
 }

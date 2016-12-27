@@ -563,6 +563,10 @@ namespace SFMLApp
         {
             Timer.Start();
         }
+        public string GetInfo()
+        {
+            return "";
+        }
     }
     public class MDrop : Entity
     {
