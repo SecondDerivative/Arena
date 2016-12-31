@@ -34,7 +34,7 @@ namespace SFMLApp
             view.InitEvents(Close, KeyDown, KeyUp, MouseDown, MouseUp, MouseMove);
             state = ControlState.BattleState;
             arena = new Arena();
-            server = new Server(CountPlayer);
+            server = new Server(CountPlayer, "192.168.1.40");
             TagByNum = new int[CountPlayer];
             server.Players[0].IsRemote = false;
             arena.NewMap("bag");
@@ -52,12 +52,12 @@ namespace SFMLApp
                 view.UpdateAnimation();
                 view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.ArenaPlayer, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
                 for (int i = 0; i < CountPlayer; i++)
-                    if (server.Players[i].IsOnLine || !server.Players[i].IsRemote)
+                    if (server.Players[i].IsOnline || !server.Players[i].IsRemote)
                     {
                         while (server.Players[i].KeyDown.Count > 0)
                         {
                             int key = server.Players[i].KeyDown.Dequeue();
-                            if (key != -1)//mouse Code
+                            if (key != -1)//-1 = mouse Code
                                 ReleaseKeyDown(TagByNum[i], key);
                             else
                             {
@@ -67,7 +67,10 @@ namespace SFMLApp
                         }
                         MovePlayer(TagByNum[i], server.Players[i].Forward, server.Players[i].Left);
                     }
-                //send info
+                var info = arena.GetAllInfo();
+                for (int i = 0; i < server.CountClient; i++)
+                    if (server.Players[i].IsOnline)
+                        server.Players[i].SendAsync(info[TagByNum[i]]);
             }
             if (time > 0)
                 view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.Black);
