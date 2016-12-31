@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SFML.Window;
 using System.Net;
 using System.Net.Sockets;
+using System.Diagnostics;
 
 namespace SFMLApp
 {
@@ -51,7 +52,6 @@ namespace SFMLApp
             Players[i].SetOnlive(sock);
             return i;
         }
-        //server code
     }
 
     public class PlayerServer
@@ -65,13 +65,21 @@ namespace SFMLApp
         public int Forward { get; private set; }
         public int Left { get; private set; }
 
-        public Socket Socket { get; set; }
+        public Socket Socket { get; private set; }
+        private Stopwatch ReceiveTimer;
 
         const int MaxBufferSize = 4096;
+        const int MaxWaitTime = 5000;
         public void SetOnlive(Socket sock)
         {
             Socket = sock;
             IsOnline = true;
+            ReceiveTimer.Start();
+        }
+        public void CheckOnline()
+        {
+            if (ReceiveTimer.ElapsedMilliseconds > MaxWaitTime)
+                IsOnline = false;
         }
         public void AddKey(int key)
         {
@@ -97,15 +105,6 @@ namespace SFMLApp
             if (key == (int)Keyboard.Key.A || key == (int)Keyboard.Key.D)
                 Left = 0;
         }
-        public PlayerServer()
-        {
-            IsOnline = false;
-            IsRemote = true;
-            Names = "";
-            MousePos = new Tuple<int, int>(0, 0);
-            KeyDown = new Queue<int>();
-            Forward = Left = 0;
-        }
         public Task<int> TryReceiveAsync(byte[] buffer, int offset, int size, SocketFlags flags)
         {
             TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
@@ -123,6 +122,7 @@ namespace SFMLApp
             {
                 var received = await TryReceiveAsync(data, size, MaxBufferSize - size, SocketFlags.None);
                 size += received;
+                ReceiveTimer.Restart();
                 if (data[size - 1] == '\n')
                     return Encoding.ASCII.GetString(data, 0, size);
                 Console.WriteLine(received);
@@ -153,6 +153,8 @@ namespace SFMLApp
         }
         public async Task SendAsync(string s)
         {
+            if (!IsOnline)
+                return;
             byte[] data = Encoding.ASCII.GetBytes(s + '\n');
             int itt = 0;
             int left = data.Length;
@@ -162,6 +164,16 @@ namespace SFMLApp
                 itt += sended;
                 left -= sended;
             }
+        }
+        public PlayerServer()
+        {
+            IsOnline = false;
+            IsRemote = true;
+            Names = "";
+            MousePos = new Tuple<int, int>(0, 0);
+            KeyDown = new Queue<int>();
+            Forward = Left = 0;
+            ReceiveTimer = new Stopwatch();
         }
     }
 }

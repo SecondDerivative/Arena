@@ -34,7 +34,7 @@ namespace SFMLApp
             view.InitEvents(Close, KeyDown, KeyUp, MouseDown, MouseUp, MouseMove);
             state = ControlState.BattleState;
             arena = new Arena();
-            server = new Server(CountPlayer, "192.168.1.40");
+            server = new Server(CountPlayer, "127.0.0.1");
             TagByNum = new int[CountPlayer];
             server.Players[0].IsRemote = false;
             arena.NewMap("bag");
@@ -104,7 +104,6 @@ namespace SFMLApp
         public void KeyDown(object sender, KeyEventArgs e)
         {
             server.Players[0].AddKey((int)e.Code);
-            //ReleaseKeyDown(MainPlayer, (int)e.Code);
         }
 
         public void ReleaseKeyUp(int tag, int key)
@@ -114,7 +113,6 @@ namespace SFMLApp
 
         public void KeyUp(object sender, KeyEventArgs e)
         {
-            //ReleaseKeyUp(MainPlayer, (int)e.Code);
             server.Players[0].KeyUp((int)e.Code);
         }
 
