@@ -71,6 +71,10 @@ namespace SFMLApp
         {
             return this.Tag + " " + this.Exist + " " + this.x + " " + this.y + " " + this.Speed.Item1 + " " + this.Speed.Item2;
         }
+        public string getData()
+        {
+            return this.Tag + "." + this.x + "." + this.y + "." + this.r;
+        }
     }
     public class MArrow : MovableEntity
     {
@@ -90,6 +94,10 @@ namespace SFMLApp
         public override string ToString()
         {
             return this.Tag + " " + this.Exist + " " + this.x + " " + this.y + " " + this.Speed.Item1 + " " + this.Speed.Item2;
+        }
+        public string getData()
+        {
+            return this.Tag + "." + this.x + "." + this.y + "." + this.r;
         }
     }
     public class Square
@@ -131,6 +139,8 @@ namespace SFMLApp
         public static int RArrow = 5;
         public static int RDrop = 10;
 
+        public static string Name;
+
         private Queue<int> ForDelArrow;
         public List<DropSpawner> dropSpawners { get; private set; }
         private List<Tuple<double, double>> spawners;
@@ -144,6 +154,34 @@ namespace SFMLApp
         public List<List<Square>> Field { get; private set; }
         public Dictionary<int, MDrop> drops { get; private set; }
 
+        public string getData()
+        {
+            string s = Name;
+            foreach (var item in drops)
+            {
+                if (item.Value.Exist)
+                {
+                    s = s + (item.Value.getData() + ",");
+                }
+            }
+            s = s + ";";
+            foreach (var item in arrows)
+            {
+                if (item.Value.Exist)
+                {
+                    s = s + (item.Value.getData() + ",");
+                }
+            }
+            s = s + ";";
+            foreach (var item in players)
+            {
+                if (item.Value.Exist)
+                {
+                    s = s + (item.Value.getData() + ",");
+                }
+            }
+            return "";
+        }
         public void SpawnDrops(int num, int tag)
         {
             var ds = dropSpawners[num];
@@ -597,7 +635,10 @@ namespace SFMLApp
             Dr.Exist = Exist;
             return Dr;
         }
-
+        public string getData()
+        {
+            return this.Tag + "." + this.x + "." + this.y + "." + this.r;
+        }
     }
     public enum Reason
     {
