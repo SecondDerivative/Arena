@@ -52,6 +52,7 @@ namespace SFMLApp
                 view.UpdateAnimation();
                 view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.ArenaPlayer, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
                 for (int i = 0; i < CountPlayer; i++)
+                {
                     if (server.Players[i].IsOnline || !server.Players[i].IsRemote)
                     {
                         while (server.Players[i].KeyDown.Count > 0)
@@ -67,6 +68,12 @@ namespace SFMLApp
                         }
                         MovePlayer(TagByNum[i], server.Players[i].Forward, server.Players[i].Left);
                     }
+                    if (!server.Players[i].IsOnline && TagByNum[i] > 0)
+                    {
+                        arena.RemovePlayer(TagByNum[i]);
+                        TagByNum[i] = 0;
+                    }
+                }
                 var info = arena.GetAllInfo();
                 for (int i = 0; i < server.CountClient; i++)
                     if (server.Players[i].IsOnline)

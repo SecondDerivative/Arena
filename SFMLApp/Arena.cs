@@ -16,8 +16,8 @@ namespace SFMLApp
         public Dictionary<int, ADrop> Drops { get; private set; }
         public Dictionary<int, APlayer> ArenaPlayer { get; private set; }
         private Stopwatch timer;
-        Queue<Tuple<long, int> > DropForRespawn;
-        
+        Queue<Tuple<long, int>> DropForRespawn;
+
         public Arena()
         {
             ArenaPlayer = new Dictionary<int, APlayer>();
@@ -25,7 +25,7 @@ namespace SFMLApp
             Arrows = new Dictionary<int, AArow>();
             Drops = new Dictionary<int, ADrop>();
             timer = new Stopwatch();
-            DropForRespawn = new Queue<Tuple<long, int> >();
+            DropForRespawn = new Queue<Tuple<long, int>>();
         }
 
         public void NewMap(string name)
@@ -188,12 +188,12 @@ namespace SFMLApp
                         {
                             now += j.Key + " " + small;
                             wasWrite = false;
-                        }                        
+                        }
                     }
                 }
                 now += "#" + i.Value.LargeString();
                 ans.Add(i.Key, now);
-            }  
+            }
             return ans;
         }
         public string GetInfo()
@@ -202,43 +202,46 @@ namespace SFMLApp
             bool wasWrite = false;
             foreach (var j in Arrows)
             {
-                if (wasWrite)
-                    ans += "," + j.Key + " " + j.Value.GetInfo();
-                else
-                {
-                    ans += j.Key + " " + j.Value.GetInfo();
-                    wasWrite = true;
-                }
+                if (map.arrows[j.Key].Exist)
+                    if (wasWrite)
+                        ans += "," + j.Key + " " + j.Value.GetInfo();
+                    else
+                    {
+                        ans += j.Key + " " + j.Value.GetInfo();
+                        wasWrite = true;
+                    }
             }
             ans += "#";
             wasWrite = false;
             foreach (var j in Drops)
             {
-                if (wasWrite)
-                    ans += "," + j.Key + " " + j.Value.GetInfo();
-                else
-                {
-                    ans += j.Key + " " + j.Value.GetInfo();
-                    wasWrite = true;
-                }
+                if (map.drops[j.Key].Exist)
+                    if (wasWrite)
+                        ans += "," + j.Key + " " + j.Value.GetInfo();
+                    else
+                    {
+                        ans += j.Key + " " + j.Value.GetInfo();
+                        wasWrite = true;
+                    }
             }
             ans += "#";
             wasWrite = false;
             foreach (var j in ArenaPlayer)
             {
-                if (wasWrite)
-                    ans += "," + j.Key + " " + j.Value.GetInfo();
-                else
-                {
-                    ans += j.Key + " " + j.Value.GetInfo();
-                    wasWrite = true;
-                }
+                if (map.players[j.Key].Exist)
+                    if (wasWrite)
+                        ans += "," + j.Key + " " + j.Value.GetInfo();
+                    else
+                    {
+                        ans += j.Key + " " + j.Value.GetInfo();
+                        wasWrite = true;
+                    }
             }
             return ans;
-        }    
+        }
     }
 
-    public struct AArow
+    public class AArow
     {
         public int dmg { get; set; }
         public int creater { get; set; }
