@@ -202,7 +202,7 @@ namespace SFMLApp
             bool wasWrite = false;
             foreach (var j in Arrows)
             {
-                if (map.arrows[j.Key].Exist)
+                if (map.arrows.ContainsKey(j.Key) && map.arrows[j.Key].Exist)
                     if (wasWrite)
                         ans += "," + j.Key + " " + j.Value.GetInfo();
                     else
@@ -215,7 +215,7 @@ namespace SFMLApp
             wasWrite = false;
             foreach (var j in Drops)
             {
-                if (map.drops[j.Key].Exist)
+                if (map.drops.ContainsKey(j.Key) && map.drops[j.Key].Exist)
                     if (wasWrite)
                         ans += "," + j.Key + " " + j.Value.GetInfo();
                     else
@@ -228,7 +228,7 @@ namespace SFMLApp
             wasWrite = false;
             foreach (var j in ArenaPlayer)
             {
-                if (map.players[j.Key].Exist)
+                if (map.players.ContainsKey(j.Key) && map.players[j.Key].Exist)
                     if (wasWrite)
                         ans += "," + j.Key + " " + j.Value.GetInfo();
                     else

@@ -36,7 +36,9 @@ namespace SFMLApp
             arena = new Arena();
             server = new Server(CountPlayer, "127.0.0.1");
             TagByNum = new int[CountPlayer];
-            server.Players[0].IsRemote = false;
+            for (int i = 0; i < CountPlayer; i++)
+                TagByNum[i] = -1;
+            server.Players[0].SetNotRemote();
             arena.NewMap("bag");
             TagByNum[0] = arena.AddPlayer("prifio");
             int tagbot = arena.AddPlayer("bot");
@@ -53,7 +55,7 @@ namespace SFMLApp
                 view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.ArenaPlayer, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
                 for (int i = 0; i < CountPlayer; i++)
                 {
-                    if (server.Players[i].IsOnline || !server.Players[i].IsRemote)
+                    if (server.Players[i].IsOnline)
                     {
                         while (server.Players[i].KeyDown.Count > 0)
                         {
@@ -68,16 +70,20 @@ namespace SFMLApp
                         }
                         MovePlayer(TagByNum[i], server.Players[i].Forward, server.Players[i].Left);
                     }
-                    if (!server.Players[i].IsOnline && TagByNum[i] > 0)
+                    if (!server.Players[i].IsOnline && TagByNum[i] > -1)
                     {
                         arena.RemovePlayer(TagByNum[i]);
-                        TagByNum[i] = 0;
+                        TagByNum[i] = -1;
                     }
                 }
                 var info = arena.GetAllInfo();
                 for (int i = 0; i < server.CountClient; i++)
+                {
+                    if (server.Players[i].IsOnline)
+                        server.Players[i].CheckOnline();
                     if (server.Players[i].IsOnline)
                         server.Players[i].SendAsync(info[TagByNum[i]]);
+                }
             }
             if (time > 0)
                 view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.Black);
