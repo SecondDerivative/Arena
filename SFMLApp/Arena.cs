@@ -169,75 +169,80 @@ namespace SFMLApp
         public Dictionary<int, string> GetAllInfo()
         {
             var ans = new Dictionary<int, string>();
-            string mapinfo = map.GetInfo();
+            string mapinfo = map.getData();
             var small = new Dictionary<int, string>();
             foreach (var i in players)
                 small.Add(i.Key, i.Value.SmallString());
             string arenainfo = GetInfo();
             foreach (var i in players)
             {
-                string now = mapinfo + "#" + arenainfo + "#";
+                StringBuilder now = new StringBuilder();
+                now.Append(mapinfo);
+                now.Append("#");
+                now.Append(arenainfo);
+                now.Append("#");
                 bool wasWrite = false;
                 foreach (var j in players)
                 {
                     if (j.Key != i.Key)
                     {
                         if (wasWrite)
-                            now += ";" + j.Key + " " + small;
+                            now.Append(";");
                         else
-                        {
-                            now += j.Key + " " + small;
                             wasWrite = false;
-                        }
+                        now.Append(j.Key);
+                        now.Append(" ");
+                        now.Append(small);
                     }
                 }
-                now += "#" + i.Value.LargeString();
-                ans.Add(i.Key, now);
+                now.Append("#");
+                now.Append(i.Value.LargeString());
+                ans.Add(i.Key, now.ToString());
             }
             return ans;
         }
         public string GetInfo()
         {
-            string ans = "";
+            StringBuilder ans = new StringBuilder();
             bool wasWrite = false;
             foreach (var j in Arrows)
             {
                 if (map.arrows.ContainsKey(j.Key) && map.arrows[j.Key].Exist)
                     if (wasWrite)
-                        ans += "," + j.Key + " " + j.Value.GetInfo();
+                        ans.Append(",");
                     else
-                    {
-                        ans += j.Key + " " + j.Value.GetInfo();
                         wasWrite = true;
-                    }
+                ans.Append(j.Key);
+                ans.Append(" ");
+                ans.Append(j.Value.GetInfo());
             }
-            ans += "#";
+            ans.Append("#");
             wasWrite = false;
             foreach (var j in Drops)
             {
                 if (map.drops.ContainsKey(j.Key) && map.drops[j.Key].Exist)
                     if (wasWrite)
-                        ans += "," + j.Key + " " + j.Value.GetInfo();
+                        ans.Append(",");
                     else
-                    {
-                        ans += j.Key + " " + j.Value.GetInfo();
                         wasWrite = true;
-                    }
+                ans.Append(j.Key);
+                ans.Append(" ");
+                ans.Append(j.Value.GetInfo());
             }
-            ans += "#";
+            ans.Append("#");
             wasWrite = false;
             foreach (var j in ArenaPlayer)
             {
                 if (map.players.ContainsKey(j.Key) && map.players[j.Key].Exist)
                     if (wasWrite)
-                        ans += "," + j.Key + " " + j.Value.GetInfo();
+                        ans.Append(",");
                     else
-                    {
-                        ans += j.Key + " " + j.Value.GetInfo();
                         wasWrite = true;
-                    }
+                ans.Append(j.Key);
+                ans.Append(" ");
+                ans.Append(j.Value.GetInfo());
             }
-            return ans;
+            return ans.ToString();
         }
     }
 

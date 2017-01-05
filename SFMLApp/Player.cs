@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 
 namespace SFMLApp
 {
@@ -172,15 +173,24 @@ namespace SFMLApp
         }
         public string LargeString()
         {
-            string ans = Health + " " + rightHand + " " + RightReloadTimer.ElapsedMilliseconds + " " +
-                inventory.LargeString();
-            return ans;
+            StringBuilder ans = new StringBuilder();
+            ans.Append(Health);
+            ans.Append(" ");
+            ans.Append(rightHand);
+            ans.Append(" ");
+            ans.Append(RightReloadTimer.ElapsedMilliseconds);
+            ans.Append(" ");
+            ans.Append(inventory.LargeString());
+            return ans.ToString();
         }
         public string SmallString()
         {
-            string ans = Health + " " + rightHand + 
-                inventory.SmallString();
-            return ans;
+            StringBuilder ans = new StringBuilder();
+            ans.Append(Health);
+            ans.Append(" ");
+            ans.Append(rightHand);
+            ans.Append(inventory.SmallString());
+            return ans.ToString();
         }
     }
 }
