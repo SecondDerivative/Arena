@@ -14,16 +14,17 @@ namespace Tests
         //[Fact]
         //public void ControlTest()
         //{
-              //wait when dich go away
-          //  var control = new Control(1024, 768);
-           // control.UpDate(0);
-            //control.UpDate(1000);
-            //control.UpDate(40);
+        //wait when dich go away
+        //  var control = new Control(1024, 768);
+        // control.UpDate(0);
+        //control.UpDate(1000);
+        //control.UpDate(40);
         //}
         [Fact]
         public void TestMap()
         {
             var map = new Map("data/Maps/bag.txt");
+            Assert.True(map.getData() == "data/Maps/bag.txt;;;", "1 getData wrong " + map.getData());
             bool IsFrame = true;
             for (int i = 0; i < map.Pheight; ++i)
                 IsFrame = IsFrame && !(map.Field[0][i].isEmpty);
@@ -38,12 +39,18 @@ namespace Tests
                 IsFrame = IsFrame && !(map.Field[i][map.Pheight - 1].isEmpty);
             Assert.True(IsFrame, "Bad bottom");
             map.UpDate(10);
-            //map.SpawnDrops(1, 10, 20);
+            Assert.True(map.getData() == "data/Maps/bag.txt;;;", "2 getData wrong " + map.getData());
+            map.SpawnDrops(1, 10, 20);
+            Assert.True(map.getData() == "data/Maps/bag.txt;1.10.20.10;;", "3 getData wrong " + map.getData());
             map.AddPlayer(1);
-            //map.SpawnPlayer(1, 10, 10);
-            //map.FirePlayer(1, 1, 10, 10);
-            //map.ShortUpDateArrow(1, 10);
-            //map.MovePlayer(1, new Tuple<double, double>(1, 2));
+            Assert.True(map.getData() == "data/Maps/bag.txt;1.10.20.10;;", "4 getData wrong " + map.getData());
+            map.SpawnPlayer(1, 10, 10);
+            Assert.True(map.getData() == "data/Maps/bag.txt;1.10.20.10;;1.10.10.10", "5 getData wrong " + map.getData());
+            map.SpawnDrops(2, 20, 10);
+            map.AddPlayer(2);
+            map.SpawnPlayer(2, 20, 20);
+            Assert.True(map.getData() == "data/Maps/bag.txt;1.10.20.10,2.20.10.10;;1.10.10.10,2.20.20.10", "6 getData wrong " + map.getData());
+            map.FirePlayer(1, 1, 10, 10);
             map.NextEvent();
             map.UpDate(100);
             map.StopPlayer(1);
@@ -68,13 +75,13 @@ namespace Tests
         [Fact]
         public void TestMapSave()
         {
-            var map = new Map(1000,700);
+            var map = new Map(1000, 700);
             map.AddPlayer(1);
             map.AddPlayer(2);
             map.SpawnPlayer(1, 10, 20);
-            map.SpawnPlayer(2,30,60);
+            map.SpawnPlayer(2, 30, 60);
             map.FirePlayer(1, 1, 1, 2);
-            map.MovePlayer(2, new Tuple<double, double>(-1,-2));
+            map.MovePlayer(2, new Tuple<double, double>(-1, -2));
             map.UpDate(5);
             //map.SaveMap("D:/save.txt");
         }
@@ -87,20 +94,20 @@ namespace Tests
             Assert.True(SFMLApp.Utily.DoubleIsEqual(5, SFMLApp.Utily.Hypot(3, 4)), "Bad Hypot");
         }
 
-		[Fact]
-		public void PlayerTest()
-		{
-			var player = new Player();
-			player.attack();
-			player.pickedUpItem(Items.allItems[3]);
-			player.takeItemLeft(player.inventory.getItem(3));
-			player.attack();
-			player.recieveDamage(100);
-			player.isDead();
-			player.respawn();
+        [Fact]
+        public void PlayerTest()
+        {
+            var player = new Player();
+            player.attack();
+            player.pickedUpItem(Items.allItems[3]);
+            player.takeItemLeft(player.inventory.getItem(3));
+            player.attack();
+            player.recieveDamage(100);
+            player.isDead();
+            player.respawn();
             var bottle = new HPBottle("bottle", 14, 60);
             bottle.Consume(player);
-		}
+        }
         [Fact]
         public void ArenaTest()
         {
