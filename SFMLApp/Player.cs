@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 
 namespace SFMLApp
 {
@@ -145,7 +146,7 @@ namespace SFMLApp
                 ++yk;
             rightHand = yk % cntItem;
         }
-        public void Previtem()
+        public void PrevItem()
         {
             int yk = rightHand - 1;
             int cntItem = Inventory.totalNumberofItems;
@@ -169,6 +170,27 @@ namespace SFMLApp
             while (!inventory.isInStock((yk + cntItem) % cntItem) || !(Items.allItems[(yk + cntItem) % cntItem] is Arrow))
                 --yk;
             inventory.setCurrentArrow(yk % cntItem);
+        }
+        public string LargeString()
+        {
+            StringBuilder ans = new StringBuilder();
+            ans.Append(Health);
+            ans.Append(" ");
+            ans.Append(rightHand);
+            ans.Append(" ");
+            ans.Append(RightReloadTimer.ElapsedMilliseconds);
+            ans.Append(" ");
+            ans.Append(inventory.LargeString());
+            return ans.ToString();
+        }
+        public string SmallString()
+        {
+            StringBuilder ans = new StringBuilder();
+            ans.Append(Health);
+            ans.Append(" ");
+            ans.Append(rightHand);
+            ans.Append(inventory.SmallString());
+            return ans.ToString();
         }
     }
 }

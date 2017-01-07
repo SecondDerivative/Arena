@@ -33,11 +33,13 @@ namespace SFMLApp
     public class MovableEntity : Entity
     {
         public Tuple<double, double> Speed;
-        public MovableEntity(int Tag, double x, double y, int r) : base(Tag, x, y, r)
+        public MovableEntity(int Tag, double x, double y, int r)
+            : base(Tag, x, y, r)
         {
             this.Speed = new Tuple<double, double>(0, 0);
         }
-        public MovableEntity(Entity E) : base(E.Tag, E.x, E.y, E.r)
+        public MovableEntity(Entity E)
+            : base(E.Tag, E.x, E.y, E.r)
         {
             this.Speed = new Tuple<double, double>(0, 0);
         }
@@ -53,7 +55,8 @@ namespace SFMLApp
     }
     public class MPlayer : MovableEntity
     {
-        public MPlayer(int Tag, double x, double y) : base(Tag, x, y, Map.RPlayer)
+        public MPlayer(int Tag, double x, double y)
+            : base(Tag, x, y, Map.RPlayer)
         { }
         public static MPlayer Load(string save)
         {
@@ -71,10 +74,23 @@ namespace SFMLApp
         {
             return this.Tag + " " + this.Exist + " " + this.x + " " + this.y + " " + this.Speed.Item1 + " " + this.Speed.Item2;
         }
+        public string getData()
+        {
+            StringBuilder ans = new StringBuilder();
+            ans.Append(this.Tag);
+            ans.Append(".");
+            ans.Append(this.x);
+            ans.Append(".");
+            ans.Append(this.y);
+            ans.Append(".");
+            ans.Append(this.r);
+            return ans.ToString();
+        }
     }
     public class MArrow : MovableEntity
     {
-        public MArrow(int Tag, double x, double y, double SpeedX, double SpeedY) : base(Tag, x, y, Map.RArrow)
+        public MArrow(int Tag, double x, double y, double SpeedX, double SpeedY)
+            : base(Tag, x, y, Map.RArrow)
         { this.Speed = new Tuple<double, double>(SpeedX, SpeedY); }
         public static MArrow Load(string save)
         {
@@ -90,6 +106,18 @@ namespace SFMLApp
         public override string ToString()
         {
             return this.Tag + " " + this.Exist + " " + this.x + " " + this.y + " " + this.Speed.Item1 + " " + this.Speed.Item2;
+        }
+        public string getData()
+        {
+            StringBuilder ans = new StringBuilder();
+            ans.Append(this.Tag);
+            ans.Append(".");
+            ans.Append(this.x);
+            ans.Append(".");
+            ans.Append(this.y);
+            ans.Append(".");
+            ans.Append(this.r);
+            return ans.ToString();
         }
     }
     public class Square
@@ -131,6 +159,8 @@ namespace SFMLApp
         public static int RArrow = 5;
         public static int RDrop = 10;
 
+        public string Name;
+
         private Queue<int> ForDelArrow;
         public List<DropSpawner> dropSpawners { get; private set; }
         private List<Tuple<double, double>> spawners;
@@ -144,6 +174,63 @@ namespace SFMLApp
         public List<List<Square>> Field { get; private set; }
         public Dictionary<int, MDrop> drops { get; private set; }
 
+        public string getData()
+        {
+            StringBuilder s = new StringBuilder();
+            s.Append(Name);
+            s.Append(";");
+            bool iswrite = false;
+            foreach (var item in drops)
+            {
+                if (item.Value.Exist)
+                {
+                    if (!iswrite)
+                    {
+                        iswrite = true;
+                    }
+                    else
+                    {
+                        s.Append(",");
+                    }
+                    s.Append(item.Value.getData());
+                }
+            }
+            iswrite = false;
+            s.Append(";");
+            foreach (var item in arrows)
+            {
+                if (item.Value.Exist)
+                {
+                    if (!iswrite)
+                    {
+                        iswrite = true;
+                    }
+                    else
+                    {
+                        s.Append(",");
+                    }
+                    s.Append(item.Value.getData());
+                }
+            }
+            s.Append(";");
+            iswrite = false;
+            foreach (var item in players)
+            {
+                if (item.Value.Exist)
+                {
+                    if (!iswrite)
+                    {
+                        iswrite = true;
+                    }
+                    else
+                    {
+                        s.Append(",");
+                    }
+                    s.Append(item.Value.getData());
+                }
+            }
+            return s.ToString();
+        }
         public void SpawnDrops(int num, int tag)
         {
             var ds = dropSpawners[num];
@@ -351,6 +438,7 @@ namespace SFMLApp
         }
         public Map(int width, int height)
         {
+            this.Name = "";
             this.width = width;
             this.height = height;
             this.Pwidth = width / Rwidth;
@@ -378,6 +466,7 @@ namespace SFMLApp
             this.spawners = new List<Tuple<double, double>>();
             this.dropSpawners = new List<DropSpawner>();
             LoadMap(path);
+            this.Name = path;
         }
         public void AddPlayer(int Tag)
         {
@@ -568,12 +657,14 @@ namespace SFMLApp
     {
         public Reason reason { get; set; }
         public int NumSpawner { get; private set; }
-        public MDrop(int Tag, double x, double y) : base(Tag, x, y, Map.RDrop)
+        public MDrop(int Tag, double x, double y)
+            : base(Tag, x, y, Map.RDrop)
         {
             this.reason = Reason.ByPlayer;
             NumSpawner = -1;
         }
-        public MDrop(int Tag, double x, double y, int NumSpawner) : base(Tag, x, y, Map.RDrop)
+        public MDrop(int Tag, double x, double y, int NumSpawner)
+            : base(Tag, x, y, Map.RDrop)
         {
             this.reason = Reason.BySpawner;
             this.NumSpawner = NumSpawner;
@@ -593,7 +684,18 @@ namespace SFMLApp
             Dr.Exist = Exist;
             return Dr;
         }
-
+        public string getData()
+        {
+            StringBuilder ans = new StringBuilder();
+            ans.Append(this.Tag);
+            ans.Append(".");
+            ans.Append(this.x);
+            ans.Append(".");
+            ans.Append(this.y);
+            ans.Append(".");
+            ans.Append(this.r);
+            return ans.ToString();
+        }
     }
     public enum Reason
     {
@@ -620,14 +722,16 @@ namespace SFMLApp
         public int TagDrop { get; private set; }//if Drop was spawned by spawner, this return number of spawner
         public int NumSpawner { get; private set; }
         public bool BySpawner { get; private set; }
-        public MEventDrop(int TagPlayer, int TagDrop) : base(MEvents.PlayerDrop)
+        public MEventDrop(int TagPlayer, int TagDrop)
+            : base(MEvents.PlayerDrop)
         {
             this.BySpawner = false;
             NumSpawner = -1;
             this.TagDrop = TagDrop;
             this.TagPlayer = TagPlayer;
         }
-        public MEventDrop(int TagPlayer, int TagDrop, int NumSpawner) : base(MEvents.PlayerDrop)
+        public MEventDrop(int TagPlayer, int TagDrop, int NumSpawner)
+            : base(MEvents.PlayerDrop)
         {
             this.BySpawner = true;
             this.NumSpawner = NumSpawner;
@@ -639,7 +743,8 @@ namespace SFMLApp
     {
         public int TagArrow { get; private set; }
         public int TagPlayer { get; private set; }
-        public MEventArrowHit(int TagArrow, int TagPlayer) : base(MEvents.PlayerArrow)
+        public MEventArrowHit(int TagArrow, int TagPlayer)
+            : base(MEvents.PlayerArrow)
         {
             this.TagArrow = TagArrow;
             this.TagPlayer = TagPlayer;
@@ -648,7 +753,8 @@ namespace SFMLApp
     public class MEventDestroyArrow : MEvent
     {
         public int TagArrow { get; private set; }
-        public MEventDestroyArrow(int TagArrow) : base(MEvents.DestroyArrow)
+        public MEventDestroyArrow(int TagArrow)
+            : base(MEvents.DestroyArrow)
         {
             this.TagArrow = TagArrow;
         }

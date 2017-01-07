@@ -16,8 +16,8 @@ namespace SFMLApp
         public Dictionary<int, ADrop> Drops { get; private set; }
         public Dictionary<int, APlayer> ArenaPlayer { get; private set; }
         private Stopwatch timer;
-        Queue<Tuple<long, int> > DropForRespawn;
-        
+        Queue<Tuple<long, int>> DropForRespawn;
+
         public Arena()
         {
             ArenaPlayer = new Dictionary<int, APlayer>();
@@ -25,7 +25,7 @@ namespace SFMLApp
             Arrows = new Dictionary<int, AArow>();
             Drops = new Dictionary<int, ADrop>();
             timer = new Stopwatch();
-            DropForRespawn = new Queue<Tuple<long, int> >();
+            DropForRespawn = new Queue<Tuple<long, int>>();
         }
 
         public void NewMap(string name)
@@ -147,7 +147,7 @@ namespace SFMLApp
             if (type == 1)
                 players[tagPlayer].NextItem();
             else
-                players[tagPlayer].Previtem();
+                players[tagPlayer].PrevItem();
         }
         public void ChangeArrow(int tagPlayer, int type)
         {
@@ -166,9 +166,87 @@ namespace SFMLApp
             map.Run();
             timer.Start();
         }
+        public Dictionary<int, string> GetAllInfo()
+        {
+            var ans = new Dictionary<int, string>();
+            string mapinfo = map.getData();
+            var small = new Dictionary<int, string>();
+            foreach (var i in players)
+                small.Add(i.Key, i.Value.SmallString());
+            string arenainfo = GetInfo();
+            foreach (var i in players)
+            {
+                StringBuilder now = new StringBuilder();
+                now.Append(mapinfo);
+                now.Append("#");
+                now.Append(arenainfo);
+                now.Append("#");
+                bool wasWrite = false;
+                foreach (var j in players)
+                {
+                    if (j.Key != i.Key)
+                    {
+                        if (wasWrite)
+                            now.Append(";");
+                        else
+                            wasWrite = false;
+                        now.Append(j.Key);
+                        now.Append(" ");
+                        now.Append(small);
+                    }
+                }
+                now.Append("#");
+                now.Append(i.Value.LargeString());
+                ans.Add(i.Key, now.ToString());
+            }
+            return ans;
+        }
+        public string GetInfo()
+        {
+            StringBuilder ans = new StringBuilder();
+            bool wasWrite = false;
+            foreach (var j in Arrows)
+            {
+                if (map.arrows.ContainsKey(j.Key) && map.arrows[j.Key].Exist)
+                    if (wasWrite)
+                        ans.Append(",");
+                    else
+                        wasWrite = true;
+                ans.Append(j.Key);
+                ans.Append(" ");
+                ans.Append(j.Value.GetInfo());
+            }
+            ans.Append("#");
+            wasWrite = false;
+            foreach (var j in Drops)
+            {
+                if (map.drops.ContainsKey(j.Key) && map.drops[j.Key].Exist)
+                    if (wasWrite)
+                        ans.Append(",");
+                    else
+                        wasWrite = true;
+                ans.Append(j.Key);
+                ans.Append(" ");
+                ans.Append(j.Value.GetInfo());
+            }
+            ans.Append("#");
+            wasWrite = false;
+            foreach (var j in ArenaPlayer)
+            {
+                if (map.players.ContainsKey(j.Key) && map.players[j.Key].Exist)
+                    if (wasWrite)
+                        ans.Append(",");
+                    else
+                        wasWrite = true;
+                ans.Append(j.Key);
+                ans.Append(" ");
+                ans.Append(j.Value.GetInfo());
+            }
+            return ans.ToString();
+        }
     }
 
-    public struct AArow
+    public class AArow
     {
         public int dmg { get; set; }
         public int creater { get; set; }
@@ -180,6 +258,10 @@ namespace SFMLApp
             this.dmg = dmg;
             this.id = id;
         }
+        public string GetInfo()
+        {
+            return dmg + " " + id;
+        }
     }
 
     public class ADrop
@@ -190,6 +272,10 @@ namespace SFMLApp
         {
             Count = cnt;
             this.id = id;
+        }
+        public string GetInfo()
+        {
+            return Count + " " + id;
         }
     }
 
@@ -210,6 +296,10 @@ namespace SFMLApp
         public void AddDeath()
         {
             ++Death;
+        }
+        public string GetInfo()
+        {
+            return Kill + " " + Death + " " + RealName;
         }
     }
 }
