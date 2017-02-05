@@ -174,21 +174,14 @@ namespace SFMLApp
         public string LargeString()
         {
             StringBuilder ans = new StringBuilder();
-            ans.Append(Health);
-            ans.Append(" ");
-            ans.Append(rightHand);
-            ans.Append(" ");
-            ans.Append(RightReloadTimer.ElapsedMilliseconds);
-            ans.Append(" ");
+            ans.AppendFormat("{0} {1} {2},", Health, rightHand, RightReloadTimer.ElapsedMilliseconds);
             ans.Append(inventory.LargeString());
             return ans.ToString();
         }
         public string SmallString()
         {
             StringBuilder ans = new StringBuilder();
-            ans.Append(Health);
-            ans.Append(" ");
-            ans.Append(rightHand);
+            ans.AppendFormat("{0} {1},", Health, rightHand);
             ans.Append(inventory.SmallString());
             return ans.ToString();
         }

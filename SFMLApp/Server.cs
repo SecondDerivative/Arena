@@ -33,23 +33,20 @@ namespace SFMLApp
 
         private Task<Socket> Listen()
         {
-            TaskCompletionSource<Socket> tcs = new TaskCompletionSource<Socket>();
-            Listner.BeginAccept(iar => {Listner.EndAccept(iar);
-                tcs.SetResult(Listner.EndAccept(iar));
-            }, Listner);
-            return tcs.Task;
-        } 
+            return Task<Socket>.Factory.FromAsync(
+                Listner.BeginAccept, Listner.EndAccept, null);
+        }
 
         public async Task<int> NextClient()
         {
             var sock = await Listen();
             int i = 0;
-            while (i < CountClient && !Players[i].IsOnline)
+            while (i < CountClient && (Players[i].IsOnline || !Players[i].IsRemote))
                 ++i;
             if (i == CountClient)
                 return -1;
             Players[i] = new PlayerServer();
-            Players[i].SetOnlive(sock);
+            Players[i].SetOnline(sock);
             return i;
         }
     }
@@ -68,9 +65,9 @@ namespace SFMLApp
         public Socket Socket { get; private set; }
         private Stopwatch ReceiveTimer;
 
-        const int MaxBufferSize = 4096;
+        const int MaxBufferSize = (1 << 20);
         const int MaxWaitTime = 5000;
-        public void SetOnlive(Socket sock)
+        public void SetOnline(Socket sock)
         {
             Socket = sock;
             IsOnline = true;
@@ -115,7 +112,15 @@ namespace SFMLApp
             TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
             Socket.BeginReceive(buffer, offset, size, flags, iar =>
             {
-                tcs.SetResult(Socket.EndReceive(iar));
+                try
+                {
+                    var r = Socket.EndReceive(iar);
+                    tcs.SetResult(r);
+                }
+                catch
+                {
+                    tcs.SetResult(-1);
+                }
             }, Socket);
             return tcs.Task;
         }
@@ -126,8 +131,10 @@ namespace SFMLApp
             while (true)
             {
                 var received = await TryReceiveAsync(data, size, MaxBufferSize - size, SocketFlags.None);
-                size += received;
+                if (received == -1)
+                    return "";
                 ReceiveTimer.Restart();
+                size += received;
                 if (data[size - 1] == '\n')
                     return Encoding.ASCII.GetString(data, 0, size);
                 Console.WriteLine(received);
@@ -145,7 +152,21 @@ namespace SFMLApp
         }
         public void ApplyString(string s)
         {
-            //decode
+            if (s == "")
+                return;
+            int[] data = s.Split().Select(int.Parse).ToArray();
+            for (int i = 0; i < data.Length - 2; i += 2)
+            {
+                int code = data[i];
+                TypeKeyDown tkd = (TypeKeyDown)data[i + 1];
+                if (tkd == TypeKeyDown.KeyDown)
+                    AddKey(code);
+                if (tkd == TypeKeyDown.KeyUp)
+                    KeyUp(code);
+                if (tkd == TypeKeyDown.MouseDown)
+                    MouseDown(code);
+            }
+            MousePos = Utily.MakePair<int>(data[data.Length - 2], data.Last());
         }
         public Task<int> TrySendAsync(byte[] buffer, int offset, int size, SocketFlags flags)
         {
@@ -180,5 +201,13 @@ namespace SFMLApp
             Forward = Left = 0;
             ReceiveTimer = new Stopwatch();
         }
+    }
+
+    public enum TypeKeyDown
+    {
+        KeyDown,
+        KeyUp,
+        MouseDown,
+        MouseUp
     }
 }

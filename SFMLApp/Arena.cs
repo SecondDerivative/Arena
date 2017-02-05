@@ -191,11 +191,12 @@ namespace SFMLApp
                         else
                             wasWrite = false;
                         now.Append(j.Key);
-                        now.Append(" ");
-                        now.Append(small);
+                        now.Append(",");
+                        now.Append(small[j.Key]);
                     }
                 }
                 now.Append("#");
+                now.AppendFormat("{0},", i.Key);
                 now.Append(i.Value.LargeString());
                 ans.Add(i.Key, now.ToString());
             }
