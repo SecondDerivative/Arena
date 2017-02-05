@@ -35,6 +35,7 @@ namespace SFMLApp
             state = ControlState.BattleState;
             arena = new Arena();
             server = new Server(CountPlayer, "127.0.0.1");
+            InfListen();
             TagByNum = new int[CountPlayer];
             for (int i = 0; i < CountPlayer; i++)
                 TagByNum[i] = -1;
@@ -44,6 +45,21 @@ namespace SFMLApp
             int tagbot = arena.AddPlayer("bot");
             view.AddPlayer(TagByNum[0]);
             view.AddPlayer(tagbot);
+        }
+
+        public async Task InfListen()
+        {
+            int ch1 = 10;
+            while (true)
+            {
+                int x = await server.NextClient();
+                if (x != -1)
+                {
+                    TagByNum[x] = arena.AddPlayer(ch1 + " player");
+                    view.AddPlayer(TagByNum[x]);
+                    server.Players[x].InfReceive();
+                }
+            }
         }
 
         public void UpDate(long time)

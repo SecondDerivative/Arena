@@ -78,11 +78,11 @@ namespace SFMLApp
         {
             StringBuilder ans = new StringBuilder();
             ans.Append(this.Tag);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.x);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.y);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.r);
             return ans.ToString();
         }
@@ -111,11 +111,11 @@ namespace SFMLApp
         {
             StringBuilder ans = new StringBuilder();
             ans.Append(this.Tag);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.x);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.y);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.r);
             return ans.ToString();
         }
@@ -603,6 +603,7 @@ namespace SFMLApp
             }
             if (IsEntityInSquare(arrows[Tag]))
             {
+                Q.Enqueue(new MEventDestroyArrow(Tag));
                 this.ForDelArrow.Enqueue(Tag);
             }
         }
@@ -612,10 +613,6 @@ namespace SFMLApp
             {
                 for (int j = 0; j < 4; ++j)
                     ShortUpDateArrow(Tag, 1);
-            }
-            if (IsEntityInSquare(arrows[Tag]))
-            {
-                arrows.Remove(Tag);
             }
         }
         public void UpDate()
@@ -688,11 +685,11 @@ namespace SFMLApp
         {
             StringBuilder ans = new StringBuilder();
             ans.Append(this.Tag);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.x);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.y);
-            ans.Append(".");
+            ans.Append(":");
             ans.Append(this.r);
             return ans.ToString();
         }

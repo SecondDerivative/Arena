@@ -9,7 +9,7 @@ namespace SFMLApp
     public static class Utily
     {
         static Random random = new Random();
-        static int LastTag = 0;
+        static int LastTag = 1;
 
         public static int Next()
         {
