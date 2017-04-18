@@ -54,7 +54,7 @@ namespace SFMLApp
     public class PlayerServer
     {
         public Tuple<int, int> MousePos { get; private set; }
-        public Queue<int> KeyDown { get; private set; }
+        public Queue<Tuple<int, TypeKeyDown> > KeyDown { get; private set; }
         public bool IsOnline { get; private set; }
         public string Names { get; set; }
         public bool IsRemote { get; set; }
@@ -85,7 +85,7 @@ namespace SFMLApp
         }
         public void AddKey(int key)
         {
-            KeyDown.Enqueue(key);
+            KeyDown.Enqueue(Utily.MakePair<int, TypeKeyDown>(key, TypeKeyDown.KeyDown));
             if (key == (int)Keyboard.Key.W)
                 Forward = 1;
             if (key == (int)Keyboard.Key.S)
@@ -97,8 +97,7 @@ namespace SFMLApp
         }
         public void MouseDown(int button)
         {
-            KeyDown.Enqueue(-1);
-            KeyDown.Enqueue(button);
+            KeyDown.Enqueue(Utily.MakePair<int, TypeKeyDown>(button, TypeKeyDown.MouseDown));
         }
         public void KeyUp(int key)
         {
@@ -197,7 +196,7 @@ namespace SFMLApp
             IsRemote = true;
             Names = "";
             MousePos = new Tuple<int, int>(0, 0);
-            KeyDown = new Queue<int>();
+            KeyDown = new Queue<Tuple<int, TypeKeyDown> >();
             Forward = Left = 0;
             ReceiveTimer = new Stopwatch();
         }

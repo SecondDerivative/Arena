@@ -75,16 +75,17 @@ namespace SFMLApp
                     {
                         while (server.Players[i].KeyDown.Count > 0)
                         {
-                            int key = server.Players[i].KeyDown.Dequeue();
-                            if (key != -1)//-1 = mouse Code
+                            var NewUserEvent = server.Players[i].KeyDown.Dequeue();
+                            int key = NewUserEvent.Item1;
+                            var typeEvent = NewUserEvent.Item2;
+                            if (typeEvent != TypeKeyDown.MouseDown)
                                 ReleaseKeyDown(TagByNum[i], key);
                             else
                             {
-                                int button = server.Players[i].KeyDown.Dequeue();
-                                ReleaseMouseDown(TagByNum[i], button);
+                                ReleaseMouseDown(TagByNum[i], i, key);
                             }
                         }
-                        MovePlayer(TagByNum[i], server.Players[i].Forward, server.Players[i].Left);
+                        MovePlayer(TagByNum[i], i);
                     }
                     if (!server.Players[i].IsOnline && TagByNum[i] > -1)
                     {
@@ -105,14 +106,19 @@ namespace SFMLApp
                 view.DrawText((1000 / time).ToString(), 5, 5, 10, Fonts.Arial, Color.Black);
         }
 
-        public void MovePlayer(int tag, int Forw, int Left)
+        public void MovePlayer(int tag, int num)
         {
-            var vect = view.AngleByMousePos(); //need change
+            Tuple<double, double> vect;
+            if (!server.Players[num].IsRemote)
+                vect = view.AngleByMousePos(); //need change
+            else
+                vect = Utily.MakePair<double>(server.Players[num].MousePos.Item1 - arena.map.players[tag].x, server.Players[num].MousePos.Item2 - arena.map.players[tag].y);
             if (Utily.Hypot2(vect.Item1, vect.Item2) < 150)
             {
                 arena.MovePlayer(tag, Utily.MakePair<double>(0, 0));
                 view.MovePlayer(tag, Utily.MakePair<double>(0, 0));
             }
+            int Forw = server.Players[num].Forward, Left = server.Players[num].Left;
             var newvect = Utily.MakePair<double>(vect.Item1 * Forw + vect.Item2 * Left, vect.Item2 * Forw - vect.Item1 * Left);
             arena.MovePlayer(tag, newvect);
             view.MovePlayer(tag, newvect);
@@ -145,13 +151,17 @@ namespace SFMLApp
             server.Players[0].KeyUp((int)e.Code);
         }
 
-        public void ReleaseMouseDown(int tag, int button)
+        public void ReleaseMouseDown(int tag, int num, int button)
         {
             if (state == ControlState.BattleState)
             {
                 if (button == (int)Mouse.Button.Left)
                 {
-                    var vect = view.AngleByMousePos();//need change
+                    Tuple<double, double> vect;
+                    if (!server.Players[num].IsRemote)
+                        vect = view.AngleByMousePos();
+                    else
+                        vect = vect = Utily.MakePair<double>(server.Players[num].MousePos.Item1 - arena.map.players[tag].x, server.Players[num].MousePos.Item2 - arena.map.players[tag].y);
                     if (Utily.Hypot2(vect.Item1, vect.Item2) == 0)
                         return;
                     int tagArr = arena.FirePlayer(tag, vect);

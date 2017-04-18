@@ -85,7 +85,8 @@ namespace SFMLApp
                     players[TagPlayer].recieveDamage(Arrows[TagArrow].dmg);
                     if (players[TagPlayer].isDead())
                     {
-                        ArenaPlayer[Arrows[TagArrow].creater].AddKill();
+                        if (ArenaPlayer.ContainsKey(Arrows[TagArrow].creater))
+                            ArenaPlayer[Arrows[TagArrow].creater].AddKill();
                         ArenaPlayer[TagPlayer].AddDeath();
                         int NewTag = Utily.GetTag();
                         map.SpawnDrops(NewTag, map.players[TagPlayer].x, map.players[TagPlayer].y);
