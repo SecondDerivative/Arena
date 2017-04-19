@@ -84,6 +84,7 @@ namespace SFMLApp
             ans.Append(this.y);
             ans.Append(":");
             ans.Append(this.r);
+            ans.AppendFormat(":{0}:{1}", Speed.Item1, Speed.Item2);
             return ans.ToString();
         }
     }
@@ -117,6 +118,7 @@ namespace SFMLApp
             ans.Append(this.y);
             ans.Append(":");
             ans.Append(this.r);
+            ans.AppendFormat(":{0}:{1}", Speed.Item1, Speed.Item2);
             return ans.ToString();
         }
     }
