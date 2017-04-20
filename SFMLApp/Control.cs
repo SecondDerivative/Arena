@@ -94,12 +94,23 @@ namespace SFMLApp
                     }
                 }
                 var info = arena.GetAllInfo();
+                StringBuilder sb = new StringBuilder();
+                sb.Append('#');
+                for (int i = 0; i < server.CountClient; i++)
+                    if (server.Players[i].IsOnline)
+                    {
+                        sb.AppendFormat("{0},{1},{2}", TagByNum[i], server.Players[i].MousePos.Item1 - arena.map.players[TagByNum[i]].x,
+                            server.Players[i].MousePos.Item2 - arena.map.players[TagByNum[i]].y);
+                        if (i + 1 < server.CountClient)
+                            sb.Append(';');
+                    }
+                string direct = sb.ToString();
                 for (int i = 0; i < server.CountClient; i++)
                 {
                     if (server.Players[i].IsOnline)
                         server.Players[i].CheckOnline();
                     if (server.Players[i].IsOnline)
-                        server.Players[i].SendAsync(info[TagByNum[i]]);
+                        server.Players[i].SendAsync(info[TagByNum[i]] + direct);
                 }
             }
             if (time > 0)
