@@ -126,18 +126,18 @@ namespace SFMLApp
     {
         public int x { get; private set; }
         public int y { get; private set; }
-        public bool isEmpty { get; private set; }
+        public int type { get; private set; }
         public Square(int x, int y)
         {
             this.x = x;
             this.y = y;
-            this.isEmpty = true;
+            this.type = 0;
         }
-        public Square(int x, int y, bool b)
+        public Square(int x, int y, int t)
         {
             this.x = x;
             this.y = y;
-            this.isEmpty = b;
+            this.type = t;
         }
     }
     public class DropSpawner
@@ -313,22 +313,21 @@ namespace SFMLApp
                     this.Field.Add(new List<Square>());
 
                 for (int i = 0; i < this.Pwidth; i++)
-                    this.Field[i].Add(new Square(i, 0, false));
+                    this.Field[i].Add(new Square(i, 0, 1));
                 for (int i = 1; i < this.Pheight - 1; i++)
                 {
-                    this.Field[0].Add(new Square(0, i, false));
-                    this.Field[this.Pwidth - 1].Add(new Square(this.Pwidth - 1, i, false));
+                    this.Field[0].Add(new Square(0, i, 1));
+                    this.Field[this.Pwidth - 1].Add(new Square(this.Pwidth - 1, i, 1));
                 }
-                bool tmpb;
                 for (int y = 1; y < this.Pheight - 1; ++y)
                 {
                     string line = args[y + nowline];
-                    bool[] bol = line.Split().Select(x => x == "0").ToArray();
+                    int[] agrs = line.Split().Select(x => int.Parse(x)).ToArray();
                     for (int x = 1; x < Pwidth - 1; ++x)
-                        this.Field[x].Add(new Square(x, y, bol[x - 1]));
+                        this.Field[x].Add(new Square(x, y, agrs[x - 1]));
                 }
                 for (int i = 0; i < this.Pwidth; i++)
-                    this.Field[i].Add(new Square(i, this.Pheight - 1, false));
+                    this.Field[i].Add(new Square(i, this.Pheight - 1, 1));
             }
         }
         public void SaveMap(string path)
@@ -355,8 +354,8 @@ namespace SFMLApp
                 for (int y = 0; y < Pheight; ++y)
                 {
                     for (int x = 0; x < Pwidth - 1; ++x)
-                        sw.Write(Field[x][y].isEmpty + " ");
-                    sw.WriteLine(Field[Pwidth - 1][y].isEmpty);
+                        sw.Write(Field[x][y].type + " ");
+                    sw.WriteLine(Field[Pwidth - 1][y].type);
                 }
 
             }
@@ -427,7 +426,7 @@ namespace SFMLApp
             bool ans = false;
             foreach (Square i in a)
             {
-                if (IsCrossCircleSquare(e.x, e.y, Map.RPlayer, i.x * Map.Rwidth, i.y * Map.Rwidth, i.x * Map.Rwidth + Rwidth - 1, i.y * Map.Rwidth + Rwidth - 1) && !i.isEmpty)
+                if (IsCrossCircleSquare(e.x, e.y, Map.RPlayer, i.x * Map.Rwidth, i.y * Map.Rwidth, i.x * Map.Rwidth + Rwidth - 1, i.y * Map.Rwidth + Rwidth - 1) && !(i.type==0))
                     ans = true;
             }
             return ans;
@@ -515,7 +514,7 @@ namespace SFMLApp
         }
         private bool IsSquareEmpty(double x, double y)
         {
-            return Field[((int)Math.Floor(x)) / Rwidth][((int)Math.Floor(y)) / Rwidth].isEmpty;
+            return Field[((int)Math.Floor(x)) / Rwidth][((int)Math.Floor(y)) / Rwidth].type==0;
         }
         public bool IsCrossEntity(Entity a, Entity b)
         {
@@ -523,13 +522,12 @@ namespace SFMLApp
                 return false;
             return (a.r + b.r) * (a.r + b.r) - (a.x - b.x) * (a.x - b.x) - (a.y - b.y) * (a.y - b.y) >= 0;
         }
-        private void ShortUpDatePlayer(int Tag, int Time)
+        private void ShortUpDatePlayer(int Tag, int Time, Tuple<double, double> Line)
         {
             double originX = players[Tag].x, originY = players[Tag].y;
             MPlayer Pl = players[Tag];
-            if (Pl.Speed.Item1 == 0 && Pl.Speed.Item2 == 0)
-                return;
-            Tuple<double, double> Line = new Tuple<double, double>(Time * Pl.Speed.Item1 / 4, Time * Pl.Speed.Item2 / 4);
+            Pl.x += Line.Item1;
+            Pl.y += Line.Item2;
             if (IsEntityWillInSquare(Pl, Line))
             {
                 players[Tag].x = originX;
@@ -540,8 +538,7 @@ namespace SFMLApp
             bool cross = false;
             foreach (var pl in players)
             {
-                if (pl.Value.Tag != Tag && IsCrossEntity(pl.Value, Pl))
-                    cross = true;
+                cross = cross || (pl.Value.Tag != Tag && IsCrossEntity(pl.Value, Pl));
             }
             if (cross)
             {
@@ -564,6 +561,12 @@ namespace SFMLApp
             }
             for (int i = 0; i < del.Count; ++i)
                 drops.Remove(del[i]);
+        }
+        private void ShortUpDatePlayer(int Tag, int Time)
+        {
+            Tuple<double, double> Line = new Tuple<double, double>(Time * players[Tag].Speed.Item1 / 4, Time * players[Tag].Speed.Item2 / 4);
+            ShortUpDatePlayer(Tag, Time, new Tuple<double, double>(0, Line.Item2));
+            ShortUpDatePlayer(Tag, Time, new Tuple<double, double>(Line.Item1, 0));
         }
         private void UpDatePlayer(int Tag, int Time)
         {

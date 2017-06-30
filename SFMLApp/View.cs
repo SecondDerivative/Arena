@@ -131,7 +131,7 @@ namespace SFMLApp
             {
                 for (int j = 0; j < SizeMapY; j++)
                 {
-                    if (!Field[i][j].isEmpty)
+                    if (Field[i][j].type==1)
                     {
                         Stone.Position = new Vector2f(i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY);
                         MainForm.Draw(Stone);

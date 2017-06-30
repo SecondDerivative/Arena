@@ -27,16 +27,16 @@ namespace Tests
             Assert.True(map.getData() == "data/Maps/bag.txt;;;", "1 getData wrong " + map.getData());
             bool IsFrame = true;
             for (int i = 0; i < map.Pheight; ++i)
-                IsFrame = IsFrame && !(map.Field[0][i].isEmpty);
+                IsFrame = IsFrame && !(map.Field[0][i].type == 0);
             Assert.True(IsFrame, "Bad left");
             for (int i = 0; i < map.Pheight; ++i)
-                IsFrame = IsFrame && !(map.Field[map.Pwidth - 1][i].isEmpty);
+                IsFrame = IsFrame && !(map.Field[map.Pwidth - 1][i].type == 0);
             Assert.True(IsFrame, "Bad right");
             for (int i = 0; i < map.Pwidth; ++i)
-                IsFrame = IsFrame && !(map.Field[i][0].isEmpty);
+                IsFrame = IsFrame && !(map.Field[i][0].type == 0);
             Assert.True(IsFrame, "Bad top");
             for (int i = 0; i < map.Pwidth; ++i)
-                IsFrame = IsFrame && !(map.Field[i][map.Pheight - 1].isEmpty);
+                IsFrame = IsFrame && !(map.Field[i][map.Pheight - 1].type == 0);
             Assert.True(IsFrame, "Bad bottom");
             map.UpDate(10);
             Assert.True(map.getData() == "data/Maps/bag.txt;;;", "2 getData wrong " + map.getData());
@@ -45,11 +45,11 @@ namespace Tests
             map.AddPlayer(1);
             Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10;;", "4 getData wrong " + map.getData());
             map.SpawnPlayer(1, 10, 10);
-            Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10;;1:10:10:10", "5 getData wrong " + map.getData());
+            Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10;;1:10:10:10:0:0", "5 getData wrong " + map.getData());
             map.SpawnDrops(2, 20, 10);
             map.AddPlayer(2);
             map.SpawnPlayer(2, 20, 20);
-            Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10,2:20:10:10;;1:10:10:10,2:20:20:10", "6 getData wrong " + map.getData());
+            Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10,2:20:10:10;;1:10:10:10:0:0,2:20:20:10:0:0", "6 getData wrong " + map.getData());
             map.FirePlayer(1, 1, 10, 10);
             map.NextEvent();
             map.UpDate(100);
