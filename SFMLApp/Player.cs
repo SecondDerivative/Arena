@@ -110,16 +110,16 @@ namespace SFMLApp
 			leftHand = 0;
             LeftReloadTimer.Restart();
             RightReloadTimer.Restart();
-            rightHand = 4;
+            rightHand = 1;
             //start kit
-            inventory.addItem(4);
-            inventory.addItem(10, 30);
-            inventory.setCurrentArrow(10);
+            inventory.addItem(1);
+            inventory.addItem(7, 10);
+            inventory.setCurrentArrow(7);
         }
         public double Speed()
         {
             //need change
-            return 0.1;
+            return 0.05;
         }
         public double ArrowSpeed()
         {

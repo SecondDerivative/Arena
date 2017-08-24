@@ -156,10 +156,10 @@ namespace SFMLApp
     }
     public class Map
     {
-        public static int RPlayer = 10;
-        public static int Rwidth = 10;
-        public static int RArrow = 5;
-        public static int RDrop = 10;
+        public static int RPlayer = 4;
+        public static int Rwidth = 8;
+        public static int RArrow = 1;
+        public static int RDrop = 4;
 
         public string Name;
 
@@ -321,7 +321,7 @@ namespace SFMLApp
                 }
                 for (int y = 1; y < this.Pheight - 1; ++y)
                 {
-                    string line = args[y + nowline];
+                    string line = args[y + nowline].Trim();
                     int[] agrs = line.Split().Select(x => int.Parse(x)).ToArray();
                     for (int x = 1; x < Pwidth - 1; ++x)
                         this.Field[x].Add(new Square(x, y, agrs[x - 1]));
@@ -373,13 +373,26 @@ namespace SFMLApp
             }
             return len;
         }
+        private double GetDistToVertSegm(double x, double y1, double y2, double x3, double y3)
+        {
+            double dist = (x3 - x) * (x3 - x);
+            if (y3 > y2)
+                dist = (x - x3) * (x - x3) + (y2 - y3) * (y2 - y3);
+            if (y3 < y1)
+                dist = (x - x3) * (x - x3) + (y1 - y3) * (y1 - y3);
+            return dist;
+        }
         private bool IsCrossCircleSquare(double x, double y, double r, double x1, double y1, double x2, double y2)
         {
-            double len1 = Length(x, y, x1, y1, x2, y1);
-            double len2 = Length(x, y, x1, y1, x1, y2);
-            double len3 = Length(x, y, x2, y2, x1, y2);
-            double len4 = Length(x, y, x2, y2, x2, y1);
-            double len = Math.Min(Math.Min(len1, len2), Math.Min(len3, len4));
+            if (y1 > y2)
+                Utily.Swap<double>(ref y1, ref y2);
+            if (x1 > x2)
+                Utily.Swap<double>(ref x1, ref x2);
+            double dist1 = GetDistToVertSegm(x1, y1, y2, x, y);
+            double dist3 = GetDistToVertSegm(x2, y1, y2, x, y);
+            double dist2 = GetDistToVertSegm(-y1, x1, x2, -y, x);
+            double dist4 = GetDistToVertSegm(-y2, x1, x2, -y, x);
+            double len = Math.Min(Math.Min(dist1, dist2), Math.Min(dist3, dist4));
             return len < r * r;
         }
         public MEvent NextEvent()
@@ -400,7 +413,7 @@ namespace SFMLApp
         {
             return Field[x][y];
         }
-        private bool IsEntityInSquare(Entity e)
+        private bool IsEntityInSquare(Entity e, bool IsArrow)
         {
             List<Square> a = new List<Square>();
             int x = (int)Math.Floor(e.x) / Rwidth;
@@ -426,16 +439,16 @@ namespace SFMLApp
             bool ans = false;
             foreach (Square i in a)
             {
-                if (IsCrossCircleSquare(e.x, e.y, Map.RPlayer, i.x * Map.Rwidth, i.y * Map.Rwidth, i.x * Map.Rwidth + Rwidth - 1, i.y * Map.Rwidth + Rwidth - 1) && !(i.type==0))
+                if (i.type != 0 && (!IsArrow || i.type != 2) && IsCrossCircleSquare(e.x, e.y, e.r, i.x * Map.Rwidth, i.y * Map.Rwidth, i.x * Map.Rwidth + Rwidth, i.y * Map.Rwidth + Rwidth))
                     ans = true;
             }
             return ans;
         }
-        private bool IsEntityWillInSquare(Entity e, Tuple<double, double> Speed)
+        private bool IsEntityWillInSquare(Entity e, Tuple<double, double> Speed, bool IsArrow)
         {
             e.x += Speed.Item1;
             e.y += Speed.Item2;
-            return IsEntityInSquare(e);
+            return IsEntityInSquare(e, IsArrow);
         }
         public Map(int width, int height)
         {
@@ -526,13 +539,10 @@ namespace SFMLApp
         {
             double originX = players[Tag].x, originY = players[Tag].y;
             MPlayer Pl = players[Tag];
-            Pl.x += Line.Item1;
-            Pl.y += Line.Item2;
-            if (IsEntityWillInSquare(Pl, Line))
+            if (IsEntityWillInSquare(Pl, Line, false))
             {
                 players[Tag].x = originX;
                 players[Tag].y = originY;
-                StopPlayer(Tag);
                 return;
             }
             bool cross = false;
@@ -589,7 +599,7 @@ namespace SFMLApp
         {
             MArrow Ar = arrows[Tag];
             Tuple<double, double> Line = new Tuple<double, double>(Time * Ar.Speed.Item1 / 4.0, Time * Ar.Speed.Item2 / 4.0);
-            if (IsEntityInSquare(Ar))
+            if (IsEntityInSquare(Ar, true))
             {
                 this.ForDelArrow.Enqueue(Tag);
                 Q.Enqueue(new MEventDestroyArrow(Tag));
@@ -606,7 +616,7 @@ namespace SFMLApp
                     return;
                 }
             }
-            if (IsEntityInSquare(arrows[Tag]))
+            if (IsEntityInSquare(arrows[Tag], true))
             {
                 Q.Enqueue(new MEventDestroyArrow(Tag));
                 this.ForDelArrow.Enqueue(Tag);

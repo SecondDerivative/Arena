@@ -80,8 +80,7 @@ namespace SFMLApp
         }
         public void CheckOnline()
         {
-            if (IsRemote && ReceiveTimer.ElapsedMilliseconds > MaxWaitTime)
-                IsOnline = false;
+            IsOnline = IsOnline && (!IsRemote || ReceiveTimer.ElapsedMilliseconds < MaxWaitTime);
         }
         public void AddKey(int key)
         {

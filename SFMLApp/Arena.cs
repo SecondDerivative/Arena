@@ -62,7 +62,10 @@ namespace SFMLApp
                 return -1;
             Tuple<double, double> NewVect = Utily.Normalizing(vect, players[tag].ArrowSpeed());
             int arTag = Utily.GetTag();
-            Arrows[arTag] = new AArow(tag, dmg, players[tag].inventory.getCurrentArrow().id);
+            int nowid = players[tag].inventory.getCurrentArrow().id;
+            if (players[tag].getItemRight() is Magic)
+                nowid = players[tag].rightHand;
+            Arrows[arTag] = new AArow(tag, dmg, nowid);
             map.FirePlayer(tag, arTag, NewVect.Item1, NewVect.Item2);
             return arTag;
         }

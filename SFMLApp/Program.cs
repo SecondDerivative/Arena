@@ -14,7 +14,11 @@ namespace SFMLApp
         static void Main(string[] args)
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;//double.Parse(str) use format a.b 
-            Control control = new Control(1024, 726);
+            Control control;
+            if (args.Length >= 1)
+                control = new Control(1024, 726, args[0]);
+            else
+                control = new Control(1024, 726);
             long TimeDrawing = 1;
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
             Items.getAllItems ();

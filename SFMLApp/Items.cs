@@ -57,14 +57,12 @@ namespace SFMLApp
     public abstract class Weapon : Item
     {
         public int Damage { get; protected set; }
-        public int Range { get; protected set; }
         public int Reloading { get; private set; }
         abstract public int attack();
         abstract public int attack(Inventory i);
-        public void Create(int dmg, int ran, string name, int i, int RelodTime)
+        public void Create(int dmg, string name, int i, int RelodTime)
         {
             Damage = dmg;
-            Range = ran;
             Reloading = RelodTime;
             base.Create(name, i);
         }
@@ -86,16 +84,16 @@ namespace SFMLApp
     }
     class ItemSword : Weapon
     {
-        public ItemSword(string n, int dmg, int ran, int id, int kd)
+        public ItemSword(string n, int dmg, int id, int kd)
         {
-            base.Create(dmg, ran, n, id, kd);
+            base.Create(dmg, n, id, kd);
         }
         override public int attack() { return Damage; }
         override public int attack(Inventory i) { return Damage; }
     }
     class ItemBow : Weapon
     {
-        public ItemBow(string n, int dmg, int ran, int id, int kd) { base.Create(dmg, ran, n, id, kd); }
+        public ItemBow(string n, int dmg, int id, int kd) { base.Create(dmg, n, id, kd); }
         override public int attack(Inventory i)
         {
             if (i.getArrowsAmount() > 0)
@@ -112,9 +110,9 @@ namespace SFMLApp
         private int ManaCost;
         private double Speed;
 
-        public Magic(string n, int dmg, int ran, int mana, int id, int kd, double speed)
+        public Magic(string n, int dmg, int mana, int id, int kd, double speed)
         {
-            base.Create(dmg, ran, n, id, kd);
+            base.Create(dmg, n, id, kd);
             ManaCost = mana;
             Speed = speed;
         }
@@ -141,7 +139,7 @@ namespace SFMLApp
     }
     class Fist : Weapon
     {
-        public Fist() { base.Create(2, 1, "Fist", 0, 1000); }
+        public Fist() { base.Create(2, "Fist", 0, 1000); }
         override public int attack() { return Damage; }
         override public int attack(Inventory i) { return Damage; }
     }
@@ -171,43 +169,45 @@ namespace SFMLApp
             int currentIndex = 1;
             StreamReader fileReader = new StreamReader("data/Weapons/Weapons.txt");
             fileReader.ReadLine();
-            for (int i = currentIndex; i < currentIndex + 3; i++)
+            int CountSword = 0;
+            for (int i = currentIndex; i < currentIndex + CountSword; i++)
             {
-                ArrayItems.Add(new ItemSword(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()),
-                    Int32.Parse(fileReader.ReadLine()), i, 1000));
+                ArrayItems.Add(new ItemSword(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), i, 1000));
             }
-            currentIndex += 3;
+            currentIndex += CountSword;
             fileReader.ReadLine();
-            for (int i = currentIndex; i < currentIndex + 3; i++)
+            int CountBow = 4;
+            for (int i = currentIndex; i < currentIndex + CountBow; i++)
             {
-                ArrayItems.Add(new ItemBow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()),
-                    Int32.Parse(fileReader.ReadLine()), i, int.Parse(fileReader.ReadLine())));
+                ArrayItems.Add(new ItemBow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()), 
+                    i, int.Parse(fileReader.ReadLine())));
             }
-            currentIndex += 3;
+            currentIndex += CountBow;
             fileReader.ReadLine();
-            for (int i = currentIndex; i < currentIndex + 3; i++)
+            int CountMagic = 2;
+            for (int i = currentIndex; i < currentIndex + CountMagic; i++)
             {
                 ArrayItems.Add(new Magic(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()),
-                    Int32.Parse(fileReader.ReadLine()), Int32.Parse(fileReader.ReadLine()), i,
-                    int.Parse(fileReader.ReadLine()), double.Parse(fileReader.ReadLine())));
+                    Int32.Parse(fileReader.ReadLine()), i, int.Parse(fileReader.ReadLine()), double.Parse(fileReader.ReadLine())));
             }
-            currentIndex += 3;
+            currentIndex += CountMagic;
             fileReader.ReadLine();
-            ArrayItems.Add(new Arrow("Wooden Arrow", 2, currentIndex, 0.5));
-            currentIndex++;// = 1;
-            for (int i = currentIndex; i < currentIndex + 2; i++)
+            int CountArrow = 1;
+            for (int i = currentIndex; i < currentIndex + CountArrow; i++)
             {
                 ArrayItems.Add(new Arrow(fileReader.ReadLine(), Int32.Parse(fileReader.ReadLine()),
                     i, double.Parse(fileReader.ReadLine())));
             }
             fileReader.ReadLine();
-            currentIndex += 2;
-            for (int i = currentIndex; i < currentIndex + 1; i++)
+            currentIndex += CountArrow;
+            int CountHP = 2;
+            for (int i = currentIndex; i < currentIndex + CountHP; i++)
             {
                 ArrayItems.Add(new HPBottle(fileReader.ReadLine(), i, Int32.Parse(fileReader.ReadLine())));
             }
-            currentIndex += 1;
-            for (int i = currentIndex; i < currentIndex + 1; i++)
+            currentIndex += CountHP;
+            int CountMana = 1;
+            for (int i = currentIndex; i < currentIndex + CountMana; i++)
             {
                 ArrayItems.Add(new ManaBottle(fileReader.ReadLine(), i, Int32.Parse(fileReader.ReadLine())));
             }

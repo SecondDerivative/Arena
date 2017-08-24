@@ -127,25 +127,33 @@ namespace SFMLApp
             Clear();
             RectangleShape Stone = new RectangleShape(new Vector2f(Map.Rwidth, Map.Rwidth));
             Stone.FillColor = Color.Magenta;
+            RectangleShape Water = new RectangleShape(new Vector2f(Map.Rwidth, Map.Rwidth));
+            Water.FillColor = Color.Blue;
             for (int i = 0; i < SizeMapX; i++)
             {
                 for (int j = 0; j < SizeMapY; j++)
                 {
-                    if (Field[i][j].type==1)
+                    if (Field[i][j].type == 1)
                     {
                         Stone.Position = new Vector2f(i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY);
                         MainForm.Draw(Stone);
+                        //DrawText("#", i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY, 10, Fonts.Arial, Color.Black);
+                    }
+                    if (Field[i][j].type == 2)
+                    {
+                        Water.Position = new Vector2f(i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY);
+                        MainForm.Draw(Water);
                         //DrawText("#", i * Map.Rwidth - CameraPosX, j * Map.Rwidth - CameraPosY, 10, Fonts.Arial, Color.Black);
                     }
                 }
             }
             CircleShape plr = new CircleShape(Map.RPlayer);
             plr.FillColor = Color.Blue;
-            foreach (var i in MapPlayers)
+            foreach (var i in viewPlayers)
             {
-                viewPlayers[i.Key].x = (int)i.Value.x;
-                viewPlayers[i.Key].y = (int)i.Value.y;
-                viewPlayers[i.Key].Draw(this, plr);
+                i.Value.x = (int)MapPlayers[i.Key].x;
+                i.Value.y = (int)MapPlayers[i.Key].y;
+                i.Value.Draw(this, plr);
             }
             CircleShape arr = new CircleShape(Map.RArrow);
             arr.FillColor = Color.Red;

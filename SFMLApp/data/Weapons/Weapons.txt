@@ -1,54 +1,36 @@
 ﻿--------
-Dagger
-15
-2
-Claymore
-20
-3
-Frostmorne
-40
-4
 --------
-Wooden bow
-10
-5
-1000
-Iron bow
+StartBow
+12
+800
+Light bow
 20
-7
-1000
-Demonic bow
-30
-8
-1000
---------
-Fireball
-13
-5
-20
-500
-0.3
-Lightning
-25
-7
-25
-500
-0.3
-Curse
+700
+Heavy bow
 35
-9
-45
-500
-0.3
+1100
+Good bow
+31
+650
 --------
-Steel Arrow
-3
-0.4
-Demoic Arrow
-5
-0.3
+Lightning
+20
+15
+700
+0.9
+Fireball
+41
+27
+1000
+0.5
+--------
+Arrow
+0
+0.7
 -------
 HPHeal
-30
+25
+MegaHPHeal
+75
 ManaBottle
-20
+75

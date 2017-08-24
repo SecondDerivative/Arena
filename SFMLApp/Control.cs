@@ -28,23 +28,31 @@ namespace SFMLApp
 
         public Control(int Width, int Height)
         {
+            Build(Width, Height, "127.0.0.1");
+        }
+
+        public Control(int Width, int Height, string IP)
+        {
+            Build(Width, Height, IP);
+        }
+
+        private void Build(int Width, int Height, string IP)
+        {
             this.Width = Width;
             this.Height = Height;
             view = new View(Width, Height);
             view.InitEvents(Close, KeyDown, KeyUp, MouseDown, MouseUp, MouseMove);
             state = ControlState.BattleState;
             arena = new Arena();
-            server = new Server(CountPlayer, "127.0.0.1");
+            server = new Server(CountPlayer, IP);
             InfListen();
             TagByNum = new int[CountPlayer];
             for (int i = 0; i < CountPlayer; i++)
                 TagByNum[i] = -1;
             server.Players[0].SetNotRemote();
-            arena.NewMap("bag");
+            arena.NewMap("mapa");
             TagByNum[0] = arena.AddPlayer("prifio");
-            int tagbot = arena.AddPlayer("bot");
             view.AddPlayer(TagByNum[0]);
-            view.AddPlayer(tagbot);
         }
 
         public async Task InfListen()
@@ -55,9 +63,9 @@ namespace SFMLApp
                 int x = await server.NextClient();
                 if (x != -1)
                 {
+                    server.Players[x].InfReceive();
                     TagByNum[x] = arena.AddPlayer(ch1 + " player");
                     view.AddPlayer(TagByNum[x]);
-                    server.Players[x].InfReceive();
                 }
             }
         }
@@ -71,7 +79,7 @@ namespace SFMLApp
                 view.DrawBattle(arena.players, arena.Arrows, arena.Drops, arena.ArenaPlayer, arena.map.players, arena.map.arrows, arena.map.Field, arena.map.drops);
                 for (int i = 0; i < CountPlayer; i++)
                 {
-                    if (server.Players[i].IsOnline)
+                    if (server.Players[i].IsOnline && TagByNum[i] != -1)
                     {
                         while (server.Players[i].KeyDown.Count > 0)
                         {
@@ -87,17 +95,19 @@ namespace SFMLApp
                         }
                         MovePlayer(TagByNum[i], i);
                     }
-                    if (!server.Players[i].IsOnline && TagByNum[i] > -1)
+                    if (!server.Players[i].IsOnline && TagByNum[i] != -1)
                     {
-                        arena.RemovePlayer(TagByNum[i]);
+                        int tag = TagByNum[i];
                         TagByNum[i] = -1;
+                        view.RemovePlayer(tag);
+                        arena.RemovePlayer(tag);
                     }
                 }
                 var info = arena.GetAllInfo();
                 StringBuilder sb = new StringBuilder();
                 sb.Append('#');
                 for (int i = 0; i < server.CountClient; i++)
-                    if (server.Players[i].IsOnline)
+                    if (server.Players[i].IsOnline && TagByNum[i] != -1)
                     {
                         sb.AppendFormat("{0},{1},{2}", TagByNum[i], server.Players[i].MousePos.Item1 - arena.map.players[TagByNum[i]].x,
                             server.Players[i].MousePos.Item2 - arena.map.players[TagByNum[i]].y);
@@ -109,7 +119,7 @@ namespace SFMLApp
                 {
                     if (server.Players[i].IsOnline)
                         server.Players[i].CheckOnline();
-                    if (server.Players[i].IsOnline)
+                    if (server.Players[i].IsOnline && TagByNum[i] != -1)
                         server.Players[i].SendAsync(info[TagByNum[i]] + direct);
                 }
             }
@@ -143,7 +153,7 @@ namespace SFMLApp
                 if (key == (int)Keyboard.Key.Q)
                     arena.ChangeItem(tag, 1);
                 if (key == (int)Keyboard.Key.E)
-                    arena.ChangeArrow(tag, 1);
+                    arena.ChangeItem(tag, -1);
             }
         }
 

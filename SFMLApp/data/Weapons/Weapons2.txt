@@ -1,0 +1,45 @@
+﻿--------
+Dagger
+15
+Claymore
+20
+Frostmorne
+40
+--------
+Wooden bow
+10
+1000
+Iron bow
+20
+1000
+Demonic bow
+30
+1000
+--------
+Fireball
+13
+20
+500
+0.3
+Lightning
+25
+25
+500
+0.3
+Curse
+35
+45
+500
+0.3
+--------
+Steel Arrow
+3
+0.4
+Demoic Arrow
+5
+0.3
+-------
+HPHeal
+30
+ManaBottle
+20
