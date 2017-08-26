@@ -98,10 +98,11 @@ namespace SFMLApp
 
         public void clearInventory()
         {
-            for (int i = 1; i < totalNumberofItems; i++)
+            for (int i = 1; i <= totalNumberofItems; i++)
             {
                 inventory[i] = 0;
             }
+            Mana = 100;
         }
 
         public string LargeString()

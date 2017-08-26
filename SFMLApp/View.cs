@@ -102,7 +102,7 @@ namespace SFMLApp
         //BattleDraw and data
         //...
 
-        private int NowMouseX = 0, NowMouseY = 0;
+        private int NowMouseX = 100, NowMouseY = 100;
         public int CameraPosX = 0, CameraPosY = 0;
         private int SizeMapX, SizeMapY;
         private bool WasInit = false;
@@ -182,12 +182,14 @@ namespace SFMLApp
                 else if (it is Arrow)
                     DrawText(it.Name + "(" + ArenaDrops[i.Key].Count + ")", (int)i.Value.x - CameraPosX - 5, (int)i.Value.y - CameraPosY - 5, 10, Fonts.Arial, Color.Black);
             }
-            var mp = Players[MainPlayer];
+
+            /*var mp = Players[MainPlayer];
             DrawText("HP " + mp.Health, 10, 30, 30, Fonts.Arial, Color.Black);
             DrawText("Mana " + mp.inventory.getMana(), 10, 60, 30, Fonts.Arial, Color.Black);
             DrawText("Arrows " + mp.inventory.getArrowsAmount(), 10, 90, 30, Fonts.Arial, Color.Black);
             DrawText(Players[MainPlayer].getItemRight().Name, 700, 30, 30, Fonts.Arial, Color.Black);
             DrawText(Players[MainPlayer].inventory.getCurrentArrow().Name, 700, 60, 30, Fonts.Arial, Color.Black);
+            */        
             //DrawText(CameraPosX.ToString(), 20, 20, 10, Fonts.Arial, Color.Black);
         }
         public void Pause()

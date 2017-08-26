@@ -107,7 +107,7 @@ namespace SFMLApp
     }
     class Magic : Weapon
     {
-        private int ManaCost;
+        public int ManaCost { get; private set; }
         private double Speed;
 
         public Magic(string n, int dmg, int mana, int id, int kd, double speed)

@@ -23,12 +23,12 @@ namespace SFMLApp
         private Arena arena;
         private Server server;
 
-        const int CountPlayer = 2;
+        const int CountPlayer = 10;
         private int[] TagByNum;
 
         public Control(int Width, int Height)
         {
-            Build(Width, Height, "127.0.0.1");
+            Build(Width, Height, "25.66.15.21");
         }
 
         public Control(int Width, int Height, string IP)
@@ -49,10 +49,7 @@ namespace SFMLApp
             TagByNum = new int[CountPlayer];
             for (int i = 0; i < CountPlayer; i++)
                 TagByNum[i] = -1;
-            server.Players[0].SetNotRemote();
             arena.NewMap("mapa");
-            TagByNum[0] = arena.AddPlayer("prifio");
-            view.AddPlayer(TagByNum[0]);
         }
 
         public async Task InfListen()
@@ -94,6 +91,7 @@ namespace SFMLApp
                             }
                         }
                         MovePlayer(TagByNum[i], i);
+                        arena.ArenaPlayer[TagByNum[i]].RealName = server.Players[i].NickName;
                     }
                     if (!server.Players[i].IsOnline && TagByNum[i] != -1)
                     {
@@ -106,13 +104,15 @@ namespace SFMLApp
                 var info = arena.GetAllInfo();
                 StringBuilder sb = new StringBuilder();
                 sb.Append('#');
+                bool wasWrite = false;
                 for (int i = 0; i < server.CountClient; i++)
                     if (server.Players[i].IsOnline && TagByNum[i] != -1)
                     {
+                        if (wasWrite)
+                            sb.Append(';');
+                        wasWrite = true;
                         sb.AppendFormat("{0},{1},{2}", TagByNum[i], server.Players[i].MousePos.Item1 - arena.map.players[TagByNum[i]].x,
                             server.Players[i].MousePos.Item2 - arena.map.players[TagByNum[i]].y);
-                        if (i + 1 < server.CountClient)
-                            sb.Append(';');
                     }
                 string direct = sb.ToString();
                 for (int i = 0; i < server.CountClient; i++)
@@ -131,19 +131,21 @@ namespace SFMLApp
         {
             Tuple<double, double> vect;
             if (!server.Players[num].IsRemote)
-                vect = view.AngleByMousePos(); //need change
+                vect = view.AngleByMousePos();
             else
                 vect = Utily.MakePair<double>(server.Players[num].MousePos.Item1 - arena.map.players[tag].x, server.Players[num].MousePos.Item2 - arena.map.players[tag].y);
-            if (Utily.Hypot2(vect.Item1, vect.Item2) < 150)
+            if (Utily.Hypot2(vect.Item1, vect.Item2) < Map.RPlayer * Map.RPlayer * 2)
             {
                 arena.MovePlayer(tag, Utily.MakePair<double>(0, 0));
                 view.MovePlayer(tag, Utily.MakePair<double>(0, 0));
             }
-            int Forw = server.Players[num].Forward, Left = server.Players[num].Left;
-            var newvect = Utily.MakePair<double>(vect.Item1 * Forw + vect.Item2 * Left, vect.Item2 * Forw - vect.Item1 * Left);
-            arena.MovePlayer(tag, newvect);
-            view.MovePlayer(tag, newvect);
-            //need create Class for UserKeyBord State. change forward etc
+            else
+            {
+                int Forw = server.Players[num].Forward, Left = server.Players[num].Left;
+                var newvect = Utily.MakePair<double>(vect.Item1 * Forw + vect.Item2 * Left, vect.Item2 * Forw - vect.Item1 * Left);
+                arena.MovePlayer(tag, newvect);
+                view.MovePlayer(tag, newvect);
+            }
         }
 
         public void ReleaseKeyDown(int tag, int key)
@@ -159,7 +161,7 @@ namespace SFMLApp
 
         public void KeyDown(object sender, KeyEventArgs e)
         {
-            server.Players[0].AddKey((int)e.Code);
+            //server.Players[0].AddKey((int)e.Code);
         }
 
         public void ReleaseKeyUp(int tag, int key)
@@ -169,7 +171,7 @@ namespace SFMLApp
 
         public void KeyUp(object sender, KeyEventArgs e)
         {
-            server.Players[0].KeyUp((int)e.Code);
+            //server.Players[0].KeyUp((int)e.Code);
         }
 
         public void ReleaseMouseDown(int tag, int num, int button)
@@ -194,18 +196,18 @@ namespace SFMLApp
 
         public void MouseDown(object sender, MouseButtonEventArgs e)
         {
-            view.OnMouseDown(ref e);
-            server.Players[0].MouseDown((int)e.Button);
+            //view.OnMouseDown(ref e);
+            //server.Players[0].MouseDown((int)e.Button);
         }
 
         public void MouseUp(object sender, MouseButtonEventArgs e)
         {
-            view.OnMouseUp(ref e);
+            //view.OnMouseUp(ref e);
         }
 
         public void MouseMove(object sender, MouseMoveEventArgs e)
         {
-            view.OnMouseMove(ref e);
+            //view.OnMouseMove(ref e);
         }
 
         public void Close(object send, EventArgs e)

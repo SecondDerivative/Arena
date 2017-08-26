@@ -56,11 +56,12 @@ namespace SFMLApp
         public Tuple<int, int> MousePos { get; private set; }
         public Queue<Tuple<int, TypeKeyDown> > KeyDown { get; private set; }
         public bool IsOnline { get; private set; }
-        public string Names { get; set; }
+        public string NickName { get; set; }
         public bool IsRemote { get; set; }
 
         public int Forward { get; private set; }
         public int Left { get; private set; }
+        private bool isW, isS, isA, isD;
 
         public Socket Socket { get; private set; }
         private Stopwatch ReceiveTimer;
@@ -82,17 +83,33 @@ namespace SFMLApp
         {
             IsOnline = IsOnline && (!IsRemote || ReceiveTimer.ElapsedMilliseconds < MaxWaitTime);
         }
+        private void UpdateDir()
+        {
+            if (isW)
+                Forward = 1;
+            else if (isS)
+                Forward = -1;
+            else
+                Forward = 0;
+            if (isA)
+                Left = 1;
+            else if (isD)
+                Left = -1;
+            else
+                Left = 0;
+        }
         public void AddKey(int key)
         {
             KeyDown.Enqueue(Utily.MakePair<int, TypeKeyDown>(key, TypeKeyDown.KeyDown));
             if (key == (int)Keyboard.Key.W)
-                Forward = 1;
+                isW = true;
             if (key == (int)Keyboard.Key.S)
-                Forward = -1;
+                isS = true;
             if (key == (int)Keyboard.Key.A)
-                Left = 1;
+                isA = true;
             if (key == (int)Keyboard.Key.D)
-                Left = -1;
+                isD = true;
+            UpdateDir();
         }
         public void MouseDown(int button)
         {
@@ -100,10 +117,15 @@ namespace SFMLApp
         }
         public void KeyUp(int key)
         {
-            if (key == (int)Keyboard.Key.W || key == (int)Keyboard.Key.S)
-                Forward = 0;
-            if (key == (int)Keyboard.Key.A || key == (int)Keyboard.Key.D)
-                Left = 0;
+            if (key == (int)Keyboard.Key.W)
+                isW = false;
+            if (key == (int)Keyboard.Key.S)
+                isS = false;
+            if (key == (int)Keyboard.Key.A)
+                isA = false;
+            if (key == (int)Keyboard.Key.D)
+                isD = false;
+            UpdateDir();
         }
         public Task<int> TryReceiveAsync(byte[] buffer, int offset, int size, SocketFlags flags)
         {
@@ -131,11 +153,9 @@ namespace SFMLApp
                 var received = await TryReceiveAsync(data, size, MaxBufferSize - size, SocketFlags.None);
                 if (received == -1)
                     return "";
-                ReceiveTimer.Restart();
                 size += received;
                 if (data[size - 1] == '\n')
                     return Encoding.ASCII.GetString(data, 0, size);
-                Console.WriteLine(received);
             }
         }
         public async Task InfReceive()
@@ -143,6 +163,7 @@ namespace SFMLApp
             while (IsOnline)
             {
                 string message = await ReceiveAsync();
+                ReceiveTimer.Restart();
                 var arr = message.Split('\n');
                 for (int i = 0; i < arr.Length; ++i)
                     ApplyString(arr[i]);
@@ -152,7 +173,8 @@ namespace SFMLApp
         {
             if (s == "")
                 return;
-            int[] data = s.Split().Select(int.Parse).ToArray();
+            int ind = s.IndexOf('#');
+            int[] data = s.Substring(0, ind).Split().Select(int.Parse).ToArray();
             for (int i = 0; i < data.Length - 2; i += 2)
             {
                 int code = data[i];
@@ -165,6 +187,7 @@ namespace SFMLApp
                     MouseDown(code);
             }
             MousePos = Utily.MakePair<int>(data[data.Length - 2], data.Last());
+            NickName = s.Substring(ind + 1);
         }
         public Task<int> TrySendAsync(byte[] buffer, int offset, int size, SocketFlags flags)
         {
@@ -193,7 +216,8 @@ namespace SFMLApp
         {
             IsOnline = false;
             IsRemote = true;
-            Names = "";
+            isW = isS = isA = isD = false;
+            NickName = "";
             MousePos = new Tuple<int, int>(0, 0);
             KeyDown = new Queue<Tuple<int, TypeKeyDown> >();
             Forward = Left = 0;

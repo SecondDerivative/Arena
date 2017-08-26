@@ -168,6 +168,9 @@
     <Content Include="data\Weapons\Weapons.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="ip.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="libsndfile-1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

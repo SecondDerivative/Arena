@@ -14,11 +14,11 @@ namespace SFMLApp
         static void Main(string[] args)
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;//double.Parse(str) use format a.b 
-            Control control;
-            if (args.Length >= 1)
-                control = new Control(1024, 726, args[0]);
-            else
-                control = new Control(1024, 726);
+            var dir = System.Reflection.Assembly.GetEntryAssembly().Location;
+            var lastInd = dir.LastIndexOfAny(new char[] { '/', '\\' });
+            System.IO.Directory.SetCurrentDirectory(System.Reflection.Assembly.GetEntryAssembly().Location.Substring(0, lastInd));
+            string IP = System.IO.File.ReadAllLines("ip.txt")[0];
+            Control control = new Control(1024, 768, IP);
             long TimeDrawing = 1;
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
             Items.getAllItems ();

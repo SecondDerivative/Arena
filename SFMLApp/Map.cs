@@ -499,23 +499,18 @@ namespace SFMLApp
         }
         public void SpawnPlayer(int Tag)
         {
+            List<Tuple<double, double> > ListOfGoodPlace = new List<Tuple<double, double> >();
             foreach (var p in spawners)
             {
                 Entity e = new Entity(0, p.Item1, p.Item2, RPlayer);
                 bool bol = true;
                 foreach (var pl in players)
-                {
-                    if (IsCrossEntity(pl.Value, e))
-                    {
-                        bol = false;
-                    }
-                }
+                    bol = bol && !IsCrossEntity(e, pl.Value);
                 if (bol)
-                {
-                    SpawnPlayer(Tag, (int)p.Item1, (int)p.Item2);
-                    return;
-                }
+                    ListOfGoodPlace.Add(p);
             }
+            int i = Utily.Next() % ListOfGoodPlace.Count;
+            SpawnPlayer(Tag, (int)ListOfGoodPlace[i].Item1, (int)ListOfGoodPlace[i].Item2);
         }
         public void StopPlayer(int Tag)
         {

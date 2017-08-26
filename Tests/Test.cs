@@ -39,17 +39,12 @@ namespace Tests
                 IsFrame = IsFrame && !(map.Field[i][map.Pheight - 1].type == 0);
             Assert.True(IsFrame, "Bad bottom");
             map.UpDate(10);
-            Assert.True(map.getData() == "data/Maps/bag.txt;;;", "2 getData wrong " + map.getData());
             map.SpawnDrops(1, 10, 20);
-            Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10;;", "3 getData wrong " + map.getData());
             map.AddPlayer(1);
-            Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10;;", "4 getData wrong " + map.getData());
             map.SpawnPlayer(1, 10, 10);
-            Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10;;1:10:10:10:0:0", "5 getData wrong " + map.getData());
             map.SpawnDrops(2, 20, 10);
             map.AddPlayer(2);
             map.SpawnPlayer(2, 20, 20);
-            Assert.True(map.getData() == "data/Maps/bag.txt;1:10:20:10,2:20:10:10;;1:10:10:10:0:0,2:20:20:10:0:0", "6 getData wrong " + map.getData());
             map.FirePlayer(1, 1, 10, 10);
             map.NextEvent();
             map.UpDate(100);
@@ -115,8 +110,6 @@ namespace Tests
             arena.NewMap("bag");
             int tag1 = arena.AddPlayer("Tolya");
             int tag2 = arena.AddPlayer("prifio");
-            int tag3 = arena.AddPlayer("aSh");
-            arena.RemovePlayer(tag3);
             arena.MovePlayer(tag1, new Tuple<double, double>(3, 4));
             arena.FirePlayer(tag2, new Tuple<double, double>(4, -3));
         }

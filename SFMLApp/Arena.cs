@@ -91,10 +91,13 @@ namespace SFMLApp
                         if (ArenaPlayer.ContainsKey(Arrows[TagArrow].creater))
                             ArenaPlayer[Arrows[TagArrow].creater].AddKill();
                         ArenaPlayer[TagPlayer].AddDeath();
-                        int NewTag = Utily.GetTag();
-                        map.SpawnDrops(NewTag, map.players[TagPlayer].x, map.players[TagPlayer].y);
+                        if (players[TagPlayer].rightHand != 1)
+                        {
+                            int NewTag = Utily.GetTag();
+                            Drops.Add(NewTag, new ADrop(1, players[TagPlayer].rightHand));
+                            map.SpawnDrops(NewTag, map.players[TagPlayer].x, map.players[TagPlayer].y);
+                        }
                         map.SpawnPlayer(TagPlayer);
-                        Drops.Add(NewTag, new ADrop(1, players[TagPlayer].rightHand));
                         players[TagPlayer].respawn();
                     }
                     Arrows.Remove(TagArrow);
@@ -193,7 +196,7 @@ namespace SFMLApp
                         if (wasWrite)
                             now.Append(";");
                         else
-                            wasWrite = false;
+                            wasWrite = true;
                         now.Append(j.Key);
                         now.Append(",");
                         now.Append(small[j.Key]);

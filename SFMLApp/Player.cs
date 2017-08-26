@@ -25,6 +25,16 @@ namespace SFMLApp
             RightReloadTimer = new Stopwatch();
             RightReloadTimer.Start();
 		}
+        public bool CanFire()
+        {
+            bool ans = true;
+            if (getItemRight() is ItemBow)
+                ans = ans && inventory.getArrowsAmount() > 0;
+            else
+                ans = ans && inventory.getMana() >= ((Magic)getItemRight()).ManaCost;
+            ans = ans && RightReloadTimer.ElapsedMilliseconds >= ((Weapon)Items.allItems[rightHand]).Reloading;
+            return ans;
+        }
         public int attack() {
             int total = 0;
             if (LeftReloadTimer.ElapsedMilliseconds >= ((Weapon)Items.allItems[leftHand]).Reloading)
@@ -174,7 +184,10 @@ namespace SFMLApp
         public string LargeString()
         {
             StringBuilder ans = new StringBuilder();
-            ans.AppendFormat("{0} {1} {2},", Health, rightHand, RightReloadTimer.ElapsedMilliseconds);
+            int canfireint = 1;
+            if (!CanFire())
+                canfireint = 0;
+            ans.AppendFormat("{0} {1} {2} {3},", Health, rightHand, RightReloadTimer.ElapsedMilliseconds, canfireint);
             ans.Append(inventory.LargeString());
             return ans.ToString();
         }
